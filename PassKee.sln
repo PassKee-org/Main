@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PassKee.Business", "PassKee.Business\PassKee.Business.csproj", "{2358BB82-2605-4B4A-BA89-A0889163151A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PassKee.Api", "PassKee.Api\PassKee.Api.csproj", "{0ECCFC71-642E-4451-A2F5-5415537A9BFF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PassKee.Business.Common", "PassKee.Business.Common\PassKee.Business.Common.csproj", "{4F5BC477-FB9C-4B81-900D-793FF4F06A1F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PassKee.Orm", "PassKee.Orm\PassKee.Orm.csproj", "{E7522672-FA6F-49C9-8E2E-FBFD2D1C5C46}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PassKee.Web", "PassKee.Web\PassKee.Web.csproj", "{CA462909-FA59-4AC3-8A32-436F6183D73F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PassKee.Web.Server", "PassKee.Web.Server\PassKee.Web.Server.csproj", "{9DACD9A7-D56C-484A-A73E-D43FDEC1803A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2358BB82-2605-4B4A-BA89-A0889163151A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2358BB82-2605-4B4A-BA89-A0889163151A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2358BB82-2605-4B4A-BA89-A0889163151A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2358BB82-2605-4B4A-BA89-A0889163151A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0ECCFC71-642E-4451-A2F5-5415537A9BFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0ECCFC71-642E-4451-A2F5-5415537A9BFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0ECCFC71-642E-4451-A2F5-5415537A9BFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0ECCFC71-642E-4451-A2F5-5415537A9BFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F5BC477-FB9C-4B81-900D-793FF4F06A1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F5BC477-FB9C-4B81-900D-793FF4F06A1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F5BC477-FB9C-4B81-900D-793FF4F06A1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F5BC477-FB9C-4B81-900D-793FF4F06A1F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7522672-FA6F-49C9-8E2E-FBFD2D1C5C46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7522672-FA6F-49C9-8E2E-FBFD2D1C5C46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7522672-FA6F-49C9-8E2E-FBFD2D1C5C46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7522672-FA6F-49C9-8E2E-FBFD2D1C5C46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA462909-FA59-4AC3-8A32-436F6183D73F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA462909-FA59-4AC3-8A32-436F6183D73F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA462909-FA59-4AC3-8A32-436F6183D73F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA462909-FA59-4AC3-8A32-436F6183D73F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DACD9A7-D56C-484A-A73E-D43FDEC1803A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DACD9A7-D56C-484A-A73E-D43FDEC1803A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DACD9A7-D56C-484A-A73E-D43FDEC1803A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DACD9A7-D56C-484A-A73E-D43FDEC1803A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
