@@ -47,7 +47,6 @@ node('build-node') {
                 sh 'echo "{}" > appsettings.Local.json'
                 sh 'echo "{}" > PassKee.Tests.Integration.Api/appsettings.Local.json'
                 sh 'echo "{}" > PassKee.Migrations/appsettings.Local.json'
-                sh 'echo "{}" > PassKee.Tests.Integration.Business/appsettings.Local.json'
                 sh 'echo "{}" > PassKee.Tests.Integration.Api/appsettings.Local.json'
                 sh 'echo "{}" > PassKee.WorkerServices/appsettings.Local.json'
                 sh 'dotnet build --'
@@ -59,14 +58,6 @@ node('build-node') {
                 sh "sudo -u postgres psql -c \"ALTER USER postgres PASSWORD '$postresUserPassword';\""
                 sh "PGPASSWORD=postgres psql -h localhost --username=$postresUserPassword --dbname=$postresUserPassword -c \"select 1\""
                 echo 'Postgre SQL is started'
-            }
-
-            runStage(Stage.INIT_REDIS) {
-                sh '/usr/bin/redis-server &'
-                sh 'until nc -z localhost 6379; do sleep 1; done'
-                echo "Redis is started"
-                
-                sh 'netstat -tulpn | grep LISTEN'
             }
 
             runStage(Stage.RUN_MIGRATIONS) {
@@ -155,5 +146,6 @@ def runStage(Stage stageAction, Closure callback) {
         }
     }
 }
+
 
 
