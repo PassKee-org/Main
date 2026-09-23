@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>14</LangVersion>
+        <TargetFramework>net10.0</TargetFramework>
+        <WarningsAsErrors>CS0168,CS8602,CS0169,CS1998</WarningsAsErrors>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\AspNetCore.ApiControllers.Abstractions\AspNetCore.ApiControllers.Abstractions.csproj" />
+      <ProjectReference Include="..\Domain.Abstractions\Domain.Abstractions.csproj" />
+      <ProjectReference Include="..\PassKee.Orm\PassKee.Orm.csproj" />
+      <ProjectReference Include="..\PassKee.Business.Clients\PassKee.Business.Clients.csproj" />
+      <ProjectReference Include="..\PassKee.Business\PassKee.Business.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Bogus" Version="35.6.5" />
+    </ItemGroup>
+
+</Project>

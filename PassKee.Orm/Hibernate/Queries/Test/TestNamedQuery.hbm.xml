@@ -1,0 +1,14 @@
+﻿<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2">
+<sql-query name="TestNamedQuery">
+    <![CDATA[
+SELECT *
+FROM (
+    VALUES
+        (gen_random_uuid(), 'someName', 1),
+        (gen_random_uuid(), 'someName2', 2),
+        (gen_random_uuid(), 'someName3', 3)
+) AS tempp(id, nameString, someInt)
+WHERE someInt IN (:ids)
+    ]]>
+    </sql-query>
+</hibernate-mapping>
