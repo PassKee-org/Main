@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using Domain.Abstractions;
 using PassKee.Business.Common.Resources;
 
@@ -10,7 +10,7 @@ namespace PassKee.Business.Common.Exceptions.Common
         {
         }
 
-        public DataValidationException(string message) : base(message)
+        public DataValidationException(string? message) : base(message ?? RG.Error_DataValidationException)
         {
         }
         

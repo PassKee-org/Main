@@ -25,7 +25,7 @@ namespace PassKee.Api.Middleware
             await _next(httpContext);
         }
 
-        private static string FormatHeaders(IHeaderDictionary headers) => string.Join(", ", headers.Select(kvp => $"{{{kvp.Key}: {string.Join(", ", kvp.Value)}}}"));
+        private static string FormatHeaders(IHeaderDictionary headers) => string.Join(", ", headers.Select(kvp => $"{{{kvp.Key}: {kvp.Value.ToString()}}}"));
 
         private static async Task<string> ReadBodyFromRequest(HttpRequest request)
         {

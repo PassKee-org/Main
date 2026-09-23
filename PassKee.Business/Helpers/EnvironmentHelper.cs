@@ -1,16 +1,16 @@
-﻿namespace PassKee.Business.Helpers;
+namespace PassKee.Business.Helpers;
 
 public static class EnvironmentHelper
 {
     public static string GetHostName()
     {
-        return Environment.GetEnvironmentVariable("HOSTNAME");
+        return Environment.GetEnvironmentVariable("HOSTNAME") ?? string.Empty;
     }
     
     public static string GetPodId()
     {
         var hostName = $"{GetHostName()}";
         var hostNameParts = hostName.Split("-");
-        return hostNameParts.LastOrDefault();
+        return hostNameParts.LastOrDefault() ?? string.Empty;
     }
 }

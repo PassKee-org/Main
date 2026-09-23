@@ -1,4 +1,4 @@
-﻿using FluentMigrator;
+using FluentMigrator;
 
 namespace PassKee.Migrations.Code
 {
@@ -18,8 +18,7 @@ namespace PassKee.Migrations.Code
 
         protected void UpdateProcedure(string Name)
         {
-            string? path = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            path = System.IO.Path.GetDirectoryName(path);
+            string path = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? AppContext.BaseDirectory;
             path = Path.Combine(path, _dirProcedures) + Path.DirectorySeparatorChar;
             ExecuteScript(Name, path);
         }
@@ -29,10 +28,9 @@ namespace PassKee.Migrations.Code
             ExecuteScriptByName(Name, null);
         }
 
-        protected void ExecuteScriptByName(string Name, string SubPath = null)
+        protected void ExecuteScriptByName(string Name, string? SubPath = null)
         {
-            string? path = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            path = System.IO.Path.GetDirectoryName(path);
+            string path = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? AppContext.BaseDirectory;
             path = Path.Combine(path, _dirScripts) + Path.DirectorySeparatorChar;
             if (SubPath != null)
             {
@@ -41,18 +39,18 @@ namespace PassKee.Migrations.Code
             ExecuteScript(Name, path);
         }
 
-        private void ExecuteScript(string name, string? Path)
+        private void ExecuteScript(string name, string path)
         {
             try
             {
                 // Only get files that begin with the letter "c."
-                var files = Directory.GetFiles(Path, "*.sql")
+                var files = Directory.GetFiles(path, "*.sql")
                                     .Select(fn => new FileInfo(fn))
                                     .Where(file => file.Name.ToLower() == $"{name}.sql".ToLower())
                                     .OrderBy(f => f.Name);
                 foreach (FileInfo file in files)
                 {
-                    var filePath = Path + file.Name;
+                    var filePath = Path.Combine(path, file.Name);
                     if (!File.Exists(filePath))
                     {
                         throw new Exception($"File not found: {filePath}");
@@ -70,8 +68,8 @@ namespace PassKee.Migrations.Code
 
         protected string GetBaseDirectory()
         {
-            string path = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            return System.IO.Path.GetDirectoryName(path);
+            string? path = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            return Path.GetDirectoryName(path) ?? AppContext.BaseDirectory;
         }
     }
 }

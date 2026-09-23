@@ -8,7 +8,7 @@ namespace PassKee.Business.Common.Mvc.Attribute.Validation;
 [AttributeUsage(AttributeTargets.Property)]
 public class IsReCaptchaAttribute : ValidationAttribute
 {
-    protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
         var reCaptchaService = validationContext.GetService<IReCaptchaService>();
         if (reCaptchaService == null)

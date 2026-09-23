@@ -6,6 +6,7 @@
         <Nullable>enable</Nullable>
 
         <IsPackable>false</IsPackable>
+        <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
 
         <LangVersion>14</LangVersion>
         <WarningsAsErrors>CS0168,CS8602,CS0169,CS1998</WarningsAsErrors>

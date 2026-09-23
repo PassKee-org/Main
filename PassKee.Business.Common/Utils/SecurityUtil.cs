@@ -18,9 +18,8 @@ namespace PassKee.Business.Common.Utils
         public static byte[] GenerateSalt(int? size = null)
         {
             var saltSize = size ?? SALT_SIZE;
-            var rng = new RNGCryptoServiceProvider();
             var data = new byte[saltSize];
-            rng.GetBytes(data);
+            RandomNumberGenerator.Fill(data);
             return data;
         }
         
@@ -47,9 +46,7 @@ namespace PassKee.Business.Common.Utils
 
         public static byte[] GeneratePasswordHash(string password, byte[] salt, int iterations)
         {
-            //create hash
-            var pbkdf2 = new Rfc2898DeriveBytes(password, salt, iterations);
-            return pbkdf2.GetBytes(HASH_SIZE);  
+            return Rfc2898DeriveBytes.Pbkdf2(password, salt, iterations, HashAlgorithmName.SHA1, HASH_SIZE);
         }
 
         public static string GetBase58RandomString(int length)
@@ -64,21 +61,7 @@ namespace PassKee.Business.Common.Utils
 
         private static string GetRandomString(int Length, String ValidSymbols)
         {
-            string randomString = "";
-            using (RNGCryptoServiceProvider provider = new RNGCryptoServiceProvider())
-            {
-                while (randomString.Length != Length)
-                {
-                    byte[] oneByte = new byte[1];
-                    provider.GetBytes(oneByte);
-                    char character = (char)oneByte[0];
-                    if (ValidSymbols.Contains(character))
-                    {
-                        randomString += character;
-                    }
-                }
-            }
-            return randomString;
+            return RandomNumberGenerator.GetString(ValidSymbols, Length);
         }
         
         public static string GetTimeBasedToken(bool isShort = false)

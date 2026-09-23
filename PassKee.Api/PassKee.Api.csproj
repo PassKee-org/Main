@@ -23,16 +23,14 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Include="appsettings.Local.json">
+      <None Update="appsettings.Local.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Include="appsettings.Testing.json">
+      <None Update="appsettings.Testing.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.9" />
-    </ItemGroup>
+
 
 </Project>

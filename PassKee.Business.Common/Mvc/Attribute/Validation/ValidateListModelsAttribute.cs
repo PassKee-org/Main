@@ -10,7 +10,7 @@ namespace PassKee.Business.Common.Mvc.Attribute.Validation
         {
         }
 
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
             if (value is not IEnumerable arrayToValidate)
             {

@@ -11,7 +11,7 @@ public class DateOnlyCustomType : IUserType
     public Type ReturnedType => typeof(DateOnly);
     public bool IsMutable => false;
 
-    public object NullSafeGet(DbDataReader rs, string[] names, ISessionImplementor session, object owner)
+    public object? NullSafeGet(DbDataReader rs, string[] names, ISessionImplementor session, object owner)
     {
         var obj = rs[names[0]];
         if (obj == DBNull.Value) return null;

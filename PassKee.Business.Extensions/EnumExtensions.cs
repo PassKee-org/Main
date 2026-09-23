@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace PassKee.Business.Extensions;
@@ -25,7 +25,7 @@ public static class EnumExtensions
             );
             if (attribs.Any())
             {
-                return ((DisplayAttribute)attribs.ElementAt(0)).GetName();
+                return ((DisplayAttribute)attribs.ElementAt(0)).GetName() ?? enumValue.ToString();
             }
         }
         return enumValue.ToString();

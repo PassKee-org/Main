@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Web;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -14,7 +14,7 @@ public class ReCaptchaService: IReCaptchaService
     
     private readonly IConfiguration _configuration;
     private readonly ILogger<ReCaptchaService> _logger;
-    private readonly string _secretKey;
+    private readonly string? _secretKey;
 
     public ReCaptchaService(
         IConfiguration configuration, 
@@ -23,14 +23,14 @@ public class ReCaptchaService: IReCaptchaService
     {
         _configuration = configuration;
         _logger = logger;
-        _secretKey = _configuration.GetValue<string>("ReCaptcha:Secret");
+        _secretKey = _configuration.GetValue<string?>("ReCaptcha:Secret");
     }
     
     public async Task<bool> ValidateAsync(string token)
     {
         try
         {
-            var secretKey = HttpUtility.UrlEncode(_secretKey);
+            var secretKey = HttpUtility.UrlEncode(_secretKey ?? string.Empty);
             var responseToken = HttpUtility.UrlEncode(token);
             var response = await _httpClient.GetAsync(
                 $"{_validateUrl}?secret={secretKey}&response={responseToken}"

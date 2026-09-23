@@ -111,21 +111,21 @@ public class BaseTest : IClassFixture<ApiCustomWebApplicationFactory>, IDisposab
         
     public async Task<HttpResponseMessage> GetRequestAsAnonymousAsync(
         string url,
-        Dictionary<string, string>? urlParams = null
+        Dictionary<string, string?>? urlParams = null
     )
     {
-        urlParams ??= new Dictionary<string, string>();
+        urlParams ??= new Dictionary<string, string?>();
         var uri = new Uri(QueryHelpers.AddQueryString(url, urlParams), UriKind.Relative);
         await FlushDbChanges();
 
         return await HttpClient.GetAsync(uri);
     }
         
-    public async Task<HttpResponseMessage> GetRequestAsync(string url, string jwtToken, Dictionary<string, string>? urlParams = null)
+    public async Task<HttpResponseMessage> GetRequestAsync(string url, string jwtToken, Dictionary<string, string?>? urlParams = null)
     {
         await FlushDbChanges();
 
-        urlParams ??= new Dictionary<string, string>();
+        urlParams ??= new Dictionary<string, string?>();
         HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
         HttpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, "application/json");
         HttpClient.DefaultRequestHeaders.Add(HeaderNames.Accept, "text/json");

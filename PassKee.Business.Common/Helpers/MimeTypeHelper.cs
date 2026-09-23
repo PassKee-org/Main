@@ -1,4 +1,4 @@
-﻿namespace PassKee.Business.Common.Helpers;
+namespace PassKee.Business.Common.Helpers;
 
 public static class MimeTypeHelper
 {
@@ -584,8 +584,7 @@ public static class MimeTypeHelper
             extension = "." + extension;
         }
 
-        string mime;
-        return Mappings.TryGetValue(extension.Trim().ToLower(), out mime) ? mime : "application/octet-stream";
+        return Mappings.TryGetValue(extension.Trim().ToLower(), out var mime) && mime != null ? mime : "application/octet-stream";
     }
     
     public static string GetMimeTypeByName(string fileName)

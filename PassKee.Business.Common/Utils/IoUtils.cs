@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 
 namespace PassKee.Business.Common.Utils
 {
@@ -9,12 +9,12 @@ namespace PassKee.Business.Common.Utils
             
             List<string> resourceNames = new List<string>(assembly.GetManifestResourceNames());
             resourcePath = resourcePath.Replace(@"/", ".");
-            resourcePath = resourceNames.FirstOrDefault(r => r.Contains(resourcePath));
+            var found = resourceNames.FirstOrDefault(r => r.Contains(resourcePath));
 
-            if (resourcePath == null)
+            if (found == null)
                 throw new FileNotFoundException("Resource not found");
 
-            return resourcePath;
+            return found;
         }
 
         public static string GetResourcePath(string resourcePath)
@@ -23,7 +23,7 @@ namespace PassKee.Business.Common.Utils
             return GetResourcePath(assembly, resourcePath);
         }
 
-        public static Stream GetResourceStream(string filePath)
+        public static Stream? GetResourceStream(string filePath)
         {
             Assembly assembly = Assembly.GetExecutingAssembly();
             var resourcePath = GetResourcePath(filePath);
@@ -33,11 +33,11 @@ namespace PassKee.Business.Common.Utils
         public static string GetResourceAsString(Assembly assembly, string filePath)
         {
             var resourcePath = GetResourcePath(filePath);
-            using (var stream = assembly.GetManifestResourceStream(resourcePath))
-            using (StreamReader reader = new StreamReader(stream))
-            {
-                return reader.ReadToEnd();
-            }
+            using var stream = assembly.GetManifestResourceStream(resourcePath);
+            if (stream == null)
+                throw new FileNotFoundException("Resource stream not found");
+            using StreamReader reader = new StreamReader(stream);
+            return reader.ReadToEnd();
         }
 
         public static string GetResourceAsString(string filePath)

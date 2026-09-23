@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using System.Data.Common;
 using System.Drawing;
 using NHibernate;
@@ -47,7 +47,7 @@ public class ColorType : IUserType
         return x == null ? typeof(Color).GetHashCode() + 473 : x.GetHashCode();
     }
 
-    public object NullSafeGet(DbDataReader rs, string[] names, ISessionImplementor session, object owner)
+    public object? NullSafeGet(DbDataReader rs, string[] names, ISessionImplementor session, object owner)
     {
         var obj = NHibernateUtil.String.NullSafeGet(rs, names[0], session);
         if (obj == null)

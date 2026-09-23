@@ -1,8 +1,8 @@
-﻿namespace PassKee.Orm.Dto
+namespace PassKee.Orm.Dto
 {
     public class ListDto<T>
     {
-        public virtual ICollection<T> Items { get; set; }
+        public virtual ICollection<T> Items { get; set; } = new List<T>();
         
         public virtual int TotalCount { get; set; }
 

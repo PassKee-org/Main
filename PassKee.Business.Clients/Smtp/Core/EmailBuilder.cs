@@ -1,15 +1,15 @@
-﻿using System.Net;
+using System.Net;
 
 namespace PassKee.Business.Clients.Smtp.Core
 {
     public class EmailBuilder
     {
-        private TemplatedTextBuilder _subjectBuilder;
+        private TemplatedTextBuilder? _subjectBuilder;
         private TemplatedTextBuilder _bodyBuilder;
 
         public string Body = string.Empty;
         public string Subject = string.Empty;
-        public EmailBuilder(string bodyTemplate, string subjectTemplate = null)
+        public EmailBuilder(string bodyTemplate, string? subjectTemplate = null)
         {
             _bodyBuilder = new TemplatedTextBuilder(bodyTemplate, 16384);
             if (!string.IsNullOrWhiteSpace(subjectTemplate))

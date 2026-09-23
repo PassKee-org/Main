@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using Autofac;
 using Domain.Abstractions;
 using Microsoft.Extensions.Logging;
@@ -71,7 +71,7 @@ public partial class QueueService: IQueueService
                 break;
             }
 
-            string error = null;
+            string? error = null;
             try
             {
                 await HandleQueueItem(queueItem, cancellationToken);

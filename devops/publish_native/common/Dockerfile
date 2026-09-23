@@ -19,7 +19,6 @@ RUN apt install -y apt-transport-https wget ca-certificates curl
 
 RUN echo "{}" > appsettings.Local.json
 RUN echo "{}" > PassKee.Tests.Integration.Api/appsettings.Local.json
-RUN echo "{}" > PassKee.Tests.Integration.Business/appsettings.Local.json
 RUN echo "{}" > PassKee.Api/appsettings.Local.json
 RUN echo "{}" > PassKee.Migrations/appsettings.Local.json
 RUN echo "{}" > PassKee.WorkerServices/appsettings.Local.json

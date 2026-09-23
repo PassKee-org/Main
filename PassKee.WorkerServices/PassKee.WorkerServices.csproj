@@ -22,7 +22,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\PassKee.Business\PassKee.Business.csproj" />
-        <Content Include="..\Shared\appsettings.json" Link="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+        <ProjectReference Include="..\PassKee.Business\PassKee.Business.csproj" />
     </ItemGroup>
 </Project>
