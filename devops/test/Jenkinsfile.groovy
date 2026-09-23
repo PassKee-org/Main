@@ -34,9 +34,9 @@ node('build-node') {
         }
         
         runStage(Stage.SET_VARS) {
-            withCredentials([string(credentialsId: "passkee_testing_clickup_secret_key", variable: 'AUTH_SECRET')]) {
-                containerEnvVars.put('Integration__ClickUp__SecurityKey', AUTH_SECRET)
-            }
+            // withCredentials([string(credentialsId: "passkee_testing_clickup_secret_key", variable: 'AUTH_SECRET')]) {
+            //     containerEnvVars.put('Integration__ClickUp__SecurityKey', AUTH_SECRET)
+            // }
         }
 
         def testImage = docker.build('passkee-test-image', '--file=./devops/test/Dockerfile .')
@@ -155,3 +155,4 @@ def runStage(Stage stageAction, Closure callback) {
         }
     }
 }
+
