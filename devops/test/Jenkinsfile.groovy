@@ -45,6 +45,7 @@ node('build-node') {
 
             runStage(Stage.BUILD) {
                 sh 'echo "{}" > appsettings.Local.json'
+                sh 'echo "{}" > PassKee.Api/appsettings.Local.json'
                 sh 'echo "{}" > PassKee.Tests.Integration.Api/appsettings.Local.json'
                 sh 'echo "{}" > PassKee.Tests.Unit/appsettings.Local.json'
                 sh 'echo "{}" > PassKee.Migrations/appsettings.Local.json'

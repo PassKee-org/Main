@@ -23,6 +23,9 @@ RUN apt-get install -y net-tools netcat-traditional sudo
 RUN apt-get install -y postgresql postgresql-contrib
 RUN apt-get install -y dotnet-sdk-10.0 
 
+# Install Node.js
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - && apt-get install -y nodejs 
+
 # Configure Postgres
 ENV PGTZ=Etc/UTC
 

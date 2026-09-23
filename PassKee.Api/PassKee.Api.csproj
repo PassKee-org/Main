@@ -23,10 +23,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Include="appsettings.Local.json">
+      <None Update="appsettings.Local.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Include="appsettings.Testing.json">
+      <None Update="appsettings.Testing.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>
