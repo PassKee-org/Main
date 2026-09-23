@@ -76,6 +76,7 @@ enum Stage {
     CLEAN('Clean'),
     CHECKOUT('Checkout'),
     BUILD('Build projects'),
+    INIT_DB('Initialize Database'),
     SET_VARS('Set environment vars'),
     ASSIGN_PERMISSIONS('Assign Permissions'),
     RUN_MIGRATIONS('Run migrations'),
