@@ -4,10 +4,35 @@
         <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <LangVersion>14</LangVersion>
+        <WarningsAsErrors>CS0168,CS8602,CS0169,CS1998</WarningsAsErrors>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.11"/>
+        <ProjectReference Include="..\Api.Requests.Base\Api.Requests.Base.csproj" />
+        <ProjectReference Include="..\AspNetCore.ApiControllers.Abstractions\AspNetCore.ApiControllers.Abstractions.csproj" />
+        <ProjectReference Include="..\AspNetCore.ApiControllers.Extensions\AspNetCore.ApiControllers.Extensions.csproj" />
+        <ProjectReference Include="..\PassKee.Api.Shared\PassKee.Api.Shared.csproj" />
+        <ProjectReference Include="..\PassKee.Business.Common\PassKee.Business.Common.csproj" />
+        <ProjectReference Include="..\PassKee.Business\PassKee.Business.csproj" />
+        <InternalsVisibleTo Include="PassKee.Tests.Integration.Api" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="..\Shared\appsettings.json" Link="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="appsettings.Local.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Include="appsettings.Testing.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.9" />
     </ItemGroup>
 
 </Project>

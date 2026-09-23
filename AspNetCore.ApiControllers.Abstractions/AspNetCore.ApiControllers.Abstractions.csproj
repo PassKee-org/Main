@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <LangVersion>14</LangVersion>
+        <TargetFramework>net10.0</TargetFramework>
+        <WarningsAsErrors>CS0168,CS8602,CS0169,CS1998</WarningsAsErrors>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Api.Requests.Abstractions\Api.Requests.Abstractions.csproj" />
+      <ProjectReference Include="..\Persistence.Transactions.Behaviors\Persistence.Transactions.Behaviors.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.9" />
+    </ItemGroup>
+
+</Project>

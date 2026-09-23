@@ -5,11 +5,80 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+        <WarningsAsErrors>CS0168,CS8602,CS0169,CS1998</WarningsAsErrors>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Production' ">
+        <DefineConstants>TRACE;IS_RELEASE_BUILD;IS_WEB_APP</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <DefineConstants>TRACE;IS_RELEASE_BUILD;IS_WEB_APP</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Development' ">
+        <DefineConstants>TRACE;IS_DEVELOPMENT_BUILD;IS_WEB_APP</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Local' ">
+        <DefineConstants>TRACE;IS_LOCAL_BUILD;IS_WEB_APP</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <DefineConstants>TRACE;IS_WEB_APP</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.11"/>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.11" PrivateAssets="all"/>
+        <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
+        <PackageReference Include="Fluxor.Blazor.Web" Version="6.9.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.11" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.11" PrivateAssets="all" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\PassKee.Api.Shared\PassKee.Api.Shared.csproj" />
+        <ProjectReference Include="..\PassKee.Business.Extensions\PassKee.Business.Extensions.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Update="wwwroot\appsettings.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Update="wwwroot\appsettings.Development.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Update="wwwroot\appsettings.Release.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Update="wwwroot\appsettings.Debug.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Update="wwwroot\appsettings.Local.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <PropertyGroup>
+        <TailwindInputCss>$(ProjectDir)styles\app.css</TailwindInputCss>
+        <TailwindOutputCss>$(ProjectDir)wwwroot\css\app.min.css</TailwindOutputCss>
+    </PropertyGroup>
+
+    <Target Name="Npm" BeforeTargets="Build" Condition="!Exists('node_modules')">
+        <Message Text="Running npm install..." Importance="high" />
+        <Exec Command="npm install" />
+    </Target>
+
+    <Target Name="CompileLess" BeforeTargets="Build;PrepareForPublish" Condition="Exists('node_modules/less/bin/lessc')">
+        <ItemGroup>
+            <LessFiles
+                Include="**\*.less"
+                Exclude="node_modules\**\*.less;wwwroot\**\*.less;styles\**\*.less;bin\**\*.less;obj\**\*.less"
+            />
+        </ItemGroup>
+
+        <Exec Command="node $(ProjectDir)node_modules/less/bin/lessc %(LessFiles.Identity) %(LessFiles.RelativeDir)%(Filename).css" Condition="'@(LessFiles)' != ''" />
+    </Target>
+    
+    <Target Name="TailwindCssBuild" AfterTargets="Build;PrepareForPublish" Condition="Exists('$(TailwindInputCss)')">
+        <Message Text="Building Tailwind CSS..." />
+        <Exec Command="npx @tailwindcss/cli -i $(TailwindInputCss) -o $(TailwindOutputCss)" />
+    </Target>
 
 </Project>

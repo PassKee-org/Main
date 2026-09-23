@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>14</LangVersion>
+        <WarningsAsErrors>CS0168,CS8602,CS0169,CS1998</WarningsAsErrors>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Domain.Abstractions\Domain.Abstractions.csproj" />
+        <ProjectReference Include="..\PassKee.Business.Common\PassKee.Business.Common.csproj" />
+        <ProjectReference Include="..\PassKee.Business.Extensions\PassKee.Business.Extensions.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.5" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.5" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.5" />
+    </ItemGroup>
+
+</Project>
+

@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>14</LangVersion>
+        <WarningsAsErrors>CS0168,CS8602,CS0169,CS1998</WarningsAsErrors>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FluentMigrator" Version="8.0.1" />
+      <PackageReference Include="FluentMigrator.Extensions.Postgres" Version="8.0.1" />
+      <PackageReference Include="FluentMigrator.Runner" Version="8.0.1" />
+      <PackageReference Include="FluentMigrator.Runner.Postgres" Version="8.0.1" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.5" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.5" />
+      <PackageReference Include="Npgsql" Version="10.0.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\Shared\appsettings.json" Link="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+      <None Update="appsettings.Local.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="SQLFiles\Procedures\fn_queue_get_top.sql">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="SQLFiles\Procedures\fn_sequence_get_next.sql">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Update="appsettings.Local.json">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </Content>
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2" assembly="PassKee.Orm" namespace="PassKee.Orm.Entities">
+  
+  <class name="UserEntity" table="users">
+    <id name="Id" column="id">
+      <generator class="native" />
+    </id>
+    <property name="Email" column="email" not-null="true" />
+    <property name="CreateDate" column="create_date" not-null="true" />
+    <property name="UpdateDate" column="update_date" not-null="true" />
+  </class>
+
+  <class name="QueueEntity" table="queues">
+    <id name="Id" column="id">
+      <generator class="native" />
+    </id>
+    <property name="Payload" column="payload" not-null="true" />
+    <property name="Type" column="type" not-null="true" />
+    <property name="Status" column="status" not-null="true" />
+    <property name="Channel" column="channel" not-null="true" />
+    <property name="Priority" column="priority" not-null="true" />
+    <property name="ProcessedAt" column="processed_at" not-null="false" />
+    <property name="Error" column="error" not-null="false" />
+    <property name="CreateDate" column="create_date" not-null="true" />
+    <property name="UpdateDate" column="update_date" not-null="true" />
+  </class>
+
+</hibernate-mapping>
