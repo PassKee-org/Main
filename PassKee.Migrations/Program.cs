@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using FluentMigrator.Runner;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,9 +8,9 @@ namespace PassKee.Migrations
 {
     public class Program
     {
-        private static string CustomConnectionString => Environment.GetEnvironmentVariable("ASPNETCORE_CONNECTION_STRING");
+        private static string? CustomConnectionString => Environment.GetEnvironmentVariable("ASPNETCORE_CONNECTION_STRING");
 
-        public static IConfiguration Configuration;
+        public static IConfiguration Configuration = null!;
         
         static void Main(string[] args)
         {
@@ -25,7 +25,10 @@ namespace PassKee.Migrations
             var defaultConnectionString = string.IsNullOrEmpty(CustomConnectionString)
                 ? Configuration.GetConnectionString("DefaultConnection")
                 : CustomConnectionString;
-            Migrate(defaultConnectionString);
+            if (!string.IsNullOrEmpty(defaultConnectionString))
+            {
+                Migrate(defaultConnectionString);
+            }
 
             var testConnectionString = Configuration.GetConnectionString("TestConnection");
             if (!string.IsNullOrEmpty(testConnectionString))
@@ -82,13 +85,10 @@ namespace PassKee.Migrations
             runner.Up(new ApplyProceduresMigration());
         }
         
-        private static string GetAssemblyPath(Assembly assembly = null)
+        private static string GetAssemblyPath(Assembly? assembly = null)
         {
             assembly ??= Assembly.GetExecutingAssembly();
-            var codeBase = assembly.CodeBase;
-            var uri = new UriBuilder(codeBase);
-            var path = Uri.UnescapeDataString(uri.Path);
-            return Path.GetDirectoryName(path);
+            return Path.GetDirectoryName(assembly.Location) ?? AppContext.BaseDirectory;
         }
     }
 }

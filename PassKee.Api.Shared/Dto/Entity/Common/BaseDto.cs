@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using Api.Requests.Abstractions;
 using Domain.Abstractions;
 
@@ -13,7 +13,7 @@ public abstract class BaseDto: IResponse, IHasId
         if (obj is IHasId other)
         {
             var thisIsTransient = Id == Guid.Empty;
-            var otherIsTransient = Id == Guid.Empty;
+            var otherIsTransient = other.Id == Guid.Empty;
         
             if (thisIsTransient && otherIsTransient)
                 return ReferenceEquals(this, other);
@@ -21,6 +21,11 @@ public abstract class BaseDto: IResponse, IHasId
             return Id == other.Id;    
         }
         return ReferenceEquals(this, obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return Id.GetHashCode();
     }
 
     public static bool operator ==(BaseDto? a, BaseDto? b)

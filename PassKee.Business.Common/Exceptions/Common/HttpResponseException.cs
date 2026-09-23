@@ -6,9 +6,9 @@ namespace PassKee.Business.Common.Exceptions.Common
     {
         public HttpStatusCode StatusCode { get; }
         
-        public string Type { get; }
+        public string? Type { get; }
 
-        public HttpResponseException(HttpStatusCode code, string message, string type = null): base(message)
+        public HttpResponseException(HttpStatusCode code, string message, string? type = null): base(message)
         {
             StatusCode = code;
             Type = type;

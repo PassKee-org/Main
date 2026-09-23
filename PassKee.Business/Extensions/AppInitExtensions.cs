@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -43,7 +43,7 @@ namespace PassKee.Business.Extensions
                             {
                                 var errorMessage = !string.IsNullOrEmpty(error.ErrorMessage)
                                     ? error.ErrorMessage
-                                    : error.Exception?.Message;
+                                    : error.Exception?.Message ?? "Validation error";
                                 Log.Logger.Error(errorMessage);
                             }
                         }

@@ -1,11 +1,11 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using Domain.Abstractions;
 
 namespace PassKee.Business.Common.Exceptions.Api
 {
     public class RecordNotFoundException : Exception, IDomainException
     {
-        public RecordNotFoundException(string message = "Record was not found") : base(message)
+        public RecordNotFoundException(string? message = "Record was not found") : base(message ?? "Record was not found")
         {
         }
         
@@ -18,6 +18,6 @@ namespace PassKee.Business.Common.Exceptions.Api
         }
     
         [DoesNotReturn]
-        internal static void Throw(string? message) => throw new RecordNotFoundException(message);
+        internal static void Throw(string? message) => throw new RecordNotFoundException(message ?? "Record was not found");
     }
 }

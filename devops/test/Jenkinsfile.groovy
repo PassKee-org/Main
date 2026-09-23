@@ -46,10 +46,10 @@ node('build-node') {
             runStage(Stage.BUILD) {
                 sh 'echo "{}" > appsettings.Local.json'
                 sh 'echo "{}" > PassKee.Tests.Integration.Api/appsettings.Local.json'
+                sh 'echo "{}" > PassKee.Tests.Unit/appsettings.Local.json'
                 sh 'echo "{}" > PassKee.Migrations/appsettings.Local.json'
-                sh 'echo "{}" > PassKee.Tests.Integration.Api/appsettings.Local.json'
                 sh 'echo "{}" > PassKee.WorkerServices/appsettings.Local.json'
-                sh 'dotnet build --'
+                sh 'dotnet build PassKee.sln'
             }
 
             runStage(Stage.INIT_DB) {

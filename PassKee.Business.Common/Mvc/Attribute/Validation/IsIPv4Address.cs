@@ -6,19 +6,14 @@ namespace PassKee.Business.Common.Mvc.Attribute.Validation
     [AttributeUsage(AttributeTargets.Property)]
     public class IsIPv4Address : ValidationAttribute
     {
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
             if (value == null)
             {
                 return ValidationResult.Success;
             }
-            if (value is string)
+            if (value is string ipAddress)
             {
-                var ipAddress = value.ToString();
-                if (ipAddress == null)
-                {
-                    return ValidationResult.Success;
-                }
                 var quads = ipAddress.Split('.');
 
                 // if we do not have 4 quads, return false

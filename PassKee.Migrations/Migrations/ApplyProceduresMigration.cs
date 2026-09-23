@@ -1,4 +1,4 @@
-﻿using FluentMigrator;
+using FluentMigrator;
 using PassKee.Migrations.Code;
 
 namespace PassKee.Migrations.Migrations;
@@ -22,8 +22,7 @@ public class ApplyProceduresMigration : MyMigration
 
     protected void UpdateProcedures()
     {
-        string path = System.Reflection.Assembly.GetExecutingAssembly().Location;
-        path = System.IO.Path.GetDirectoryName(path);
+        string path = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? AppContext.BaseDirectory;
         path = String.Format(_dirProcedures + Path.DirectorySeparatorChar, path);
 
         try

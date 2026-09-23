@@ -14,7 +14,7 @@ namespace PassKee.Business.Common.Mvc.Attribute.Validation
             this.Max = Max;
         }
 
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+        protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
         {
             if (!(value is IList arrayToValidate))
             {

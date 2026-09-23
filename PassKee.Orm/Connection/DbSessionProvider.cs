@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NHibernate;
@@ -69,7 +69,7 @@ namespace PassKee.Orm.Connection
                     {
                         _logger.LogError(e.Message, e);
                         await _transaction.RollbackAsync();
-                        throw e;
+                        throw;
                     }    
                 }
                 _transactionalModeIsolationLevel = null;
@@ -100,7 +100,7 @@ namespace PassKee.Orm.Connection
                     {
                         _logger.LogError(e.Message, e);
                         await _transaction.RollbackAsync(cancellationToken).WaitAsync(cancellationToken);
-                        throw e;
+                        throw;
                     }    
                 }
                 else

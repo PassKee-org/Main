@@ -32,5 +32,15 @@
         <ProjectReference Include="..\PassKee.Business.Extensions\PassKee.Business.Extensions.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <Content Include="..\Shared\appsettings.json" Link="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="appsettings.Testing.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
 </Project>
 

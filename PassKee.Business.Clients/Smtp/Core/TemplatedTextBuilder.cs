@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 
 namespace PassKee.Business.Clients.Smtp.Core
 {
@@ -11,11 +11,11 @@ namespace PassKee.Business.Clients.Smtp.Core
         /// </summary>
         ///
 
-        private string _template = null;
-        private StringBuilder _message = null;
-        private Dictionary<int, KeyValuePair<string, string>> _matches = null;
+        private string _template;
+        private StringBuilder _message;
+        private Dictionary<int, KeyValuePair<string, string>> _matches;
 
-        public string Text;
+        public string Text = string.Empty;
 
         public TemplatedTextBuilder(string templateString): this(templateString, 16384)
         {

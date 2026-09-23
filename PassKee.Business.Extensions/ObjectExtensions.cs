@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
@@ -25,7 +25,13 @@ namespace PassKee.Business.Extensions
         
         public static string GetDisplayName(this Type genericEnumType, object enumValue)  
         {
-            var memberInfo = genericEnumType.GetMember(enumValue.ToString());
+            var enumString = enumValue.ToString();
+            if (string.IsNullOrEmpty(enumString))
+            {
+                return string.Empty;
+            }
+
+            var memberInfo = genericEnumType.GetMember(enumString);
             if (memberInfo.Any())
             {
                 var attribs = memberInfo[0].GetCustomAttributes(
@@ -42,10 +48,10 @@ namespace PassKee.Business.Extensions
                 );
                 if (attribs.Any())
                 {
-                    return ((DisplayAttribute)attribs.ElementAt(0)).GetName();
+                    return ((DisplayAttribute)attribs.ElementAt(0)).GetName() ?? enumString;
                 }
             }
-            return enumValue.ToString();
+            return enumString;
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+using System.Text.Json.Serialization;
 using Api.Requests.Abstractions;
 using PassKee.Business.Common.Constants;
 
@@ -7,7 +7,7 @@ namespace PassKee.Business.Common.Dto
     public class PaginatedListDto<TItem> : IResponse
     {
         [JsonPropertyName("items")]
-        public ICollection<TItem> Items { get; set; }
+        public ICollection<TItem> Items { get; set; } = new List<TItem>();
 
         [JsonPropertyName("totalPages")]
         public int TotalPages { get; set; }
