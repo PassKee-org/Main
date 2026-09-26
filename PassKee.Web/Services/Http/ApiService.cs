@@ -5,7 +5,7 @@ using PassKee.Web.Services.Http.Client;
 
 namespace PassKee.Web.Services.Http;
 
-public class ApiService
+public partial class ApiService
 {
     private readonly CustomHttpClient _httpClient;
 
