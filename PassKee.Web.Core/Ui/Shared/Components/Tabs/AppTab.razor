@@ -1,0 +1,15 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components.Tabs
+
+@if (ChildContent != null && (IsActiveTab || (ParentTabs?.IsKeepAlive ?? false) || IsKeepAlive))
+{
+    <div
+        class="@ComputedPanelClass"
+        role="tabpanel"
+        id="@PanelId"
+        aria-labelledby="@HeaderId"
+        tabindex="0"
+        aria-hidden="@(IsActiveTab ? "false" : "true")"
+        @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+}

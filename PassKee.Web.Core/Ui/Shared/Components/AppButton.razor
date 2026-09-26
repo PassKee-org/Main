@@ -1,0 +1,57 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components
+
+<button
+    type="@HtmlType"
+    class="@ComputedClass"
+    disabled="@(Disabled || IsLoading)"
+    @onclick="HandleClick"
+    @attributes="AdditionalAttributes">
+    @if (IsLoading)
+    {
+        <svg
+            class="animate-spin @SpinnerSizeClasses text-current shrink-0"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24">
+            <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4">
+            </circle>
+            <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z">
+            </path>
+        </svg>
+    }
+    else if (StartContent != null)
+    {
+        <span class="inline-flex items-center justify-center shrink-0">
+            @StartContent
+        </span>
+    }
+
+    @if (!IsIconMode && !IsLoading && ChildContent != null)
+    {
+        <span class="inline-flex items-center">
+            @ChildContent
+        </span>
+    }
+    else if (IsIconMode && !IsLoading && StartContent == null && ChildContent != null)
+    {
+        <span class="inline-flex items-center justify-center shrink-0">
+            @ChildContent
+        </span>
+    }
+
+    @if (!IsLoading && !IsIconMode && EndContent != null)
+    {
+        <span class="inline-flex items-center shrink-0">
+            @EndContent
+        </span>
+    }
+</button>

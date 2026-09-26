@@ -1,0 +1,41 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components.List
+@typeparam TItem
+
+<div class="mt-5 border-t border-slate-200 dark:border-slate-700 pt-1">
+    @if (IsLoading && !Items.Any())
+    {
+        <div class="flex justify-center py-6">
+            <AppSpinner Size="ComponentSize.Medium" />
+        </div>
+    }
+    else if (!Items.Any())
+    {
+        @EmptyContent
+    }
+    else
+    {
+        <div class="@ItemsClass">
+            @foreach (var item in Items)
+            {
+                @ItemTemplate(item)
+            }
+        </div>
+    }
+
+    @if (IsHasMore)
+    {
+        <div class="mt-4 flex justify-center pb-4">
+            <AppButton
+                Size="ComponentSize.Small"
+                Variant="ButtonVariant.Outlined"
+                Color="ComponentColor.Default"
+                IsLoading="@IsLoading"
+                OnClick="OnLoadMore">
+                <StartContent>
+                    <i class="fa-solid fa-chevron-down text-xs"></i>
+                </StartContent>
+                <ChildContent>@(string.IsNullOrWhiteSpace(LoadMoreText) ? "Load more" : LoadMoreText)</ChildContent>
+            </AppButton>
+        </div>
+    }
+</div>

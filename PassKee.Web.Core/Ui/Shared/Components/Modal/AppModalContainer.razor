@@ -1,0 +1,11 @@
+@using PassKee.Web.Core.Services.UI.Modal
+
+@if (ModalDialogService.Modals.Any())
+{
+    @foreach (var modal in ModalDialogService.Modals)
+    {
+        <AppModalWindow
+            @key="modal.Id"
+            ModalInstance="modal" />
+    }
+}

@@ -1,0 +1,31 @@
+@using PassKee.Web.Core.Services.UI.Modal
+
+<AppModalHeader
+    Title="@(string.IsNullOrWhiteSpace(Title) ? "Confirm Action" : Title)"
+    HasCloseButton="true"
+    Icon="@_iconClass"
+    IconColorClass="@_iconBoxClass" />
+
+<AppModalBody>
+    <p
+        class="text-sm text-slate-600">
+        @Message
+    </p>
+</AppModalBody>
+
+<AppModalFooter>
+    <AppButton
+        Color="@ComponentColor.Default"
+        Variant="@ButtonVariant.Outlined"
+        Radius="@ButtonRadius.Medium"
+        OnClick="@OnCancel">
+        @(string.IsNullOrWhiteSpace(CancelText) ? "Cancel" : CancelText)
+    </AppButton>
+    <AppButton
+        Color="@_confirmButtonColor"
+        Variant="@ButtonVariant.Solid"
+        Radius="@ButtonRadius.Medium"
+        OnClick="@OnConfirm">
+        @(string.IsNullOrWhiteSpace(ConfirmText) ? "Confirm" : ConfirmText)
+    </AppButton>
+</AppModalFooter>

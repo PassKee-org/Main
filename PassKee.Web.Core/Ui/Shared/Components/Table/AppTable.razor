@@ -1,0 +1,77 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components.Table
+@typeparam TGridItem
+@attribute [CascadingTypeParameter(nameof(TGridItem))]
+@using Microsoft.AspNetCore.Components.QuickGrid
+
+<div
+    class="@ComputedContainerClass">
+    @if (IsLoading)
+    {
+        @if (LoadingContent != null)
+        {
+            @LoadingContent
+        }
+        else
+        {
+            <div
+                class="flex items-center justify-center py-12">
+                <div
+                    class="flex flex-col items-center gap-2">
+                    <svg
+                        class="h-6 w-6 animate-spin text-blue-600"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24">
+                        <circle
+                            class="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            stroke-width="4">
+                        </circle>
+                        <path
+                            class="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z">
+                        </path>
+                    </svg>
+                    <span
+                        class="text-xs font-medium text-slate-400">
+                        @GetLoadingText()
+                    </span>
+                </div>
+            </div>
+        }
+    }
+    else if (IsEmpty)
+    {
+        @if (EmptyContent != null)
+        {
+            @EmptyContent
+        }
+        else
+        {
+            <div
+                class="py-10 text-center text-sm text-slate-500 dark:text-slate-400">
+                @GetEmptyText()
+            </div>
+        }
+    }
+    else
+    {
+        <QuickGrid
+            Items="@Items"
+            ItemsProvider="@ItemsProvider"
+            Theme="@Theme"
+            Class="@ComputedGridClass"
+            RowClass="@GetRowClass"
+            Pagination="@Pagination"
+            Virtualize="@Virtualize"
+            ItemSize="@ItemSize"
+            ItemKey="@ItemKey"
+            @attributes="AdditionalAttributes">
+            @ChildContent
+        </QuickGrid>
+    }
+</div>

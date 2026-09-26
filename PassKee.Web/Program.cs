@@ -13,9 +13,6 @@ using PassKee.Web.Services.Http.Client;
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 var currentAssembly = typeof(Program).Assembly;
 
-builder.RootComponents.Add<App>("#app");
-builder.RootComponents.Add<HeadOutlet>("head::after");
-
 // Init Environment config file 
 var webHttp = new HttpClient()
 {
@@ -49,5 +46,9 @@ builder.Services.AddFluxor(options =>
 // Custom HTTP Client & Api Service
 builder.Services.AddScoped<CustomHttpClient>();
 builder.Services.AddScoped<ApiService>();
+
+// UI Services
+builder.Services.AddScoped<PassKee.Web.Core.Services.UI.Toast.IToastService, PassKee.Web.Core.Services.UI.Toast.ToastService>();
+builder.Services.AddScoped<PassKee.Web.Core.Services.UI.Modal.IAppModalDialogService, PassKee.Web.Core.Services.UI.Modal.AppModalDialogService>();
 
 await builder.Build().RunAsync();

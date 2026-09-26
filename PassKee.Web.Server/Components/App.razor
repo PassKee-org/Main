@@ -1,23 +1,61 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+@using Microsoft.AspNetCore.Components.Web
+@using PassKee.Web
 
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>PassKee</title>
     <base href="/" />
-    <ResourcePreloader />
-    <link rel="stylesheet" href="@Assets["lib/bootstrap/dist/css/bootstrap.min.css"]" />
-    <link rel="stylesheet" href="@Assets["app.css"]" />
-    <link rel="stylesheet" href="@Assets["PassKee.Web.Server.styles.css"]" />
-    <ImportMap />
     <link rel="icon" type="image/png" href="favicon.png" />
-    <HeadOutlet />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@fortawesome/fontawesome-free@6.6.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="css/app.min.css" />
+    <link href="PassKee.Web.styles.css" rel="stylesheet" />
+    <HeadOutlet @rendermode="PageRenderMode" />
 </head>
 
-<body>
-    <Routes />
-    <ReconnectModal />
-    <script src="@Assets["_framework/blazor.web.js"]"></script>
+<body class="w-full bg-slate-50 text-slate-900 antialiased">
+@if (IsStaticServerPage)
+{
+    <StaticServerRoutes />
+}
+else
+{
+    <div id="app">
+        <PassKee.Web.App @rendermode="PageRenderMode" />
+    </div>
+}
+@if (!IsStaticServerPage)
+{
+    <script src="_framework/blazor.web.js"></script>
+}
 </body>
-
 </html>
+
+@code {
+    private static readonly HashSet<string> StaticServerPaths = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "/",
+        "/not-found",
+        "/Error"
+    };
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    private bool IsStaticServerPage
+    {
+        get
+        {
+            var path = HttpContext.Request.Path.HasValue ? HttpContext.Request.Path.Value! : "/";
+            var normalizedPath = path.Length > 1 ? path.TrimEnd('/') : path;
+            return StaticServerPaths.Contains(normalizedPath);
+        }
+    }
+
+    private IComponentRenderMode? PageRenderMode
+        => IsStaticServerPage
+            ? null
+            : new InteractiveWebAssemblyRenderMode(prerender: false);
+}

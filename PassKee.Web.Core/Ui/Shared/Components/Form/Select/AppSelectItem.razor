@@ -1,0 +1,59 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components.Form.Select
+@typeparam TValue
+
+<div
+    class="w-full px-3 py-2 rounded-lg text-xs md:text-sm flex items-center justify-between gap-2 transition-colors cursor-pointer select-none @(IsItemSelected ? "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-medium" : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60") @(IsDisabled ? "opacity-50 cursor-not-allowed" : "")"
+    @onclick="HandleClick">
+
+    <div
+        class="flex items-center gap-2.5 truncate flex-1 min-w-0">
+        @if (ParentSelect?.IsMultiple == true)
+        {
+            <div
+                class="h-4 w-4 rounded border flex items-center justify-center shrink-0 transition-colors @(IsItemSelected ? "bg-blue-600 border-blue-600 text-white" : "border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700")">
+                @if (IsItemSelected)
+                {
+                    <i
+                        class="fa-solid fa-check text-[10px]">
+                    </i>
+                }
+            </div>
+        }
+
+        @if (!string.IsNullOrWhiteSpace(Icon))
+        {
+            <i
+                class="@Icon text-slate-400 shrink-0">
+            </i>
+        }
+
+        <div
+            class="truncate">
+            <div
+                class="truncate">
+                @if (ChildContent != null)
+                {
+                    @ChildContent
+                }
+                else
+                {
+                    @Text
+                }
+            </div>
+            @if (!string.IsNullOrWhiteSpace(Description))
+            {
+                <div
+                    class="text-[11px] text-slate-400 font-normal truncate">
+                    @Description
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (ParentSelect?.IsMultiple != true && IsItemSelected)
+    {
+        <i
+            class="fa-solid fa-check text-xs text-blue-600 dark:text-blue-400 shrink-0 ml-2">
+        </i>
+    }
+</div>

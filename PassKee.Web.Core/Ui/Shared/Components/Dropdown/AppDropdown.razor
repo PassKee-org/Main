@@ -1,0 +1,43 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components.Dropdown
+
+<div
+    class="relative inline-block text-left @Class"
+    @onkeydown="HandleKeyDown">
+
+    @if (Trigger != null)
+    {
+        <div
+            class="inline-flex items-center cursor-pointer"
+            @onclick="ToggleOpen"
+            @onclick:stopPropagation="true">
+            @Trigger
+        </div>
+    }
+
+    @if (IsOpen)
+    {
+        @* Transparent backdrop for outside clicks *@
+        <div
+            class="fixed inset-0 z-40 bg-transparent"
+            @onclick="Close"
+            @onclick:stopPropagation="true">
+        </div>
+
+        <div
+            class="absolute @AlignmentClass top-full mt-1.5 z-50 @WidthClass rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-1.5 shadow-xl shadow-slate-900/10 dark:shadow-black/40 overflow-hidden @MenuClass"
+            @onclick:stopPropagation="true">
+            <CascadingValue
+                Value="this"
+                IsFixed="true">
+                @if (Menu != null)
+                {
+                    @Menu
+                }
+                else if (ChildContent != null)
+                {
+                    @ChildContent
+                }
+            </CascadingValue>
+        </div>
+    }
+</div>

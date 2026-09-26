@@ -1,42 +1,140 @@
+@page "/registration"
 @page "/auth/register"
+@layout PassKee.Web.Layout.LandingLayout
 
-<h3>Register for PassKee</h3>
+<div class="py-10 px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,440px)]">
+        @* Left: Security Notice Card *@
+        <section class="overflow-hidden rounded-[2rem] bg-slate-900 text-white shadow-2xl">
+            <div class="flex h-full flex-col justify-between gap-8 p-8 sm:p-10">
+                <div>
+                    <div class="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-blue-300">
+                        <i class="fa-solid fa-shield-halved text-sm"></i>
+                        <span>Zero-Knowledge Registration</span>
+                    </div>
+                    <h1 class="mt-6 max-w-xl text-3xl font-bold leading-tight sm:text-4xl text-white">
+                        Create Your PassKee Vault
+                    </h1>
+                    <p class="mt-4 max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
+                        When you register, PassKee generates a cryptographically secure 128-bit Secret Key and Master Key on your device. Only you can unlock your vault.
+                    </p>
+                </div>
+                <div class="space-y-4">
+                    <div class="rounded-2xl border border-white/10 bg-white/5 p-4 flex items-start gap-3">
+                        <div class="h-8 w-8 rounded-lg bg-blue-500/20 text-blue-300 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-key text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-white">Client-Generated Keys</p>
+                            <p class="text-xs text-slate-400 mt-0.5">RSA keypair and 256-bit vault key are created right here in your browser.</p>
+                        </div>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-white/5 p-4 flex items-start gap-3">
+                        <div class="h-8 w-8 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-file-shield text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-white">Save Your Secret Key</p>
+                            <p class="text-xs text-slate-400 mt-0.5">Your Secret Key is never transmitted unhashed. If lost, your vault cannot be recovered.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-@if (!string.IsNullOrEmpty(ErrorMessage))
-{
-    <div class="alert alert-danger">@ErrorMessage</div>
-}
+        @* Right: Registration Form Card *@
+        <section class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl sm:p-8 flex flex-col justify-between">
+            <div>
+                <div class="flex items-start justify-between gap-4 mb-6">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.25em] text-blue-600">GET STARTED</p>
+                        <h2 class="mt-1 text-2xl font-bold text-slate-900">Create PassKee Account</h2>
+                    </div>
+                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-md shadow-blue-500/20">
+                        <i class="fa-solid fa-user-plus text-lg"></i>
+                    </div>
+                </div>
 
-@if (ShowSecretKey)
-{
-    <div class="alert alert-success">
-        <h4>Registration Successful!</h4>
-        <p>This is your Secret Key. <strong>Save it now!</strong> You will need it to log in.</p>
-        <code>@SecretKeyBase64</code>
-        <br/><br/>
-        <button class="btn btn-primary" @onclick="GoToLogin">Go to Login</button>
+                @if (!string.IsNullOrEmpty(ErrorMessage))
+                {
+                    <div class="mb-5 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 flex items-start gap-3">
+                        <i class="fa-solid fa-circle-exclamation text-rose-500 mt-0.5"></i>
+                        <span>@ErrorMessage</span>
+                    </div>
+                }
+
+                @if (ShowSecretKey)
+                {
+                    <div class="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-6 space-y-4">
+                        <div class="flex items-center gap-2.5 text-emerald-800">
+                            <i class="fa-solid fa-circle-check text-xl text-emerald-600"></i>
+                            <h3 class="font-bold text-lg">Registration Complete!</h3>
+                        </div>
+                        <p class="text-sm text-slate-700 leading-relaxed">
+                            This is your <strong>Emergency Secret Key</strong>. Save it immediately in a safe place. You will need both your Master Password and this Secret Key to sign in.
+                        </p>
+                        <div class="p-3.5 bg-white rounded-xl border border-emerald-300/80 font-mono text-xs text-slate-900 break-all select-all font-semibold shadow-inner">
+                            @SecretKeyBase64
+                        </div>
+                        <AppButton
+                            Color="@ComponentColor.Primary"
+                            Variant="@ButtonVariant.Solid"
+                            Class="w-full font-semibold py-3"
+                            OnClick="@GoToLogin">
+                            <StartContent>
+                                <i class="fa-solid fa-arrow-right-to-bracket mr-2"></i>
+                            </StartContent>
+                            <ChildContent>Continue to Login</ChildContent>
+                        </AppButton>
+                    </div>
+                }
+                else
+                {
+                    <form @onsubmit="RegisterAsync" class="grid gap-4">
+                        <AppInputText
+                            Label="Email Address"
+                            @bind-Value="Email"
+                            Type="email"
+                            Icon="fa-regular fa-envelope"
+                            Placeholder="you@example.com"
+                            Required="true"
+                            Disabled="@IsProcessing"
+                            Autocomplete="username" />
+
+                        <AppInputText
+                            Label="Master Password"
+                            @bind-Value="Password"
+                            Type="password"
+                            Icon="fa-solid fa-key"
+                            Placeholder="Create a strong Master Password"
+                            HelpText="Must be strong. PassKee cannot recover your password if forgotten."
+                            Required="true"
+                            Disabled="@IsProcessing"
+                            Autocomplete="new-password" />
+
+                        <div class="mt-2">
+                            <AppButton
+                                Color="@ComponentColor.Primary"
+                                Variant="@ButtonVariant.Solid"
+                                Class="w-full font-semibold py-3"
+                                IsLoading="@IsProcessing"
+                                Type="@ButtonType.Submit">
+                                <StartContent>
+                                    <i class="fa-solid fa-shield mr-2"></i>
+                                </StartContent>
+                                <ChildContent>Create Encrypted Vault</ChildContent>
+                            </AppButton>
+                        </div>
+                    </form>
+                }
+            </div>
+
+            <div class="mt-8 pt-6 border-t border-slate-100 text-center text-sm text-slate-500">
+                <span>Already have a PassKee account?</span>
+                <a href="/login" class="ml-1.5 font-semibold text-blue-600 hover:text-blue-700 transition hover:underline">
+                    Sign In
+                </a>
+            </div>
+        </section>
     </div>
-}
-else
-{
-    <div class="form-group mb-3">
-        <label>Email</label>
-        <input type="email" class="form-control" @bind="Email" />
-    </div>
-
-    <div class="form-group mb-3">
-        <label>Master Password</label>
-        <input type="password" class="form-control" @bind="Password" />
-    </div>
-
-    <button class="btn btn-primary" @onclick="RegisterAsync" disabled="@IsProcessing">
-        @if (IsProcessing)
-        {
-            <span>Processing... (This may take a moment)</span>
-        }
-        else
-        {
-            <span>Register</span>
-        }
-    </button>
-}
+</div>

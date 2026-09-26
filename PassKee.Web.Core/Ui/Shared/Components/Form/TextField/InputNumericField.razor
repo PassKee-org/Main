@@ -1,0 +1,81 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components.Form.TextField
+@inherits PassKee.Web.Core.Ui.Shared.Components.Form.TextField.Core.BaseInputField<TItem>
+@typeparam TItem where TItem : struct
+
+<div
+    class="@(IsFullWidth ? "w-full" : "w-auto") @WrapperClass">
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <label
+            class="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+            @Label
+            @if (IsRequired)
+            {
+                <span
+                    class="text-rose-500 ms-0.5">*</span>
+            }
+        </label>
+    }
+
+    <div
+        class="@ContainerClasses @InputSizeClasses @Class">
+        @if (StartContent != null)
+        {
+            <div
+                class="flex items-center pl-3 pr-1 text-slate-400 shrink-0">
+                @StartContent
+            </div>
+        }
+
+        <input
+            type="number"
+            step="@Step"
+            min="@Min"
+            max="@Max"
+            value="@_stringValue"
+            @oninput="HandleInput"
+            @onchange="HandleChange"
+            @onfocus="HandleFocus"
+            @onblur="HandleBlur"
+            placeholder="@Placeholder"
+            disabled="@IsDisabled"
+            readonly="@IsReadOnly"
+            class="w-full h-full bg-transparent border-0 px-3.5 py-1.5 text-inherit placeholder:text-slate-400 focus:outline-hidden focus:ring-0 disabled:cursor-not-allowed @(StartContent != null ? "!pl-1.5" : "") @(HasEndElements ? "!pr-1.5" : "")"
+            @attributes="AdditionalAttributes" />
+
+        @if (HasEndElements)
+        {
+            <div
+                class="flex items-center gap-1 pr-3 pl-1 shrink-0">
+                @if (IsClearable && !IsDisabled && !IsReadOnly && !string.IsNullOrEmpty(_stringValue))
+                {
+                    <button
+                        type="button"
+                        tabindex="-1"
+                        class="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                        @onclick="ClearAsync">
+                        <i
+                            class="fa-solid fa-circle-xmark text-xs">
+                        </i>
+                    </button>
+                }
+
+                @if (EndContent != null)
+                {
+                    @EndContent
+                }
+            </div>
+        }
+    </div>
+
+    @if (HasError && !string.IsNullOrWhiteSpace(FirstError))
+    {
+        <p
+            class="mt-1.5 text-xs text-rose-500 flex items-center gap-1">
+            <i
+                class="fa-solid fa-circle-exclamation text-[11px]">
+            </i>
+            <span>@FirstError</span>
+        </p>
+    }
+</div>

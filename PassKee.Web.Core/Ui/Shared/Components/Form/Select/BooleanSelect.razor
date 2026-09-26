@@ -1,0 +1,18 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components.Form.Select
+@using PassKee.Web.Core.Ui.Shared.Components.Form.Select.Core
+
+<div
+    class="@Class @(FullWidth ? "w-full" : "")">
+    <AppSelect
+        TValue="bool?"
+        Value="@Value"
+        ValueChanged="@ValueChanged"
+        Items="@_items"
+        ItemText="@GetDisplayText"
+        Label="@Label"
+        Placeholder="@(string.IsNullOrWhiteSpace(Placeholder) ? "Select..." : Placeholder)"
+        IsClearable="@Clearable"
+        IsFullWidth="@FullWidth"
+        Variant="@ResolvedVariant">
+    </AppSelect>
+</div>

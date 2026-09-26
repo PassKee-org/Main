@@ -1,0 +1,110 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components.Tabs
+
+<div
+    class="@ComputedContainerClass"
+    @attributes="AdditionalAttributes">
+    <nav
+        class="@ComputedNavClass"
+        role="tablist"
+        aria-label="@(AriaLabel ?? "Tabs")"
+        aria-orientation="horizontal">
+        <div
+            class="@ComputedTabListClass">
+            @foreach (var tab in Tabs)
+            {
+                var isActive = IsTabActive(tab);
+                var isDisabled = tab.IsDisabled;
+
+                @if (!string.IsNullOrWhiteSpace(tab.Href))
+                {
+                    <a
+                        href="@tab.Href"
+                        class="@GetTabHeaderItemClass(tab, isActive)"
+                        role="tab"
+                        aria-selected="@(isActive ? "true" : "false")"
+                        aria-disabled="@(isDisabled ? "true" : null)"
+                        tabindex="@(isDisabled ? -1 : 0)"
+                        id="@tab.HeaderId"
+                        @onclick="@(() => HandleTabClickAsync(tab))">
+                        @if (tab.TitleTemplate != null)
+                        {
+                            @tab.TitleTemplate
+                        }
+                        else
+                        {
+                            @if (!string.IsNullOrWhiteSpace(tab.Icon))
+                            {
+                                <i
+                                    class="@tab.Icon shrink-0"
+                                    aria-hidden="true">
+                                </i>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(tab.Title))
+                            {
+                                <span>
+                                    @tab.Title
+                                </span>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(tab.Badge))
+                            {
+                                <span
+                                    class="@GetBadgeClass(isActive)">
+                                    @tab.Badge
+                                </span>
+                            }
+                        }
+                    </a>
+                }
+                else
+                {
+                    <button
+                        type="button"
+                        class="@GetTabHeaderItemClass(tab, isActive)"
+                        role="tab"
+                        aria-selected="@(isActive ? "true" : "false")"
+                        aria-controls="@tab.PanelId"
+                        id="@tab.HeaderId"
+                        disabled="@isDisabled"
+                        @onclick="@(() => HandleTabClickAsync(tab))">
+                        @if (tab.TitleTemplate != null)
+                        {
+                            @tab.TitleTemplate
+                        }
+                        else
+                        {
+                            @if (!string.IsNullOrWhiteSpace(tab.Icon))
+                            {
+                                <i
+                                    class="@tab.Icon shrink-0"
+                                    aria-hidden="true">
+                                </i>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(tab.Title))
+                            {
+                                <span>
+                                    @tab.Title
+                                </span>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(tab.Badge))
+                            {
+                                <span
+                                    class="@GetBadgeClass(isActive)">
+                                    @tab.Badge
+                                </span>
+                            }
+                        }
+                    </button>
+                }
+            }
+        </div>
+    </nav>
+
+    <div
+        class="@ComputedBodyClass">
+        <CascadingValue
+            Value="this"
+            IsFixed="true">
+            @ChildContent
+        </CascadingValue>
+    </div>
+</div>
