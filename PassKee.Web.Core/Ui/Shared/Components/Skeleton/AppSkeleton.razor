@@ -1,0 +1,32 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components
+
+@if (ChildContent == null)
+{
+    <div
+        class="@ComputedClass"
+        style="@Style"
+        aria-hidden="true"
+        @attributes="AdditionalAttributes">
+    </div>
+}
+else if (IsLoaded)
+{
+    <div
+        class="@LoadedClass"
+        style="@Style"
+        @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+}
+else
+{
+    <div
+        class="@ComputedClass"
+        style="@Style"
+        aria-busy="true"
+        @attributes="AdditionalAttributes">
+        <div class="invisible pointer-events-none">
+            @ChildContent
+        </div>
+    </div>
+}

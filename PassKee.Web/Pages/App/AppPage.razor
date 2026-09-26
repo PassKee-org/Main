@@ -1,0 +1,214 @@
+@page "/app"
+
+<div class="min-h-screen bg-slate-50 flex flex-col font-sans">
+    @* Top App Bar *@
+    <header class="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
+        <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+            <div class="flex items-center gap-6">
+                <a href="/app" class="flex items-center gap-2.5 font-bold text-xl text-blue-600">
+                    <i class="fa-solid fa-shield-halved text-2xl text-blue-600"></i>
+                    <span class="tracking-tight text-slate-900 font-extrabold">Pass<span class="text-blue-600">Kee</span></span>
+                </a>
+                <nav class="hidden sm:flex items-center gap-1">
+                    <a href="/app" class="px-3 py-1.5 rounded-lg text-sm font-semibold bg-blue-50 text-blue-600">
+                        <i class="fa-solid fa-vault mr-1.5"></i> Vault
+                    </a>
+                    <button type="button" @onclick="@(() => ToastService.ShowInfo("Password generator coming soon."))" class="px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i> Generator
+                    </button>
+                    <button type="button" @onclick="@(() => ToastService.ShowInfo("Security audit coming soon."))" class="px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer">
+                        <i class="fa-solid fa-chart-pie mr-1.5"></i> Security
+                    </button>
+                </nav>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <AppBadge Variant="@BadgeVariant.Flat" Color="@ComponentColor.Success" Radius="@BadgeRadius.Full">
+                    <i class="fa-solid fa-circle text-[8px] mr-1"></i> Synced
+                </AppBadge>
+                <AppButton Color="@ComponentColor.Default" Variant="@ButtonVariant.Outlined" Radius="@ButtonRadius.Medium" OnClick="@LockVaultAsync">
+                    <i class="fa-solid fa-lock mr-1.5"></i> Lock
+                </AppButton>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        @* Page Header *@
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+            <div>
+                <div class="flex items-center gap-3">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">PassKee Vault</h1>
+                    <AppBadge Variant="@BadgeVariant.Flat" Color="@ComponentColor.Success" Radius="@BadgeRadius.Full">
+                        <i class="fa-solid fa-shield-check"></i> Encrypted
+                    </AppBadge>
+                </div>
+                <p class="mt-1 text-sm text-slate-500">Your zero-knowledge encrypted credentials & secure secrets vault.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <AppButton Color="@ComponentColor.Default" Variant="@ButtonVariant.Outlined" OnClick="@LockVaultAsync">
+                    <i class="fa-solid fa-lock mr-2"></i> Lock Vault
+                </AppButton>
+                <AppButton Color="@ComponentColor.Primary" Variant="@ButtonVariant.Solid" OnClick="@AddNewItemAsync">
+                    <i class="fa-solid fa-plus mr-2"></i> Add Item
+                </AppButton>
+            </div>
+        </div>
+
+        @* Stat Cards *@
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <AppCard>
+                <AppCardBody>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-slate-500">Total Logins</span>
+                        <div class="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                            <i class="fa-solid fa-key text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-2xl font-bold text-slate-900">12</div>
+                    <span class="text-xs text-emerald-600 font-medium">All synced</span>
+                </AppCardBody>
+            </AppCard>
+
+            <AppCard>
+                <AppCardBody>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-slate-500">Secure Notes</span>
+                        <div class="h-8 w-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                            <i class="fa-solid fa-note-sticky text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-2xl font-bold text-slate-900">4</div>
+                    <span class="text-xs text-slate-400">Zero-knowledge</span>
+                </AppCardBody>
+            </AppCard>
+
+            <AppCard>
+                <AppCardBody>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-slate-500">Security Score</span>
+                        <div class="h-8 w-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
+                            <i class="fa-solid fa-shield-halved text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-2xl font-bold text-slate-900">98%</div>
+                    <span class="text-xs text-emerald-600 font-medium">Strong master key</span>
+                </AppCardBody>
+            </AppCard>
+
+            <AppCard>
+                <AppCardBody>
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-slate-500">Compromised</span>
+                        <div class="h-8 w-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center">
+                            <i class="fa-solid fa-triangle-exclamation text-sm"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 text-2xl font-bold text-slate-900">0</div>
+                    <span class="text-xs text-emerald-600 font-medium">No leaks found</span>
+                </AppCardBody>
+            </AppCard>
+        </div>
+
+        @* Interactive Components Demo Section *@
+        <div class="mb-8">
+            <AppCard>
+                <AppCardHeader>
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-flask text-blue-600"></i>
+                        <h3 class="font-semibold text-slate-900">Interactive Core UI Showcase</h3>
+                    </div>
+                </AppCardHeader>
+                <AppCardBody>
+                    <p class="text-sm text-slate-600 mb-4">
+                        Test the new PassKee Core UI component system ported from TimeVic: Toasts, Modals, Buttons, Badges, and Switches.
+                    </p>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <AppButton Color="@ComponentColor.Success" Variant="@ButtonVariant.Solid" OnClick="@TriggerSuccessToast">
+                            Show Success Toast
+                        </AppButton>
+                        <AppButton Color="@ComponentColor.Danger" Variant="@ButtonVariant.Solid" OnClick="@TriggerErrorToast">
+                            Show Error Toast
+                        </AppButton>
+                        <AppButton Color="@ComponentColor.Warning" Variant="@ButtonVariant.Outlined" OnClick="@TriggerWarningToast">
+                            Show Warning Toast
+                        </AppButton>
+                        <AppButton Color="@ComponentColor.Info" Variant="@ButtonVariant.Outlined" OnClick="@TriggerInfoToast">
+                            Show Info Toast
+                        </AppButton>
+                        <AppButton Color="@ComponentColor.Primary" Variant="@ButtonVariant.Flat" OnClick="@TriggerConfirmModal">
+                            Open Modal Dialog
+                        </AppButton>
+                    </div>
+                </AppCardBody>
+            </AppCard>
+        </div>
+
+        @* Vault Items Stub Table / List *@
+        <AppCard>
+            <AppCardHeader>
+                <div class="flex items-center justify-between">
+                    <h3 class="font-semibold text-slate-900">Recent Credentials</h3>
+                    <span class="text-xs text-slate-400">Encrypted with Master Vault Key</span>
+                </div>
+            </AppCardHeader>
+            <AppCardBody>
+                <div class="divide-y divide-slate-100">
+                    <div class="py-3.5 flex items-center justify-between">
+                        <div class="flex items-center gap-3.5">
+                            <div class="h-10 w-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                                <i class="fa-brands fa-google"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium text-slate-900">Google Workspace</div>
+                                <div class="text-xs text-slate-500">user@passkee.local</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <AppBadge Variant="@BadgeVariant.Flat" Color="@ComponentColor.Primary">Password</AppBadge>
+                            <AppButton Color="@ComponentColor.Default" Variant="@ButtonVariant.Light" OnClick="@(() => CopyPassword("Google"))">
+                                <i class="fa-regular fa-copy"></i>
+                            </AppButton>
+                        </div>
+                    </div>
+
+                    <div class="py-3.5 flex items-center justify-between">
+                        <div class="flex items-center gap-3.5">
+                            <div class="h-10 w-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold">
+                                <i class="fa-brands fa-github"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium text-slate-900">GitHub</div>
+                                <div class="text-xs text-slate-500">developer@github.com</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <AppBadge Variant="@BadgeVariant.Flat" Color="@ComponentColor.Primary">Password</AppBadge>
+                            <AppButton Color="@ComponentColor.Default" Variant="@ButtonVariant.Light" OnClick="@(() => CopyPassword("GitHub"))">
+                                <i class="fa-regular fa-copy"></i>
+                            </AppButton>
+                        </div>
+                    </div>
+
+                    <div class="py-3.5 flex items-center justify-between">
+                        <div class="flex items-center gap-3.5">
+                            <div class="h-10 w-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+                                <i class="fa-brands fa-aws"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium text-slate-900">AWS Console</div>
+                                <div class="text-xs text-slate-500">admin-root</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <AppBadge Variant="@BadgeVariant.Flat" Color="@ComponentColor.Warning">2FA Required</AppBadge>
+                            <AppButton Color="@ComponentColor.Default" Variant="@ButtonVariant.Light" OnClick="@(() => CopyPassword("AWS Console"))">
+                                <i class="fa-regular fa-copy"></i>
+                            </AppButton>
+                        </div>
+                    </div>
+                </div>
+            </AppCardBody>
+        </AppCard>
+    </main>
+</div>

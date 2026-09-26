@@ -1,0 +1,28 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components.Form.Select
+@using PassKee.Web.Core.Ui.Shared.Components.Form.Select.Core
+
+@typeparam TItem where TItem: struct, IConvertible
+@inherits AppBaseSelect
+
+<div
+    class="@Class @(FullWidth ? "w-full" : "")">
+    <AppSelect
+        TValue="TItem?"
+        IsMultiple="@IsMultiple"
+        Value="@Value"
+        ValueChanged="@OnSingleValueChanged"
+        Values="@InternalValues"
+        ValuesChanged="@OnMultipleValuesChanged"
+        Items="@_list"
+        ItemText="@GetDisplayName"
+        ItemIcon="@GetItemIcon"
+        Label="@Label"
+        Placeholder="@(string.IsNullOrWhiteSpace(Placeholder) ? "Select..." : Placeholder)"
+        IsDisabled="@Disabled"
+        IsClearable="@(Clearable || AllowClear)"
+        IsFullWidth="@FullWidth"
+        Variant="@ResolvedVariant"
+        Color="@DropDownColor"
+        Size="@Size">
+    </AppSelect>
+</div>

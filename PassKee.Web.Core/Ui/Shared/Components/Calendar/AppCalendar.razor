@@ -1,0 +1,70 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components.Calendar
+
+<div class="select-none p-3 w-[280px] bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 @Class">
+    <!-- Header: Prev, Month Year, Next -->
+    <div class="flex items-center justify-between mb-3 px-1">
+        <button
+            type="button"
+            class="w-7 h-7 flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-700/60 transition-colors cursor-pointer"
+            @onclick="PreviousMonth"
+            @onclick:stopPropagation="true"
+            aria-label="Previous Month">
+            <i class="fa-solid fa-chevron-left text-xs"></i>
+        </button>
+
+        <div class="text-sm font-semibold text-slate-800 dark:text-slate-100 capitalize">
+            @_displayMonth.ToString("MMMM yyyy", System.Globalization.CultureInfo.CurrentUICulture)
+        </div>
+
+        <button
+            type="button"
+            class="w-7 h-7 flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-700/60 transition-colors cursor-pointer"
+            @onclick="NextMonth"
+            @onclick:stopPropagation="true"
+            aria-label="Next Month">
+            <i class="fa-solid fa-chevron-right text-xs"></i>
+        </button>
+    </div>
+
+    <!-- Weekday Labels -->
+    <div class="grid grid-cols-7 mb-1 text-center text-xs font-medium">
+        <span class="py-1 text-slate-400 dark:text-slate-500">@GetDayName(DayOfWeek.Monday)</span>
+        <span class="py-1 text-slate-400 dark:text-slate-500">@GetDayName(DayOfWeek.Tuesday)</span>
+        <span class="py-1 text-slate-400 dark:text-slate-500">@GetDayName(DayOfWeek.Wednesday)</span>
+        <span class="py-1 text-slate-400 dark:text-slate-500">@GetDayName(DayOfWeek.Thursday)</span>
+        <span class="py-1 text-slate-400 dark:text-slate-500">@GetDayName(DayOfWeek.Friday)</span>
+        <span class="py-1 text-rose-500 dark:text-rose-400">@GetDayName(DayOfWeek.Saturday)</span>
+        <span class="py-1 text-rose-500 dark:text-rose-400">@GetDayName(DayOfWeek.Sunday)</span>
+    </div>
+
+    <!-- 42 Days Grid (6 weeks x 7 days) -->
+    <div class="grid grid-cols-7 gap-y-1 gap-x-1 text-center text-xs">
+        @foreach (var day in GetCalendarDays())
+        {
+            var isCurrentMonth = day.Month == _displayMonth.Month;
+            var isSelected = Value.HasValue && day.Date == Value.Value.Date;
+            var isToday = day.Date == DateTime.Today;
+            var isWeekend = day.DayOfWeek == DayOfWeek.Saturday || day.DayOfWeek == DayOfWeek.Sunday;
+            var isDisabled = DisabledDateFunc?.Invoke(day) ?? false;
+
+            <button
+                type="button"
+                disabled="@isDisabled"
+                @onclick="() => SelectDate(day)"
+                @onclick:stopPropagation="true"
+                class="w-8 h-8 mx-auto flex items-center justify-center rounded-lg transition-all text-xs cursor-pointer
+                    @(isSelected 
+                        ? "bg-blue-600 text-white font-semibold shadow-xs hover:bg-blue-700" 
+                        : isToday 
+                            ? "border border-blue-500 font-semibold " + (isCurrentMonth ? (isWeekend ? "text-rose-500 dark:text-rose-400" : "text-slate-800 dark:text-slate-100") : "text-slate-400 dark:text-slate-500")
+                            : !isCurrentMonth 
+                                ? "text-slate-300 dark:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700/40" 
+                                : isWeekend 
+                                    ? "text-rose-500 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30" 
+                                    : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60")
+                    @(isDisabled ? "opacity-25 cursor-not-allowed pointer-events-none" : "")">
+                @day.Day
+            </button>
+        }
+    </div>
+</div>

@@ -1,0 +1,221 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components.Form.Select
+@using PassKee.Web.Core.Ui.Shared.Components.Form.Select.Core
+
+@typeparam TValue
+@inherits AppBaseSelect
+
+<div
+    class="relative select-container @(IsFullWidth ? "w-full" : "w-auto") @Class"
+    @onkeydown="HandleKeyDown">
+
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <label
+            class="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+            @Label
+        </label>
+    }
+
+    @* Transparent Backdrop to catch outside clicks *@
+    @if (IsOpen)
+    {
+        <div
+            class="fixed inset-0 z-40 bg-transparent"
+            @onclick="Close"
+            @onclick:stopPropagation="true">
+        </div>
+    }
+
+    @* Trigger Element *@
+    @if (ResolvedVariant == SelectVariant.Button)
+    {
+        <button
+            type="button"
+            class="inline-flex items-center justify-between gap-2 @ButtonSizeClasses font-medium border transition-all duration-150 cursor-pointer select-none @ButtonColorClasses @(IsOpen ? "ring-2 ring-blue-500/20" : "") @(IsDisabled ? "opacity-60 cursor-not-allowed" : "") @(IsFullWidth ? "w-full" : "")"
+            disabled="@IsDisabled"
+            @onclick="ToggleOpen"
+            @onclick:stopPropagation="true">
+            <span
+                class="truncate">
+                @if (TriggerContent != null)
+                {
+                    @TriggerContent
+                }
+                else
+                {
+                    @SelectedDisplaySummary
+                }
+            </span>
+            <i
+                class="fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200 @(IsOpen ? "rotate-180" : "")">
+            </i>
+        </button>
+    }
+    else
+    {
+        <div
+            class="@(IsAutoHeight ? AutoHeightInputSizeClasses : InputSizeClasses) w-full border transition-all duration-150 flex items-center justify-between bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 cursor-pointer select-none @BorderAndRingClasses @(IsDisabled ? "bg-slate-50 dark:bg-slate-900/50 text-slate-400 cursor-not-allowed" : "")"
+            tabindex="@(IsDisabled ? -1 : 0)"
+            @onclick="ToggleOpen"
+            @onclick:stopPropagation="true">
+            <div
+                class="@(IsAutoHeight ? "flex items-center gap-2 flex-1 min-w-0" : "flex items-center gap-2 truncate flex-1 min-w-0")">
+                @if (PrefixContent != null)
+                {
+                    @PrefixContent
+                }
+                @if (TriggerContent != null)
+                {
+                    @TriggerContent
+                }
+                else
+                {
+                    @if (!IsMultiple && Value != null && ItemIcon != null && !string.IsNullOrWhiteSpace(ItemIcon(Value)))
+                    {
+                        <i
+                            class="@ItemIcon(Value) shrink-0 text-slate-400">
+                        </i>
+                    }
+                    <span
+                        class="truncate @(!HasValue ? "text-slate-400" : "")">
+                        @SelectedDisplaySummary
+                    </span>
+                }
+                @if (IsMultiple && Values != null && Values.Count > 1)
+                {
+                    <span
+                        class="ml-1 px-1.5 py-0.5 text-[11px] font-semibold bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 rounded-full shrink-0">
+                        @Values.Count
+                    </span>
+                }
+            </div>
+            <div
+                class="flex items-center gap-1.5 shrink-0 ml-2">
+                @if (IsClearable && HasValue && !IsDisabled)
+                {
+                    <button
+                        type="button"
+                        class="p-0.5 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                        @onclick="ClearAsync"
+                        @onclick:stopPropagation="true"
+                        title="Clear">
+                        <i
+                            class="fa-solid fa-xmark text-xs">
+                        </i>
+                    </button>
+                }
+                <i
+                    class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform duration-200 @(IsOpen ? "rotate-180 text-blue-600" : "")">
+                </i>
+            </div>
+        </div>
+    }
+
+    @* Floating Dropdown Menu Panel *@
+    @if (IsOpen)
+    {
+        <div
+            class="absolute left-0 top-full mt-1.5 z-50 min-w-full w-max max-w-xs md:max-w-md rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-1.5 shadow-xl shadow-slate-900/10 dark:shadow-black/40 overflow-hidden @PopupClass"
+            @onclick:stopPropagation="true">
+
+            @if (HasSearch)
+            {
+                <div
+                    class="p-1 mb-1 border-b border-slate-100 dark:border-slate-700/60">
+                    <div
+                        class="relative flex items-center">
+                        <i
+                            class="fa-solid fa-magnifying-glass absolute left-2.5 text-xs text-slate-400">
+                        </i>
+                        <input
+                            type="text"
+                            class="w-full pl-7 pr-2.5 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-blue-500 text-slate-800 dark:text-slate-100"
+                            placeholder="@(SearchPlaceholder ?? "Search...")"
+                            value="@_searchText"
+                            @oninput="OnSearchInput" />
+                    </div>
+                </div>
+            }
+
+            <div
+                class="overflow-y-auto @MaxHeight space-y-0.5 overscroll-contain">
+                <CascadingValue
+                    Value="this"
+                    IsFixed="true">
+                    @if (Items != null)
+                    {
+                        @foreach (var item in FilteredItems)
+                        {
+                            var isSelected = IsSelected(item);
+                            var isDisabled = ItemDisabled != null && ItemDisabled(item);
+                            var text = GetItemDisplay(item);
+                            var desc = ItemDescription != null ? ItemDescription(item) : null;
+                            var icon = ItemIcon != null ? ItemIcon(item) : null;
+
+                            <div
+                                class="w-full px-3 py-2 rounded-lg text-xs md:text-sm flex items-center justify-between gap-2 transition-colors cursor-pointer select-none @(isSelected ? "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-medium" : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60") @(isDisabled ? "opacity-50 cursor-not-allowed" : "")"
+                                @onclick="@(() => isDisabled ? Task.CompletedTask : SelectItemAsync(item))">
+
+                                <div
+                                    class="flex items-center gap-2.5 truncate flex-1 min-w-0">
+                                    @if (IsMultiple)
+                                    {
+                                        <div
+                                            class="h-4 w-4 rounded border flex items-center justify-center shrink-0 transition-colors @(isSelected ? "bg-blue-600 border-blue-600 text-white" : "border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700")">
+                                            @if (isSelected)
+                                            {
+                                                <i
+                                                    class="fa-solid fa-check text-[10px]">
+                                                </i>
+                                            }
+                                        </div>
+                                    }
+
+                                    @if (!string.IsNullOrWhiteSpace(icon))
+                                    {
+                                        <i
+                                            class="@icon text-slate-400 shrink-0">
+                                        </i>
+                                    }
+
+                                    <div
+                                        class="truncate">
+                                        <div
+                                            class="truncate">
+                                            @if (ItemTemplate != null)
+                                            {
+                                                @ItemTemplate(item)
+                                            }
+                                            else
+                                            {
+                                                @text
+                                            }
+                                        </div>
+                                        @if (!string.IsNullOrWhiteSpace(desc))
+                                        {
+                                            <div
+                                                class="text-[11px] text-slate-400 font-normal truncate">
+                                                @desc
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+
+                                @if (!IsMultiple && isSelected)
+                                {
+                                    <i
+                                        class="fa-solid fa-check text-xs text-blue-600 dark:text-blue-400 shrink-0 ml-2">
+                                    </i>
+                                }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        @ChildContent
+                    }
+                </CascadingValue>
+            </div>
+        </div>
+    }
+</div>

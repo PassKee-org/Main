@@ -7,4 +7,15 @@
         <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
     </PropertyGroup>
 
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.0.11" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\PassKee.Web\PassKee.Web.csproj" />
+        <ProjectReference Include="..\PassKee.Web.Core\PassKee.Web.Core.csproj" />
+        <ProjectReference Include="..\PassKee.Api.Shared\PassKee.Api.Shared.csproj" />
+        <ProjectReference Include="..\PassKee.Business.Extensions\PassKee.Business.Extensions.csproj" />
+    </ItemGroup>
+
 </Project>

@@ -1,0 +1,63 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components
+
+<div
+    class="inline-flex items-center gap-2 @Class"
+    @attributes="AdditionalAttributes">
+    <button
+        type="button"
+        role="checkbox"
+        aria-checked="@(IsIndeterminate ? "mixed" : Value.ToString().ToLowerInvariant())"
+        disabled="@IsDisabled"
+        class="@BoxClasses"
+        @onclick="HandleToggle"
+        @onkeydown="HandleKeyDown">
+        @if (IsIndeterminate)
+        {
+            <svg
+                class="@IconClasses"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round">
+                <line
+                    x1="5"
+                    y1="12"
+                    x2="19"
+                    y2="12">
+                </line>
+            </svg>
+        }
+        else if (Value)
+        {
+            <svg
+                class="@IconClasses"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <polyline
+                    points="20 6 9 17 4 12">
+                </polyline>
+            </svg>
+        }
+    </button>
+    @if (ChildContent != null)
+    {
+        <span
+            class="@LabelClasses cursor-pointer select-none text-slate-700 dark:text-slate-200 @(IsDisabled ? "opacity-50 cursor-not-allowed" : "")"
+            @onclick="HandleToggle">
+            @ChildContent
+        </span>
+    }
+    else if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <span
+            class="@LabelClasses cursor-pointer select-none text-slate-700 dark:text-slate-200 @(IsDisabled ? "opacity-50 cursor-not-allowed" : "")"
+            @onclick="HandleToggle">
+            @Label
+        </span>
+    }
+</div>

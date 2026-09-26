@@ -14,8 +14,9 @@
 | `PassKee.Business.Common` | Reusable utilities (`CryptoUtils`, `StringUtils`), exceptions, constants | Shared across all layers (Domain, API, Web, Tests) |
 | `PassKee.Orm` | NHibernate entity definitions (`UserEntity`), Fluent mappings | Extends `AEntity`, uses UUID v7 |
 | `PassKee.Migrations` | FluentMigrator console application (PostgreSQL) | Manages database schema migrations |
-| `PassKee.Web` | Blazor WebAssembly/Server frontend | Uses Fluxor state management, `ApiService`, code-behind pattern |
-| `PassKee.Web.Server` | ASP.NET Core host for Blazor application | Host for Web frontend |
+| `PassKee.Web` | Blazor WebAssembly client application | Interactive client SPA; uses Fluxor, `ApiService`, code-behind pattern |
+| `PassKee.Web.Core` | Reusable UI components, modals, toasts, forms, layouts, client services | Razor Class Library; shared between `PassKee.Web` and `PassKee.Web.Server` |
+| `PassKee.Web.Server` | ASP.NET Core host for Blazor application | Hosts static SSR landing pages and boots Interactive WebAssembly SPA |
 | `PassKee.WorkerServices` | Background queue processors and hosted services | Background processing |
 | `PassKee.Tests.Unit` | Fast unit tests for utilities, cryptography, extensions | Uses xUnit |
 | `PassKee.Tests.Integration.Api` | End-to-end API integration tests | Uses `ApiCustomWebApplicationFactory` & PostgreSQL test database |
@@ -123,6 +124,20 @@ Common cryptographic workflows live in `PassKee.Business.Common/Utils/CryptoUtil
   - Store actions in `Store/<Feature>/<Feature>Actions.cs`.
   - State records in `Store/<Feature>/<Feature>State.cs`.
   - Reducers in `Store/<Feature>/<Feature>Reducers.cs`.
+
+### 4. Mandatory Use of Shared UI Components (`PassKee.Web.Core/Ui/Shared/Components/`)
+- **Always Reuse Existing Shared Components**: Never hand-craft raw HTML inputs, buttons, tables, dropdowns, popovers, or modals in pages. Always use standard components from `PassKee.Web.Core.Ui.Shared.Components`:
+  - **Inputs & Text Fields**: `AppInputText`, `InputTextField`, `InputTextareaField`, `InputNumericField`, `InputDateField` (with `AppCalendar`), `InlineTextEdit`.
+  - **Select & Pickers**: `AppSelect`, `AppSelectItem`, `BooleanSelect`, `EnumSelect`.
+  - **Switches & Toggles**: `AppCheckbox`, `AppSwitch`.
+  - **Buttons & Spinners**: `AppButton`, `AppSpinner`, `AppSkeleton`.
+  - **Badges & Chips**: `AppBadge`, `AppChip`.
+  - **Containers & Layout**: `AppCard` (`AppCardHeader`, `AppCardBody`, `AppCardFooter`), `AppTabs`, `AppTab`, `PaginatedItemsListBlock`.
+  - **Overlays & Dialogs**: `AppDropdown`, `AppDropdownItem`, `AppPopover`, `AppModalWindow`, `AppConfirmationModal`, `AppToastContainer`, `AppToastItem`.
+  - **Data Display**: `AppTable` (wraps QuickGrid with Tailwind styling, sorting, and pagination), `UserAvatarBlock`.
+  - **Validation**: `CustomValidationSummary`, `CustomValidationMessage`.
+- **Consistent Styling**: All shared components follow standard Tailwind CSS classes. Do not create auxiliary CSS/LESS stylesheets when Tailwind utilities can achieve the design.
+- **Code-Behind Rule**: Every new or modified shared component must strictly separate markup (`.razor`) and C# logic (`.razor.cs`). Inline `@code` blocks in `.razor` files are forbidden.
 
 ---
 

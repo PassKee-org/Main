@@ -79,7 +79,7 @@ public partial class Login
             var authResponse = await ApiService.LoginAsync(request);
             if (authResponse != null && !string.IsNullOrEmpty(authResponse.AccessToken))
             {
-                NavigationManager.NavigateTo("/");
+                NavigationManager.NavigateTo("/app");
             }
             else
             {

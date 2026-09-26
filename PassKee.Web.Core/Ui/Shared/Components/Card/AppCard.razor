@@ -1,0 +1,19 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components
+
+@if (OnClick.HasDelegate)
+{
+    <div
+        class="@ComputedClass"
+        @onclick="HandleClick"
+        @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+}
+else
+{
+    <div
+        class="@ComputedClass"
+        @attributes="AdditionalAttributes">
+        @ChildContent
+    </div>
+}

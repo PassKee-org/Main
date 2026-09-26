@@ -1,0 +1,37 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components
+
+<div
+    class="inline-flex items-center gap-2.5 @Class"
+    @attributes="AdditionalAttributes">
+    <button
+        type="button"
+        role="switch"
+        aria-checked="@Value.ToString().ToLowerInvariant()"
+        disabled="@IsDisabled"
+        class="@TrackClasses"
+        @onclick="HandleToggle"
+        @onkeydown="HandleKeyDown">
+        <span class="@ThumbClasses">
+            @if (ThumbContent != null)
+            {
+                @ThumbContent
+            }
+        </span>
+    </button>
+    @if (ChildContent != null)
+    {
+        <span
+            class="@LabelClasses cursor-pointer select-none text-slate-700 dark:text-slate-200 @(IsDisabled ? "opacity-50 cursor-not-allowed" : "")"
+            @onclick="HandleToggle">
+            @ChildContent
+        </span>
+    }
+    else if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <span
+            class="@LabelClasses cursor-pointer select-none text-slate-700 dark:text-slate-200 @(IsDisabled ? "opacity-50 cursor-not-allowed" : "")"
+            @onclick="HandleToggle">
+            @Label
+        </span>
+    }
+</div>

@@ -1,0 +1,126 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components
+
+@if (OnClick.HasDelegate)
+{
+    <button
+        type="button"
+        class="@ComputedClass"
+        style="@Style"
+        disabled="@IsDisabled"
+        @onclick="HandleClickAsync"
+        @attributes="AdditionalAttributes">
+        @if (IsDot)
+        {
+            <span
+                class="@DotClass"
+                aria-hidden="true">
+            </span>
+        }
+        @if (StartContent != null)
+        {
+            <span
+                class="inline-flex shrink-0 items-center">
+                @StartContent
+            </span>
+        }
+        else if (!string.IsNullOrEmpty(Icon))
+        {
+            <i
+                class="@Icon shrink-0"
+                aria-hidden="true">
+            </i>
+        }
+        @if (ChildContent != null)
+        {
+            @ChildContent
+        }
+        else if (!string.IsNullOrEmpty(Text))
+        {
+            <span>
+                @Text
+            </span>
+        }
+        @if (EndContent != null)
+        {
+            <span
+                class="inline-flex shrink-0 items-center">
+                @EndContent
+            </span>
+        }
+        @if (IsDismissible)
+        {
+            <button
+                type="button"
+                class="@CloseButtonClass"
+                aria-label="Remove"
+                @onclick="HandleCloseClickAsync"
+                @onclick:stopPropagation="true">
+                <i
+                    class="fa-solid fa-xmark text-[10px]"
+                    aria-hidden="true">
+                </i>
+            </button>
+        }
+    </button>
+}
+else
+{
+    <span
+        class="@ComputedClass"
+        style="@Style"
+        @attributes="AdditionalAttributes">
+        @if (IsDot)
+        {
+            <span
+                class="@DotClass"
+                aria-hidden="true">
+            </span>
+        }
+        @if (StartContent != null)
+        {
+            <span
+                class="inline-flex shrink-0 items-center">
+                @StartContent
+            </span>
+        }
+        else if (!string.IsNullOrEmpty(Icon))
+        {
+            <i
+                class="@Icon shrink-0"
+                aria-hidden="true">
+            </i>
+        }
+        @if (ChildContent != null)
+        {
+            @ChildContent
+        }
+        else if (!string.IsNullOrEmpty(Text))
+        {
+            <span>
+                @Text
+            </span>
+        }
+        @if (EndContent != null)
+        {
+            <span
+                class="inline-flex shrink-0 items-center">
+                @EndContent
+            </span>
+        }
+        @if (IsDismissible)
+        {
+            <button
+                type="button"
+                class="@CloseButtonClass"
+                aria-label="Remove"
+                @onclick="HandleCloseClickAsync"
+                @onclick:stopPropagation="true">
+                <i
+                    class="fa-solid fa-xmark text-[10px]"
+                    aria-hidden="true">
+                </i>
+            </button>
+        }
+    </span>
+}
+

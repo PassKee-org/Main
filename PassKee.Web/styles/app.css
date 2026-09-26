@@ -1,2 +1,32 @@
-@import "tailwindcss";
+@import "tailwindcss" source(none);
 
+@custom-variant dark (&:where(.never-match-dark));
+
+@source "../App.razor";
+@source "../_Imports.razor";
+@source "../Pages/**/*.razor";
+@source "../Pages/**/*.cs";
+@source "../Layout/**/*.razor";
+@source "../Layout/**/*.cs";
+@source "../wwwroot/index.html";
+@source "../../PassKee.Web.Core/Ui/**/*.razor";
+@source "../../PassKee.Web.Core/Ui/**/*.cs";
+@source "../../PassKee.Web.Server/Components/**/*.razor";
+@source "../../PassKee.Web.Server/Components/**/*.cs";
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+@layer components {
+    .app-modal-footer-full-width > * {
+        flex: 1 1 0% !important;
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+}

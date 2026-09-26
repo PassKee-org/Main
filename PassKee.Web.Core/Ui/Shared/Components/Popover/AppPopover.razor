@@ -1,0 +1,40 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components.Popover
+
+<div
+    class="relative inline-flex items-center @Class"
+    @onmouseenter="HandleMouseEnter"
+    @onmouseleave="HandleMouseLeave">
+
+    <div
+        class="inline-flex items-center cursor-pointer"
+        @onclick="HandleTriggerClick"
+        @onclick:stopPropagation="true">
+        @Trigger
+    </div>
+
+    @if (IsOpen)
+    {
+        @if (_isOpenedByClick)
+        {
+            @* Transparent backdrop for outside clicks when opened via click *@
+            <div
+                class="fixed inset-0 z-40 bg-transparent"
+                @onclick="Close"
+                @onclick:stopPropagation="true">
+            </div>
+        }
+
+        <div
+            class="absolute @PlacementClasses z-50 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2.5 shadow-xl shadow-slate-900/10 dark:shadow-black/40 @ColorClasses @PanelClass"
+            @onclick:stopPropagation="true">
+            @if (Content != null)
+            {
+                @Content
+            }
+            else if (ChildContent != null)
+            {
+                @ChildContent
+            }
+        </div>
+    }
+</div>

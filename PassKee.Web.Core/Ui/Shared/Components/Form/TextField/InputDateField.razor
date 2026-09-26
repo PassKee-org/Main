@@ -1,0 +1,124 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components.Form.TextField
+@inherits PassKee.Web.Core.Ui.Shared.Components.Form.TextField.Core.BaseInputField<TValue>
+@using PassKee.Web.Core.Ui.Shared.Components.Calendar
+
+@typeparam TValue
+
+<div
+    class="relative @(IsFullWidth ? "w-full" : "w-auto") @WrapperClass"
+    @onkeydown="HandleKeyDown">
+
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <label
+            class="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+            @Label
+            @if (IsRequired)
+            {
+                <span class="text-rose-500 ms-0.5">*</span>
+            }
+        </label>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Description))
+    {
+        <p class="mb-1.5 text-xs text-slate-500 dark:text-slate-400">@Description</p>
+    }
+
+    @* Transparent Backdrop to catch outside clicks *@
+    @if (_isOpen)
+    {
+        <div
+            class="fixed inset-0 z-40 bg-transparent"
+            @onclick="ClosePopover"
+            @onclick:stopPropagation="true">
+        </div>
+    }
+
+    <div
+        class="@ContainerClasses @InputSizeClasses @Class cursor-text"
+        @onclick="OpenPopover">
+
+        <div
+            class="flex items-center pl-3 pr-1 text-slate-400 shrink-0">
+            @if (StartContent != null)
+            {
+                @StartContent
+            }
+            else
+            {
+                <button
+                    type="button"
+                    tabindex="-1"
+                    class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                    @onclick="TogglePopover"
+                    @onclick:stopPropagation="true"
+                    aria-label="Calendar">
+                    <i class="fa-regular fa-calendar text-xs"></i>
+                </button>
+            }
+        </div>
+
+        <input
+            type="text"
+            inputmode="numeric"
+            value="@_dateString"
+            @oninput="HandleInput"
+            @onchange="HandleChange"
+            @onfocus="HandleFocus"
+            @onblur="HandleBlur"
+            placeholder="@(string.IsNullOrEmpty(Placeholder) ? "yyyy-mm-dd" : Placeholder)"
+            disabled="@IsDisabled"
+            readonly="@IsReadOnly"
+            maxlength="10"
+            class="w-full h-full bg-transparent border-0 px-2 py-1.5 text-inherit placeholder:text-slate-400 focus:outline-hidden focus:ring-0 disabled:cursor-not-allowed cursor-text"
+            @attributes="AdditionalAttributes" />
+
+        @if (HasEndElements)
+        {
+            <div
+                class="flex items-center gap-1 pr-3 pl-1 shrink-0">
+                @if (IsClearable && !IsDisabled && !IsReadOnly && !string.IsNullOrEmpty(_dateString))
+                {
+                    <button
+                        type="button"
+                        tabindex="-1"
+                        class="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                        @onclick="HandleClearAsync"
+                        @onclick:stopPropagation="true"
+                        aria-label="Clear">
+                        <i class="fa-solid fa-circle-xmark text-xs"></i>
+                    </button>
+                }
+
+                @if (EndContent != null)
+                {
+                    @EndContent
+                }
+            </div>
+        }
+    </div>
+
+    @* Calendar Dropdown Popover *@
+    @if (_isOpen && !IsDisabled && !IsReadOnly)
+    {
+        <div
+            class="absolute z-50 mt-1.5 left-0 top-full">
+            <AppCalendar
+                Value="@GetDateTimeValue()"
+                ValueChanged="OnCalendarDateSelected"
+                DisabledDateFunc="@DisabledDateFunc" />
+        </div>
+    }
+
+    @if (HasError && !string.IsNullOrWhiteSpace(FirstError))
+    {
+        <p
+            class="mt-1.5 text-xs text-rose-500 flex items-center gap-1">
+            <i
+                class="fa-solid fa-circle-exclamation text-[11px]">
+            </i>
+            <span>@FirstError</span>
+        </p>
+    }
+</div>

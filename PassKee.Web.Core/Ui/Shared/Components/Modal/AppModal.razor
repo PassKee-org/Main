@@ -1,0 +1,25 @@
+@using PassKee.Web.Core.Services.UI.Modal
+
+@if (Open)
+{
+    <div
+        class="app-modal-root fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+        tabindex="-1"
+        @ref="_rootElement"
+        @onkeydown="@HandleKeyDown">
+        <div
+            class="app-modal-backdrop fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] transition-opacity"
+            @onclick="@OnBackdropClick">
+        </div>
+
+        <div
+            class="app-modal-card relative w-full @_sizeClass @ModalClass rounded-2xl bg-white text-left shadow-2xl transition-all border border-slate-200/80 @_cardScrollClass my-auto"
+            @onclick:stopPropagation="true">
+            <CascadingValue
+                Value="this"
+                IsFixed="true">
+                @ChildContent
+            </CascadingValue>
+        </div>
+    </div>
+}

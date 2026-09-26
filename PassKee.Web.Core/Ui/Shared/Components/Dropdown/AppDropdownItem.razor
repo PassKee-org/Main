@@ -1,0 +1,64 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components.Dropdown
+
+@if (ShowDivider)
+{
+    <div
+        class="my-1 border-t border-slate-100 dark:border-slate-700/60"
+        role="separator">
+    </div>
+}
+
+<button
+    type="button"
+    class="@ComputedClass"
+    disabled="@IsDisabled"
+    @onclick="HandleClick"
+    @onclick:stopPropagation="true">
+    <div
+        class="flex items-center gap-2.5 truncate flex-1 min-w-0">
+        @if (StartContent != null)
+        {
+            <span
+                class="shrink-0 inline-flex items-center">
+                @StartContent
+            </span>
+        }
+        else if (!string.IsNullOrWhiteSpace(Icon))
+        {
+            <i
+                class="@Icon text-slate-400 shrink-0">
+            </i>
+        }
+
+        <div
+            class="truncate flex-1">
+            @if (ChildContent != null)
+            {
+                @ChildContent
+            }
+            else if (!string.IsNullOrWhiteSpace(Text))
+            {
+                <div
+                    class="truncate">
+                    @Text
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(Description))
+            {
+                <div
+                    class="text-[11px] text-slate-400 font-normal truncate">
+                    @Description
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (EndContent != null)
+    {
+        <span
+            class="shrink-0 inline-flex items-center">
+            @EndContent
+        </span>
+    }
+</button>

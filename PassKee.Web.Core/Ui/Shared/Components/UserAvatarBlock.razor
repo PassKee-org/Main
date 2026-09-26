@@ -1,0 +1,19 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components
+
+@if (!string.IsNullOrWhiteSpace(AvatarUrl))
+{
+    <img
+        @key="AvatarKey"
+        class="@AvatarClass"
+        src="@AvatarUrl"
+        alt="@AltText"
+        title="@TitleText" />
+}
+else
+{
+    <span
+        class="@AvatarClass"
+        title="@TitleText">
+        @ResolvedInitials
+    </span>
+}

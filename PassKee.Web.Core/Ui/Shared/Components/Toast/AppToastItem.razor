@@ -1,0 +1,27 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components
+
+<div
+    class="@ComputedClass"
+    role="status"
+    @onmouseenter="HandleMouseEnter"
+    @onmouseleave="HandleMouseLeave">
+    <div
+        class="@IconWrapperClass">
+        <i
+            class="@IconClass"></i>
+    </div>
+
+    <div
+        class="min-w-0 flex-1 text-sm font-medium leading-snug">
+        @Toast.Message
+    </div>
+
+    <button
+        type="button"
+        class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:text-slate-200 dark:hover:bg-slate-800 transition-colors"
+        aria-label="Close"
+        @onclick="HandleDismiss">
+        <i
+            class="fa-solid fa-xmark text-xs"></i>
+    </button>
+</div>

@@ -1,0 +1,20 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components.Form.Validation
+@inherits CustomValidationSummaryBase
+
+@if (_validationMessages.Any())
+{
+    <div class="mt-4 rounded-2xl border border-red-200 dark:border-red-900/60 bg-red-50/90 dark:bg-red-950/40 p-4 shadow-sm shadow-red-100/60 dark:shadow-none">
+        <div class="mb-3 flex items-center gap-2 text-sm font-semibold text-red-700 dark:text-red-400">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span>@(string.IsNullOrWhiteSpace(Title) ? "Please fix the highlighted errors" : Title)</span>
+        </div>
+        <div class="text-sm text-red-700 dark:text-red-300 [&_ul]:m-0 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5 [&_li]:leading-6 [&_li::marker]:text-red-400">
+            <ul class="validation-errors">
+                @foreach (var message in _validationMessages)
+                {
+                    <li class="validation-message">@message</li>
+                }
+            </ul>
+        </div>
+    </div>
+}
