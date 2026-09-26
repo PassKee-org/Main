@@ -4,7 +4,7 @@ import com.shared.jenkins.docker.DockerContainer
 
 def effectiveEnvironment = params.ENVIRONMENT ?: 'Development'
 def environmentKey = effectiveEnvironment.toLowerCase()
-def containerSharedDir = "/mnt/local_share/docker_images/timevic"
+def containerSharedDir = "/mnt/local_share/docker_images/passkee"
 def imageName = "latest"
 def imageWebTmpName = "${containerSharedDir}/${environmentKey}_web_latest"
 def imageCommonTmpName = "${containerSharedDir}/${environmentKey}_common_latest"
@@ -15,18 +15,18 @@ def dockerHelper = new DockerHelper(this)
 public Map<String, String> envVariables = new HashMap<String, String>()
 
 def mainContainer = new DockerContainer(
-    name: "timevic-main-${environmentKey}",
+    name: "passkee-main-${environmentKey}",
     dockerFile: 'devops/publish_native/common/Dockerfile',
 );
 
 def migrationContainer = new DockerContainer(
-    name: "timevic-main-${environmentKey}",
+    name: "passkee-main-${environmentKey}",
     dockerFile: 'devops/publish_native/common/Dockerfile',
     isRunAlways: false,
     isRunInBackground: false,
 );
 def webAppContainer = new DockerContainer(
-    name: "timevic-web-${environmentKey}",
+    name: "passkee-web-${environmentKey}",
     dockerFile: 'devops/publish_native/web/Dockerfile',
 );
 
@@ -88,9 +88,9 @@ node('build-node') {
         environmentKey = effectiveEnvironment.toLowerCase()
         imageWebTmpName = "${containerSharedDir}/${environmentKey}_web_latest"
         imageCommonTmpName = "${containerSharedDir}/${environmentKey}_common_latest"
-        mainContainer.name = "timevic-main-${environmentKey}"
-        migrationContainer.name = "timevic-main-${environmentKey}"
-        webAppContainer.name = "timevic-web-${environmentKey}"
+        mainContainer.name = "passkee-main-${environmentKey}"
+        migrationContainer.name = "passkee-main-${environmentKey}"
+        webAppContainer.name = "passkee-web-${environmentKey}"
 
         echo "Branch: ${currentBranchName}"
         echo "Auto-triggered push build: ${isAutoBuildForPush}"
@@ -105,9 +105,6 @@ node('build-node') {
     }
 
     stage('Set environment vars') {
-        // Redis
-        envVariables.put('Redis__Server', '10.10.0.2:6379')
-        
         envVariables.put('Serilog__IsSendEmailIfError', 'false')
         envVariables.put('Serilog__MinimumLevel__Default', 'Debug')
         
@@ -121,68 +118,41 @@ node('build-node') {
         envVariables.put('App__Logging__GrayLog__Host', '192.168.88.30')
         envVariables.put('App__Logging__GrayLog__Port', '12201')
 
-        def dbName = ''
-        def dbPort = ''
+        def dbName = 'passkee'
+        def dbPort = '5432'
         def dbHost = ''
         if (effectiveEnvironment == 'Production')
         {
-            envVariables.put('App__FrontendUrl', 'https://timevic.com')
-            dbName = 'timevic'
-            dbPort = '5432'
+            envVariables.put('App__FrontendUrl', 'https://passkee.org')
             dbHost = '192.168.88.41'
         }
         else if (effectiveEnvironment == 'Development')
         {
-            envVariables.put('App__FrontendUrl', 'https://dev.timevic.com')
-            dbName = 'timevic_dev'
-            dbPort = '5432'
+            envVariables.put('App__FrontendUrl', 'https://dev.passkee.org')
             dbHost = '192.168.88.42'
         }
 
         // Common
         withCredentials([
-                usernamePassword(credentialsId: "timevic_production_smtp_credentials", usernameVariable: 'USER_NAME', passwordVariable: 'PASSWORD')
+                usernamePassword(credentialsId: "passkee_production_smtp_credentials", usernameVariable: 'USER_NAME', passwordVariable: 'PASSWORD')
         ]) {
             envVariables.put('Smtp__UserName', USER_NAME)
             envVariables.put('Smtp__Password', PASSWORD)
         }
-        withCredentials([string(credentialsId: "timevic_production_recaptcha_secret", variable: 'AUTH_SECRET')]) {
+        withCredentials([string(credentialsId: "passkee_production_recaptcha_secret", variable: 'AUTH_SECRET')]) {
             envVariables.put('ReCaptcha__Secret', AUTH_SECRET)
         }
 
         withCredentials([
-                usernamePassword(credentialsId: "timevic_${environmentKey}_db_credentials", usernameVariable: 'USER_NAME', passwordVariable: 'PASSWORD')
+                usernamePassword(credentialsId: "passkee_${environmentKey}_db_credentials", usernameVariable: 'USER_NAME', passwordVariable: 'PASSWORD')
         ]) {
             envVariables.put(
                 'ConnectionStrings__DefaultConnection',
                 "User ID=${USER_NAME};Password=${PASSWORD};Host=${dbHost};Port=${dbPort};Database=${dbName};Pooling=true;"
             )
         }
-        withCredentials([string(credentialsId: "timevic_${environmentKey}_user_jwt", variable: 'AUTH_SECRET')]) {
+        withCredentials([string(credentialsId: "passkee_${environmentKey}_user_jwt", variable: 'AUTH_SECRET')]) {
             envVariables.put('App__Auth__SymmetricSecurityKey', AUTH_SECRET)
-        }
-        
-        // withCredentials([string(credentialsId: "timevic_${environmentKey}_google__storage_project_id", variable: 'AUTH_SECRET')]) {
-        //     envVariables.put('Google__Storage__ProjectId', AUTH_SECRET)
-        // }
-
-        // withCredentials([string(credentialsId: "timevic_${environmentKey}_google__storage_bucket_name", variable: 'AUTH_SECRET')]) {
-        //     envVariables.put('Google__Storage__BucketName', AUTH_SECRET)
-        // }
-        
-        withCredentials([
-            usernamePassword(credentialsId: "timevic_${environmentKey}_aws_s3_credentials", usernameVariable: 'USER_NAME', passwordVariable: 'PASSWORD')
-        ]) {
-            envVariables.put('AWS__S3__AccessKey', USER_NAME)
-            envVariables.put('AWS__S3__SecretKey', PASSWORD)
-        }
-        envVariables.put('AWS__S3__BucketName', "timevic-${environmentKey}")
-
-        withCredentials([
-            usernamePassword(credentialsId: "timevic_${environmentKey}_garage_credentials", usernameVariable: 'USER_NAME', passwordVariable: 'PASSWORD')
-        ]) {
-            envVariables.put('Garage__AccessKey', USER_NAME)
-            envVariables.put('Garage__SecretKey', PASSWORD)
         }
     }
 
@@ -191,12 +161,6 @@ node('build-node') {
     }
 
     stage('Build main image') {
-        withCredentials([file(credentialsId: 'timevic_production_gcloud_credentials', variable: 'FILE')]) {
-            sh 'cp $FILE .credentials/google.json'
-        }
-        withCredentials([file(credentialsId: 'timevic_production_firebase_credentials', variable: 'FILE')]) {
-            sh 'cp $FILE .credentials/firebase-credentials.json'
-        }
         dockerHelper.buildAndSave(mainContainer, imageCommonTmpName)
     }
 
@@ -208,7 +172,7 @@ node('build-node') {
             withCredentials([sshUserPrivateKey(credentialsId: gitCredentials, keyFileVariable: 'key')]) {
                 sh '''
                     git config core.sshCommand 'ssh -i ${key}'
-                    git config user.email "lampego@gmail.com"
+                    git config user.email "lampego@passkee.org"
                     git config user.name "lampego"
                     git tag "${VERSION_INCREMENT}"
                     git push --tags
@@ -237,10 +201,10 @@ node('web-node') {
     stage('Stop containers') {
         dockerHelper.stopContainer(webAppContainer)
 
-        mainContainer.tagName = "timevic-api-${environmentKey}";
+        mainContainer.tagName = "passkee-api-${environmentKey}";
         dockerHelper.stopContainer(mainContainer)
 
-        mainContainer.tagName = "timevic-worker-${environmentKey}";
+        mainContainer.tagName = "passkee-worker-${environmentKey}";
         dockerHelper.stopContainer(mainContainer)
     }
 
@@ -253,14 +217,14 @@ node('web-node') {
     }
 
     stage('Run common API') {
-        mainContainer.tagName = "timevic-api-${environmentKey}";
+        mainContainer.tagName = "passkee-api-${environmentKey}";
          if (effectiveEnvironment == 'Production')
         {
-            mainContainer.port = '6200:80';
+            mainContainer.port = '8222:80';
         }
         else if (effectiveEnvironment == 'Development')
         {
-            mainContainer.port = '8215:80';
+            mainContainer.port = '8223:80';
         }
 
         mainContainer.envVariables = envVariables.clone()
@@ -269,7 +233,7 @@ node('web-node') {
     }
 
     stage('Run worker') {
-        mainContainer.tagName = "timevic-worker-${environmentKey}";
+        mainContainer.tagName = "passkee-worker-${environmentKey}";
         mainContainer.port = '';
 
         mainContainer.envVariables = envVariables.clone()
@@ -280,11 +244,11 @@ node('web-node') {
     stage('Run web app') {
         if (effectiveEnvironment == 'Production')
         {
-            webAppContainer.port = '6201:80';
+            webAppContainer.port = '8224:80';
         }
         else if (effectiveEnvironment == 'Development')
         {
-            webAppContainer.port = '8216:80';
+            webAppContainer.port = '8225:80';
         }
         dockerHelper.runContainer(webAppContainer)
     }
