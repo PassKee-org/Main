@@ -16,18 +16,18 @@ public Map<String, String> envVariables = new HashMap<String, String>()
 
 def mainContainer = new DockerContainer(
     name: "passkee-main-${environmentKey}",
-    dockerFile: 'devops/publish_native/common/Dockerfile',
+    dockerFile: 'devops/publish/common/Dockerfile',
 );
 
 def migrationContainer = new DockerContainer(
     name: "passkee-main-${environmentKey}",
-    dockerFile: 'devops/publish_native/common/Dockerfile',
+    dockerFile: 'devops/publish/common/Dockerfile',
     isRunAlways: false,
     isRunInBackground: false,
 );
 def webAppContainer = new DockerContainer(
     name: "passkee-web-${environmentKey}",
-    dockerFile: 'devops/publish_native/web/Dockerfile',
+    dockerFile: 'devops/publish/web/Dockerfile',
 );
 
 def repositoryUrl = scm.userRemoteConfigs[0].url;
