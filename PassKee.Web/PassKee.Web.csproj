@@ -35,6 +35,7 @@
     <ItemGroup>
         <ProjectReference Include="..\PassKee.Api.Shared\PassKee.Api.Shared.csproj" />
         <ProjectReference Include="..\PassKee.Business.Extensions\PassKee.Business.Extensions.csproj" />
+        <ProjectReference Include="..\PassKee.Business.Common\PassKee.Business.Common.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -67,10 +68,7 @@
 
     <Target Name="CompileLess" BeforeTargets="Build;PrepareForPublish" Condition="Exists('node_modules/less/bin/lessc')">
         <ItemGroup>
-            <LessFiles
-                Include="**\*.less"
-                Exclude="node_modules\**\*.less;wwwroot\**\*.less;styles\**\*.less;bin\**\*.less;obj\**\*.less"
-            />
+            <LessFiles Include="**\*.less" Exclude="node_modules\**\*.less;wwwroot\**\*.less;styles\**\*.less;bin\**\*.less;obj\**\*.less" />
         </ItemGroup>
 
         <Exec Command="node $(ProjectDir)node_modules/less/bin/lessc %(LessFiles.Identity) %(LessFiles.RelativeDir)%(Filename).css" Condition="'@(LessFiles)' != ''" />

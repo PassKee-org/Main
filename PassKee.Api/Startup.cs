@@ -29,6 +29,7 @@ public class Startup
     public virtual void ConfigureServices(IServiceCollection services)
     {
         var assembly = typeof(ApiAssemblyMarker).Assembly;
+        services.AddAutoMapper(cfg => {}, assembly);
         services.AddCors();
         
         services.Configure<ForwardedHeadersOptions>(options =>

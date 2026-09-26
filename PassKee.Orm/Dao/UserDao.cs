@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
-using NHibernate;
 using NHibernate.Linq;
 using PassKee.Orm.Dao.Common;
 using PassKee.Orm.Entities;
@@ -25,16 +24,32 @@ public class UserDao : BaseDao, IUserDao
 
     public async Task<UserEntity?> GetByEmail(string email, CancellationToken cancellationToken = default)
     {
+        var normalizedEmail = email.Trim().ToLower();
         return await Session.Query<UserEntity>()
-            .Where(x => x.Email.ToLower() == email.ToLower())
+            .Where(x => x.Email.ToLower() == normalizedEmail)
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<UserEntity> Create(string email, CancellationToken cancellationToken = default)
+    public async Task<UserEntity> Create(
+        string email,
+        byte[] authSalt,
+        byte[] serverHash,
+        byte[] userPublicKey,
+        byte[] encryptedUserPrivateKey,
+        byte[] encryptedUserVaultKey,
+        string? kdfParams = null,
+        CancellationToken cancellationToken = default
+    )
     {
         var user = new UserEntity
         {
-            Email = email,
+            Email = email.Trim().ToLower(),
+            AuthSalt = authSalt,
+            ServerHash = serverHash,
+            UserPublicKey = userPublicKey,
+            EncryptedUserPrivateKey = encryptedUserPrivateKey,
+            EncryptedUserVaultKey = encryptedUserVaultKey,
+            KdfParams = kdfParams,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -42,4 +57,3 @@ public class UserDao : BaseDao, IUserDao
         return user;
     }
 }
-

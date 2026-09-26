@@ -9,6 +9,11 @@ public class UserMapping : BaseGuidMappings<UserEntity>
     {
         Table("users");
         Map(x => x.Email).Not.Nullable();
+        Map(x => x.AuthSalt).Nullable();
+        Map(x => x.ServerHash).Nullable();
+        Map(x => x.KdfParams).Nullable();
+        Map(x => x.UserPublicKey).Nullable();
+        Map(x => x.EncryptedUserPrivateKey).Nullable();
+        Map(x => x.EncryptedUserVaultKey).Nullable();
     }
 }
-

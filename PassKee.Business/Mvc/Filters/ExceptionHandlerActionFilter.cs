@@ -53,7 +53,7 @@ public class ExceptionHandlerActionFilter : ActionFilterAttribute
                     exception.Message,
                     new Dictionary<string, object>
                     {
-                        { "LoggedInUserId", _apiRequestService.GetCurrentUserId().ToString() },
+                        { "LoggedInUserId", _apiRequestService.IsAuthorized() ? _apiRequestService.GetCurrentUserId().ToString() : string.Empty },
                         { "RequestUrl", _apiRequestService.GetRequestUrl() ?? string.Empty },
                     }
                 );
