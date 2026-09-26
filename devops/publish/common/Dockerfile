@@ -29,6 +29,6 @@ RUN ["dotnet", "build", "--verbosity=q", "PassKee.Api/PassKee.Api.csproj", "--no
 RUN ["dotnet", "build", "--verbosity=q", "PassKee.Migrations/PassKee.Migrations.csproj", "--no-restore"]
 RUN ["dotnet", "build", "--verbosity=q", "PassKee.WorkerServices/PassKee.WorkerServices.csproj", "--no-restore"]
 
-COPY ./devops/publish_native/common/boot.sh /usr/local/bin/php_boot
+COPY ./devops/publish/common/boot.sh /usr/local/bin/php_boot
 
 CMD ["sh", "/usr/local/bin/php_boot"]

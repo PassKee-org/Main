@@ -29,7 +29,7 @@ RUN ls /var/www/ /var/www/wwwroot/ /var/www/wwwroot/lib
 
 FROM base
 WORKDIR /usr/share/nginx/html
-COPY ./devops/publish_native/web/nginx.conf /etc/nginx/nginx.conf 
+COPY ./devops/publish/web/nginx.conf /etc/nginx/nginx.conf 
 COPY --from=dot_net /var/www/ /var/www/
 RUN ls -a /var/www/ /var/www/wwwroot/ /var/www/wwwroot/lib
 EXPOSE 80
