@@ -29,7 +29,12 @@ public class LoginTest : BaseTest
             Email = email,
             AuthHash = regData.AuthHash,
             AuthSalt = regData.AuthSalt,
-            KdfParams = regData.KdfParams,
+            KdfParams = new KdfParamsRequest
+            {
+                Iterations = regData.KdfParams.Iterations,
+                MemorySize = regData.KdfParams.MemorySize,
+                Parallelism = regData.KdfParams.Parallelism
+            },
             UserPublicKey = regData.KeyEnvelope.PublicKey,
             EncryptedUserPrivateKey = regData.KeyEnvelope.EncryptedPrivateKey,
             EncryptedUserVaultKey = regData.KeyEnvelope.EncryptedVaultKey
@@ -66,7 +71,12 @@ public class LoginTest : BaseTest
             Email = email,
             AuthHash = regData.AuthHash,
             AuthSalt = regData.AuthSalt,
-            KdfParams = regData.KdfParams,
+            KdfParams = new KdfParamsRequest
+            {
+                Iterations = regData.KdfParams.Iterations,
+                MemorySize = regData.KdfParams.MemorySize,
+                Parallelism = regData.KdfParams.Parallelism
+            },
             UserPublicKey = regData.KeyEnvelope.PublicKey,
             EncryptedUserPrivateKey = regData.KeyEnvelope.EncryptedPrivateKey,
             EncryptedUserVaultKey = regData.KeyEnvelope.EncryptedVaultKey

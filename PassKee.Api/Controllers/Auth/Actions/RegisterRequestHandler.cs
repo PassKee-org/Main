@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Api.Requests.Abstractions;
 using AutoMapper;
 using PassKee.Api.Shared.Dto.RequestsAndResponses.Auth;
+using PassKee.Business.Common.Utils;
 using PassKee.Business.Services.Auth;
 
 namespace PassKee.Api.Controllers.Auth.Actions;
@@ -19,6 +20,10 @@ public class RegisterRequestHandler : IAsyncRequestHandler<RegisterRequest, Auth
 
     public async Task<AuthResponse> ExecuteAsync(RegisterRequest request)
     {
+        var kdfParams = request.KdfParams != null
+            ? new KdfParameters(request.KdfParams.Iterations, request.KdfParams.MemorySize, request.KdfParams.Parallelism)
+            : null;
+
         var authResult = await _authService.RegisterAsync(
             request.Email,
             request.AuthHash,
@@ -26,7 +31,7 @@ public class RegisterRequestHandler : IAsyncRequestHandler<RegisterRequest, Auth
             request.UserPublicKey,
             request.EncryptedUserPrivateKey,
             request.EncryptedUserVaultKey,
-            request.KdfParams
+            kdfParams
         );
 
         var response = _mapper.Map<AuthResponse>(authResult.User);

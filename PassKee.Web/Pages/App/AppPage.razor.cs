@@ -1,20 +1,12 @@
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
+using PassKee.Web.Components;
 using PassKee.Web.Core.Services.UI.Modal;
-using PassKee.Web.Core.Services.UI.Toast;
 
 namespace PassKee.Web.Pages.App;
 
-public partial class AppPage : ComponentBase
+public partial class AppPage : BaseComponent
 {
-    [Inject]
-    protected IToastService ToastService { get; set; } = default!;
 
-    [Inject]
-    protected IAppModalDialogService ModalService { get; set; } = default!;
-
-    [Inject]
-    protected NavigationManager NavigationManager { get; set; } = default!;
 
     protected async Task LockVaultAsync()
     {

@@ -15,7 +15,7 @@ public class RegisterRequest : IRequest<AuthResponse>
     [Required]
     public byte[] AuthSalt { get; set; } = null!;
 
-    public string? KdfParams { get; set; }
+    public KdfParamsRequest? KdfParams { get; set; }
 
     [Required]
     public byte[] UserPublicKey { get; set; } = null!;

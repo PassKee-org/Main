@@ -28,7 +28,12 @@ public class LoginParamsTest : BaseTest
             Email = email,
             AuthHash = regData.AuthHash,
             AuthSalt = regData.AuthSalt,
-            KdfParams = regData.KdfParams,
+            KdfParams = new KdfParamsRequest
+            {
+                Iterations = regData.KdfParams.Iterations,
+                MemorySize = regData.KdfParams.MemorySize,
+                Parallelism = regData.KdfParams.Parallelism
+            },
             UserPublicKey = regData.KeyEnvelope.PublicKey,
             EncryptedUserPrivateKey = regData.KeyEnvelope.EncryptedPrivateKey,
             EncryptedUserVaultKey = regData.KeyEnvelope.EncryptedVaultKey
@@ -43,7 +48,10 @@ public class LoginParamsTest : BaseTest
         var content = await response.Content.ReadFromJsonAsync<LoginParamsResponse>();
         Assert.NotNull(content);
         Assert.Equal(Convert.ToBase64String(regData.AuthSalt), content!.AuthSalt);
-        Assert.Equal(regData.KdfParams, content.KdfParams);
+        Assert.NotNull(content.KdfParams);
+        Assert.Equal(regData.KdfParams.Iterations, content.KdfParams.Iterations);
+        Assert.Equal(regData.KdfParams.MemorySize, content.KdfParams.MemorySize);
+        Assert.Equal(regData.KdfParams.Parallelism, content.KdfParams.Parallelism);
     }
 
     [Fact]

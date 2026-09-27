@@ -17,6 +17,7 @@ public class DbCleanUpService : IDbCleanUpService
     {
         var tables = new List<string>
         {
+            "user_kdf_params",
             "queues",
             "users",
         };

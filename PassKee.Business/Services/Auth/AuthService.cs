@@ -18,7 +18,7 @@ public class AuthService(IUserDao userDao, IJwtAuthService jwtAuthService) : IAu
         byte[] userPublicKey,
         byte[] encryptedUserPrivateKey,
         byte[] encryptedUserVaultKey,
-        string? kdfParams = null,
+        KdfParameters? kdfParams = null,
         CancellationToken cancellationToken = default
     )
     {

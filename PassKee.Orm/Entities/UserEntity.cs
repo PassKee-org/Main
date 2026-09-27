@@ -27,18 +27,18 @@ public class UserEntity : AEntity
     public virtual byte[]? ServerHash { get; set; }
 
     /// <summary>
-    /// Parameters used by the Argon2id KDF algorithm (iterations, memorySize, parallelism) serialized as JSON.
+    /// Parameters used by the Argon2id KDF algorithm (iterations, memorySize, parallelism).
     /// </summary>
-    public virtual string? KdfParams { get; set; }
+    public virtual UserKdfParamsEntity? KdfParams { get; set; }
 
     /// <summary>
-    /// User's asymmetric public key (RSA / ECC) in DER/binary format.
+    /// User's asymmetric Curve25519 (X25519) public key (32 bytes raw binary).
     /// Publicly distributed so other users can encrypt shared vault keys for this user.
     /// </summary>
     public virtual byte[]? UserPublicKey { get; set; }
 
     /// <summary>
-    /// User's asymmetric private key encrypted on the client side using the Master Key (AES-GCM).
+    /// User's asymmetric Curve25519 (X25519) private key encrypted on the client side using the Master Key (AES-GCM).
     /// Stored as a raw byte array.
     /// </summary>
     public virtual byte[]? EncryptedUserPrivateKey { get; set; }

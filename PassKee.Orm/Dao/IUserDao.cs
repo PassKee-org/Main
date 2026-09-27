@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Domain.Abstractions;
+using PassKee.Business.Common.Utils;
 using PassKee.Orm.Entities;
 
 namespace PassKee.Orm.Dao;
@@ -17,7 +18,7 @@ public interface IUserDao : IDomainService
         byte[] userPublicKey,
         byte[] encryptedUserPrivateKey,
         byte[] encryptedUserVaultKey,
-        string? kdfParams = null,
+        KdfParameters? kdfParams = null,
         CancellationToken cancellationToken = default
     );
 }
