@@ -10,6 +10,7 @@ using PassKee.Api.Di.Autofac.Modules;
 using PassKee.Api.Middleware;
 using PassKee.Business;
 using PassKee.Business.Extensions;
+using PassKee.Business.Helpers;
 using PassKee.Business.Mvc.Middleware;
 
 namespace PassKee.Api;
@@ -30,7 +31,49 @@ public class Startup
     {
         var assembly = typeof(ApiAssemblyMarker).Assembly;
         services.AddAutoMapper(cfg => {}, assembly);
-        services.AddCors();
+        services.AddCors(options =>
+        {
+            options.AddPolicy("Cors", policy =>
+            {
+                if (ApplicationHelper.HostingEnvironment == "Development")
+                {
+                    policy.WithOrigins(
+                        // API
+                        "https://dev.passkee.org",
+                        "https://dev-api.passkee.org",
+                        "https://localhost:7108",
+                        "http://localhost:5265",
+                        
+                        // Web
+                        "https://localhost:7230",
+                        "http://localhost:5254",
+                        "https://localhost:7091",
+                        "http://localhost:5148",
+                        "http://localhost:5000"
+                    );
+                    policy.SetIsOriginAllowed(origin =>
+                    {
+                        if (Uri.TryCreate(origin, UriKind.Absolute, out var uri))
+                        {
+                            return uri.Host is "localhost" or "127.0.0.1"
+                                   || uri.Host.EndsWith("passkee.org");
+                        }
+                        return false;
+                    });
+                }
+                else
+                {
+                    policy.WithOrigins(
+                        "https://passkee.org",
+                        "https://api.passkee.org"
+                    );   
+                }
+
+                policy.AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            });
+        });
         
         services.Configure<ForwardedHeadersOptions>(options =>
         {
@@ -66,12 +109,7 @@ public class Startup
 
         app.UseForwardedHeaders();
         app.UseRouting();
-        app.UseCors(x => x
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .SetIsOriginAllowed(origin => true) // allow any origin
-            .AllowCredentials()
-        );
+        app.UseCors("Cors");
         
         app.UseMiddleware<CommitPerformerMiddleware>();
         app.UseAuthentication();

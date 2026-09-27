@@ -10,13 +10,13 @@
                 <div>
                     <div class="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-blue-300">
                         <i class="fa-solid fa-shield-halved text-sm"></i>
-                        <span>Zero-Knowledge Registration</span>
+                        <span>End-to-End Encryption</span>
                     </div>
                     <h1 class="mt-6 max-w-xl text-3xl font-bold leading-tight sm:text-4xl text-white">
                         Create Your PassKee Vault
                     </h1>
                     <p class="mt-4 max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
-                        When you register, PassKee generates a cryptographically secure 128-bit Secret Key and Master Key on your device. Only you can unlock your vault.
+                        Your passwords and data are encrypted directly on your device. PassKee never sees or stores your Master Password or Secret Key.
                     </p>
                 </div>
                 <div class="space-y-4">
@@ -25,17 +25,26 @@
                             <i class="fa-solid fa-key text-sm"></i>
                         </div>
                         <div>
-                            <p class="text-sm font-semibold text-white">Client-Generated Keys</p>
-                            <p class="text-xs text-slate-400 mt-0.5">RSA keypair and 256-bit vault key are created right here in your browser.</p>
+                            <p class="text-sm font-semibold text-white">Two-Key Protection</p>
+                            <p class="text-xs text-slate-400 mt-0.5">Your Master Password and an auto-generated 128-bit Secret Key protect against breaches.</p>
                         </div>
                     </div>
                     <div class="rounded-2xl border border-white/10 bg-white/5 p-4 flex items-start gap-3">
                         <div class="h-8 w-8 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
-                            <i class="fa-solid fa-file-shield text-sm"></i>
+                            <i class="fa-solid fa-lock text-sm"></i>
                         </div>
                         <div>
-                            <p class="text-sm font-semibold text-white">Save Your Secret Key</p>
-                            <p class="text-xs text-slate-400 mt-0.5">Your Secret Key is never transmitted unhashed. If lost, your vault cannot be recovered.</p>
+                            <p class="text-sm font-semibold text-white">Zero-Knowledge Privacy</p>
+                            <p class="text-xs text-slate-400 mt-0.5">Only you hold the encryption keys. PassKee cannot read your passwords.</p>
+                        </div>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-white/5 p-4 flex items-start gap-3">
+                        <div class="h-8 w-8 rounded-lg bg-amber-500/20 text-amber-300 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-triangle-exclamation text-sm"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-white">No Remote Reset</p>
+                            <p class="text-xs text-slate-400 mt-0.5">Because we don't store your keys, no one can reset your account. Keep your credentials safe.</p>
                         </div>
                     </div>
                 </div>
@@ -68,23 +77,51 @@
                     <div class="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-6 space-y-4">
                         <div class="flex items-center gap-2.5 text-emerald-800">
                             <i class="fa-solid fa-circle-check text-xl text-emerald-600"></i>
-                            <h3 class="font-bold text-lg">Registration Complete!</h3>
+                            <h3 class="font-bold text-lg">Save Your Emergency Secret Key</h3>
                         </div>
                         <p class="text-sm text-slate-700 leading-relaxed">
-                            This is your <strong>Emergency Secret Key</strong>. Save it immediately in a safe place. You will need both your Master Password and this Secret Key to sign in.
+                            PassKee has generated your unique <strong>Emergency Secret Key</strong> on this device. You will need both your Master Password and this Secret Key to sign in.
                         </p>
-                        <div class="p-3.5 bg-white rounded-xl border border-emerald-300/80 font-mono text-xs text-slate-900 break-all select-all font-semibold shadow-inner">
-                            @SecretKeyBase64
+                        <div class="space-y-2">
+                            <div class="p-3.5 bg-white rounded-xl border border-emerald-300/80 font-mono text-xs text-slate-900 break-all select-all font-semibold shadow-inner">
+                                @SecretKeyBase64
+                            </div>
+                            <AppButton
+                                Color="@(IsCopied ? ComponentColor.Success : ComponentColor.Default)"
+                                Variant="@ButtonVariant.Light"
+                                Size="@ComponentSize.Small"
+                                Class="w-full font-medium"
+                                OnClick="@CopySecretKeyAsync">
+                                <StartContent>
+                                    <i class="@(IsCopied ? "fa-solid fa-check mr-1.5 text-emerald-600" : "fa-regular fa-copy mr-1.5")"></i>
+                                </StartContent>
+                                <ChildContent>@(IsCopied ? "Copied to Clipboard!" : "Copy Secret Key")</ChildContent>
+                            </AppButton>
                         </div>
+
+                        <div class="rounded-xl border border-amber-200 bg-amber-50/80 p-3 text-xs text-amber-800 flex items-start gap-2.5">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-600 mt-0.5 shrink-0"></i>
+                            <span><strong>Keep this safe!</strong> PassKee cannot recover or reset your Secret Key. If lost, your vault cannot be unlocked on new devices.</span>
+                        </div>
+
+                        <div class="pt-1">
+                            <AppCheckbox @bind-Value="HasSavedSecretKey" Color="@ComponentColor.Primary">
+                                <span class="text-xs font-medium text-slate-700">
+                                    I have saved my Secret Key and understand PassKee cannot recover it.
+                                </span>
+                            </AppCheckbox>
+                        </div>
+
                         <AppButton
                             Color="@ComponentColor.Primary"
                             Variant="@ButtonVariant.Solid"
                             Class="w-full font-semibold py-3"
+                            Disabled="@(!HasSavedSecretKey)"
                             OnClick="@GoToLogin">
                             <StartContent>
                                 <i class="fa-solid fa-arrow-right-to-bracket mr-2"></i>
                             </StartContent>
-                            <ChildContent>Continue to Login</ChildContent>
+                            <ChildContent>Continue to Sign In</ChildContent>
                         </AppButton>
                     </div>
                 }
@@ -107,7 +144,7 @@
                             Type="password"
                             Icon="fa-solid fa-key"
                             Placeholder="Create a strong Master Password"
-                            HelpText="Must be strong. PassKee cannot recover your password if forgotten."
+                            HelpText="A 128-bit Secret Key will be automatically created on the next step. PassKee cannot recover your password if forgotten."
                             Required="true"
                             Disabled="@IsProcessing"
                             Autocomplete="new-password" />
