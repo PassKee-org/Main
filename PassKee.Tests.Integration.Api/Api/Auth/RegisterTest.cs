@@ -32,7 +32,12 @@ public class RegisterTest : BaseTest
             Email = email,
             AuthHash = regData.AuthHash,
             AuthSalt = regData.AuthSalt,
-            KdfParams = regData.KdfParams,
+            KdfParams = new KdfParamsRequest
+            {
+                Iterations = regData.KdfParams.Iterations,
+                MemorySize = regData.KdfParams.MemorySize,
+                Parallelism = regData.KdfParams.Parallelism
+            },
             UserPublicKey = regData.KeyEnvelope.PublicKey,
             EncryptedUserPrivateKey = regData.KeyEnvelope.EncryptedPrivateKey,
             EncryptedUserVaultKey = regData.KeyEnvelope.EncryptedVaultKey
@@ -57,6 +62,10 @@ public class RegisterTest : BaseTest
         Assert.Equal(regData.KeyEnvelope.PublicKey, userInDb.UserPublicKey);
         Assert.Equal(regData.KeyEnvelope.EncryptedPrivateKey, userInDb.EncryptedUserPrivateKey);
         Assert.Equal(regData.KeyEnvelope.EncryptedVaultKey, userInDb.EncryptedUserVaultKey);
+        Assert.NotNull(userInDb.KdfParams);
+        Assert.Equal(regData.KdfParams.Iterations, userInDb.KdfParams!.Iterations);
+        Assert.Equal(regData.KdfParams.MemorySize, userInDb.KdfParams.MemorySize);
+        Assert.Equal(regData.KdfParams.Parallelism, userInDb.KdfParams.Parallelism);
     }
 
     [Fact]
@@ -70,7 +79,12 @@ public class RegisterTest : BaseTest
             Email = email,
             AuthHash = regData.AuthHash,
             AuthSalt = regData.AuthSalt,
-            KdfParams = regData.KdfParams,
+            KdfParams = new KdfParamsRequest
+            {
+                Iterations = regData.KdfParams.Iterations,
+                MemorySize = regData.KdfParams.MemorySize,
+                Parallelism = regData.KdfParams.Parallelism
+            },
             UserPublicKey = regData.KeyEnvelope.PublicKey,
             EncryptedUserPrivateKey = regData.KeyEnvelope.EncryptedPrivateKey,
             EncryptedUserVaultKey = regData.KeyEnvelope.EncryptedVaultKey

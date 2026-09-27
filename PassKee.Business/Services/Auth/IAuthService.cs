@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Domain.Abstractions;
+using PassKee.Business.Common.Utils;
 using PassKee.Business.Dto.Auth;
 using PassKee.Orm.Entities;
 
@@ -15,7 +16,7 @@ public interface IAuthService : IDomainService
         byte[] userPublicKey,
         byte[] encryptedUserPrivateKey,
         byte[] encryptedUserVaultKey,
-        string? kdfParams = null,
+        KdfParameters? kdfParams = null,
         CancellationToken cancellationToken = default
     );
 

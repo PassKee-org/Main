@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
 using NHibernate.Linq;
+using PassKee.Business.Common.Utils;
 using PassKee.Orm.Dao.Common;
 using PassKee.Orm.Entities;
 
@@ -37,7 +38,7 @@ public class UserDao : BaseDao, IUserDao
         byte[] userPublicKey,
         byte[] encryptedUserPrivateKey,
         byte[] encryptedUserVaultKey,
-        string? kdfParams = null,
+        KdfParameters? kdfParams = null,
         CancellationToken cancellationToken = default
     )
     {
@@ -49,11 +50,29 @@ public class UserDao : BaseDao, IUserDao
             UserPublicKey = userPublicKey,
             EncryptedUserPrivateKey = encryptedUserPrivateKey,
             EncryptedUserVaultKey = encryptedUserVaultKey,
-            KdfParams = kdfParams,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
         await Session.SaveAsync(user, cancellationToken);
+
+        kdfParams ??= new KdfParameters(
+            CryptoUtils.DefaultKdfIterations,
+            CryptoUtils.DefaultKdfMemorySize,
+            CryptoUtils.DefaultKdfParallelism
+        );
+
+        var kdfEntity = new UserKdfParamsEntity
+        {
+            User = user,
+            Iterations = kdfParams.Iterations,
+            MemorySize = kdfParams.MemorySize,
+            Parallelism = kdfParams.Parallelism,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+        await Session.SaveAsync(kdfEntity, cancellationToken);
+        user.KdfParams = kdfEntity;
+
         return user;
     }
 }

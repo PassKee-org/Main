@@ -5,5 +5,5 @@ namespace PassKee.Api.Shared.Dto.RequestsAndResponses.Auth;
 public class LoginParamsResponse : IResponse
 {
     public string AuthSalt { get; set; } = null!;
-    public string? KdfParams { get; set; }
+    public KdfParamsDto? KdfParams { get; set; }
 }

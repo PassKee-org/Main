@@ -1,5 +1,4 @@
 using System;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Fluxor;
 using PassKee.Api.Shared.Dto.RequestsAndResponses.Auth;
@@ -31,21 +30,10 @@ public class LoginEffect : Effect<LoginAction>
                 return;
             }
 
-            // 2. Parse KDF Parameters
-            int iterations = CryptoUtils.DefaultKdfIterations;
-            int memorySize = CryptoUtils.DefaultKdfMemorySize;
-            int parallelism = CryptoUtils.DefaultKdfParallelism;
-
-            if (!string.IsNullOrEmpty(loginParams.KdfParams))
-            {
-                using var kdfDoc = JsonDocument.Parse(loginParams.KdfParams);
-                if (kdfDoc.RootElement.TryGetProperty("iterations", out var itProp))
-                    iterations = itProp.GetInt32();
-                if (kdfDoc.RootElement.TryGetProperty("memorySize", out var memProp))
-                    memorySize = memProp.GetInt32();
-                if (kdfDoc.RootElement.TryGetProperty("parallelism", out var parProp))
-                    parallelism = parProp.GetInt32();
-            }
+            // 2. Read KDF Parameters
+            int iterations = loginParams.KdfParams?.Iterations ?? CryptoUtils.DefaultKdfIterations;
+            int memorySize = loginParams.KdfParams?.MemorySize ?? CryptoUtils.DefaultKdfMemorySize;
+            int parallelism = loginParams.KdfParams?.Parallelism ?? CryptoUtils.DefaultKdfParallelism;
 
             var authSaltBytes = Convert.FromBase64String(loginParams.AuthSalt);
             var secretKeyBytes = Convert.FromBase64String(action.SecretKeyBase64.Trim());

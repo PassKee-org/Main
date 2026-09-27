@@ -1,7 +1,6 @@
 using System;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Engines;
@@ -9,9 +8,7 @@ using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Macs;
 using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Pkcs;
 using Org.BouncyCastle.Security;
-using Org.BouncyCastle.X509;
 
 namespace PassKee.Business.Common.Utils;
 
@@ -22,14 +19,21 @@ public record UserKeyEnvelope(
     byte[] PlainVaultKey
 );
 
+public record KdfParameters(
+    int Iterations,
+    int MemorySize,
+    int Parallelism
+);
+
 public record ClientRegistrationData(
     byte[] SecretKey,
     byte[] AuthSalt,
     byte[] MasterKey,
     byte[] AuthHash,
-    string KdfParams,
+    KdfParameters KdfParams,
     UserKeyEnvelope KeyEnvelope
 );
+
 
 public static class CryptoUtils
 {
@@ -85,21 +89,22 @@ public static class CryptoUtils
         return result;
     }
 
-    public static (byte[] PublicKey, byte[] PrivateKey) GenerateRsaKeyPair(int keySize = 2048)
+    /// <summary>
+    /// Generates a Curve25519 (X25519) key pair.
+    /// Public and private keys are each returned as raw 32-byte arrays.
+    /// </summary>
+    public static (byte[] PublicKey, byte[] PrivateKey) GenerateCurve25519KeyPair()
     {
-        var keyGenerationParameters = new KeyGenerationParameters(new SecureRandom(), keySize);
-        var generator = new RsaKeyPairGenerator();
-        generator.Init(keyGenerationParameters);
+        var generator = new X25519KeyPairGenerator();
+        generator.Init(new X25519KeyGenerationParameters(new SecureRandom()));
         var pair = generator.GenerateKeyPair();
 
-        var privateKeyInfo = PrivateKeyInfoFactory.CreatePrivateKeyInfo(pair.Private);
-        var privateKeyBytes = privateKeyInfo.ToAsn1Object().GetDerEncoded();
+        var pubKey = (X25519PublicKeyParameters)pair.Public;
+        var privKey = (X25519PrivateKeyParameters)pair.Private;
 
-        var publicKeyInfo = SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(pair.Public);
-        var publicKeyBytes = publicKeyInfo.ToAsn1Object().GetDerEncoded();
-
-        return (publicKeyBytes, privateKeyBytes);
+        return (pubKey.GetEncoded(), privKey.GetEncoded());
     }
+
 
     /// <summary>
     /// Encrypts data using AES-256-GCM.
@@ -178,11 +183,11 @@ public static class CryptoUtils
     }
 
     /// <summary>
-    /// Generates RSA KeyPair and Vault Key and encrypts them with the Master Key.
+    /// Generates Curve25519 (X25519) KeyPair and Vault Key and encrypts them with the Master Key.
     /// </summary>
     public static UserKeyEnvelope GenerateUserKeyEnvelope(byte[] masterKey)
     {
-        var (publicKey, privateKey) = GenerateRsaKeyPair();
+        var (publicKey, privateKey) = GenerateCurve25519KeyPair();
         var vaultKey = GenerateRandomBytes(32);
 
         var encryptedPrivateKey = AesGcmEncrypt(masterKey, privateKey);
@@ -206,7 +211,7 @@ public static class CryptoUtils
     {
         secretKey ??= GenerateRandomBytes(16);
         authSalt ??= GenerateRandomBytes(32);
-        var kdfParams = JsonSerializer.Serialize(new { iterations, memorySize, parallelism });
+        var kdfParams = new KdfParameters(iterations, memorySize, parallelism);
 
         var masterKey = DeriveMasterKey(password, secretKey, authSalt, iterations, memorySize, parallelism);
         var authHash = ComputeAuthHash(masterKey);

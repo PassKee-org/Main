@@ -59,14 +59,14 @@ public class CryptoUtilsTest
     }
 
     [Fact]
-    public void GenerateRsaKeyPair_ShouldGenerateValidDerBytes()
+    public void GenerateCurve25519KeyPair_ShouldGenerateValid32ByteKeys()
     {
-        var (publicKey, privateKey) = CryptoUtils.GenerateRsaKeyPair(1024);
+        var (publicKey, privateKey) = CryptoUtils.GenerateCurve25519KeyPair();
 
         Assert.NotNull(publicKey);
-        Assert.NotEmpty(publicKey);
+        Assert.Equal(32, publicKey.Length);
         Assert.NotNull(privateKey);
-        Assert.NotEmpty(privateKey);
+        Assert.Equal(32, privateKey.Length);
         Assert.NotEqual(publicKey, privateKey);
     }
 
@@ -143,16 +143,20 @@ public class CryptoUtilsTest
         Assert.Equal(32, regData.AuthSalt.Length);
         Assert.NotNull(regData.MasterKey);
         Assert.NotNull(regData.AuthHash);
-        Assert.NotEmpty(regData.KdfParams);
+        Assert.NotNull(regData.KdfParams);
+        Assert.Equal(1, regData.KdfParams.Iterations);
+        Assert.Equal(1024, regData.KdfParams.MemorySize);
+        Assert.Equal(1, regData.KdfParams.Parallelism);
 
         Assert.NotNull(regData.KeyEnvelope.PublicKey);
+        Assert.Equal(32, regData.KeyEnvelope.PublicKey.Length);
         Assert.NotNull(regData.KeyEnvelope.EncryptedPrivateKey);
         Assert.NotNull(regData.KeyEnvelope.EncryptedVaultKey);
         Assert.NotNull(regData.KeyEnvelope.PlainVaultKey);
 
         // Verify that the encrypted private key and vault key can be decrypted with the master key
         var decryptedPrivateKey = CryptoUtils.AesGcmDecrypt(regData.MasterKey, regData.KeyEnvelope.EncryptedPrivateKey);
-        Assert.NotEmpty(decryptedPrivateKey);
+        Assert.Equal(32, decryptedPrivateKey.Length);
 
         var decryptedVaultKey = CryptoUtils.AesGcmDecrypt(regData.MasterKey, regData.KeyEnvelope.EncryptedVaultKey);
         Assert.Equal(regData.KeyEnvelope.PlainVaultKey, decryptedVaultKey);

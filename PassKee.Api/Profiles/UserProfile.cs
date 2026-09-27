@@ -18,5 +18,7 @@ public class UserProfile : Profile
         CreateMap<UserEntity, LoginParamsResponse>()
             .ForMember(dest => dest.AuthSalt, opt => opt.MapFrom(src => src.AuthSalt != null ? Convert.ToBase64String(src.AuthSalt) : string.Empty))
             .ForMember(dest => dest.KdfParams, opt => opt.MapFrom(src => src.KdfParams));
+
+        CreateMap<UserKdfParamsEntity, KdfParamsDto>();
     }
 }
