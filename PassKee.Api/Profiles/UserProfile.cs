@@ -10,7 +10,6 @@ public class UserProfile : Profile
     public UserProfile()
     {
         CreateMap<UserEntity, AuthResponse>()
-            .ForMember(dest => dest.AccessToken, opt => opt.Ignore())
             .ForMember(dest => dest.UserPublicKey, opt => opt.MapFrom(src => src.UserPublicKey != null ? Convert.ToBase64String(src.UserPublicKey) : null))
             .ForMember(dest => dest.EncryptedUserPrivateKey, opt => opt.MapFrom(src => src.EncryptedUserPrivateKey != null ? Convert.ToBase64String(src.EncryptedUserPrivateKey) : null))
             .ForMember(dest => dest.EncryptedUserVaultKey, opt => opt.MapFrom(src => src.EncryptedUserVaultKey != null ? Convert.ToBase64String(src.EncryptedUserVaultKey) : null));

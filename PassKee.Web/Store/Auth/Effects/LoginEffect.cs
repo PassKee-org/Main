@@ -50,7 +50,7 @@ public class LoginEffect : Effect<LoginAction>
             };
 
             var authResponse = await _apiService.LoginAsync(request);
-            if (authResponse != null && !string.IsNullOrEmpty(authResponse.AccessToken))
+            if (authResponse != null)
             {
                 dispatcher.Dispatch(new LoginSuccessAction(authResponse));
             }

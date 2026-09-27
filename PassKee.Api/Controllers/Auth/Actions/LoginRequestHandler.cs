@@ -3,17 +3,23 @@ using Api.Requests.Abstractions;
 using AutoMapper;
 using PassKee.Api.Shared.Dto.RequestsAndResponses.Auth;
 using PassKee.Business.Services.Auth;
+using PassKee.Business.Services.Http;
 
 namespace PassKee.Api.Controllers.Auth.Actions;
 
 public class LoginRequestHandler : IAsyncRequestHandler<LoginRequest, AuthResponse>
 {
     private readonly IAuthService _authService;
+    private readonly IHttpCookiesService _cookiesService;
     private readonly IMapper _mapper;
 
-    public LoginRequestHandler(IAuthService authService, IMapper mapper)
+    public LoginRequestHandler(
+        IAuthService authService,
+        IHttpCookiesService cookiesService,
+        IMapper mapper)
     {
         _authService = authService;
+        _cookiesService = cookiesService;
         _mapper = mapper;
     }
 
@@ -24,8 +30,8 @@ public class LoginRequestHandler : IAsyncRequestHandler<LoginRequest, AuthRespon
             request.AuthHash
         );
 
-        var response = _mapper.Map<AuthResponse>(authResult.User);
-        response.AccessToken = authResult.JwtToken;
-        return response;
+        _cookiesService.AppendAuthCookies(authResult.AccessToken, authResult.JwtToken);
+
+        return _mapper.Map<AuthResponse>(authResult.User);
     }
 }

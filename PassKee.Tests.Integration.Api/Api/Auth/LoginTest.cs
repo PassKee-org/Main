@@ -4,7 +4,9 @@ using System.Net.Http.Json;
 using System.Threading.Tasks;
 using PassKee.Api.Shared.Constants;
 using PassKee.Api.Shared.Dto.RequestsAndResponses.Auth;
+using PassKee.Business.Common.Constants.Http;
 using PassKee.Business.Common.Utils;
+using PassKee.Business.Testing.Extensions;
 using PassKee.Tests.Integration.Api.Core;
 using Xunit;
 
@@ -56,8 +58,18 @@ public class LoginTest : BaseTest
         Assert.Equal(HttpStatusCode.OK, loginResponse.StatusCode);
         var loginContent = await loginResponse.Content.ReadFromJsonAsync<AuthResponse>();
         Assert.NotNull(loginContent);
-        Assert.NotEmpty(loginContent!.AccessToken);
-        Assert.Equal(Convert.ToBase64String(regData.KeyEnvelope.PublicKey), loginContent.UserPublicKey);
+        Assert.Equal(Convert.ToBase64String(regData.KeyEnvelope.PublicKey), loginContent!.UserPublicKey);
+        Assert.NotNull(loginContent.EncryptedUserPrivateKey);
+        Assert.NotNull(loginContent.EncryptedUserVaultKey);
+
+        // Verify auth cookies returned (JWT and Access Token are returned via Cookies, not response body)
+        var jwtCookie = loginResponse.GetSetCookieValue(HttpCookieKeyEnum.JwtToken.GetKey());
+        Assert.NotNull(jwtCookie);
+        Assert.NotEmpty(jwtCookie);
+
+        var accessTokenCookie = loginResponse.GetSetCookieValue(HttpCookieKeyEnum.AccessToken.GetKey());
+        Assert.NotNull(accessTokenCookie);
+        Assert.NotEmpty(accessTokenCookie);
     }
 
     [Fact]

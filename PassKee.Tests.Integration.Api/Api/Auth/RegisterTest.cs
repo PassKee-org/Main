@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using PassKee.Api.Shared.Constants;
 using PassKee.Api.Shared.Dto.RequestsAndResponses.Auth;
+using PassKee.Business.Common.Constants.Http;
 using PassKee.Business.Common.Utils;
+using PassKee.Business.Testing.Extensions;
 using PassKee.Orm.Dao;
 using PassKee.Tests.Integration.Api.Core;
 using Xunit;
@@ -48,10 +50,18 @@ public class RegisterTest : BaseTest
 
         var content = await response.Content.ReadFromJsonAsync<AuthResponse>();
         Assert.NotNull(content);
-        Assert.NotEmpty(content!.AccessToken);
-        Assert.Equal(Convert.ToBase64String(regData.KeyEnvelope.PublicKey), content.UserPublicKey);
+        Assert.Equal(Convert.ToBase64String(regData.KeyEnvelope.PublicKey), content!.UserPublicKey);
         Assert.Equal(Convert.ToBase64String(regData.KeyEnvelope.EncryptedPrivateKey), content.EncryptedUserPrivateKey);
         Assert.Equal(Convert.ToBase64String(regData.KeyEnvelope.EncryptedVaultKey), content.EncryptedUserVaultKey);
+
+        // Verify auth cookies returned
+        var jwtCookie = response.GetSetCookieValue(HttpCookieKeyEnum.JwtToken.GetKey());
+        Assert.NotNull(jwtCookie);
+        Assert.NotEmpty(jwtCookie);
+
+        var accessTokenCookie = response.GetSetCookieValue(HttpCookieKeyEnum.AccessToken.GetKey());
+        Assert.NotNull(accessTokenCookie);
+        Assert.NotEmpty(accessTokenCookie);
 
         // Verify entity persisted in database with raw binary keys
         var userInDb = await _userDao.GetByEmail(email);

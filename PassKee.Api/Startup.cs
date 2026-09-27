@@ -112,6 +112,7 @@ public class Startup
         app.UseCors("Cors");
         
         app.UseMiddleware<CommitPerformerMiddleware>();
+        app.UseMiddleware<JwtRefreshMiddleware>();
         app.UseAuthentication();
         app.UseAuthorization();
         

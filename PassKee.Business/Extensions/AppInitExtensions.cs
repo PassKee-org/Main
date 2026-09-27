@@ -70,11 +70,14 @@ namespace PassKee.Business.Extensions
 
         public static void InitApiAuthServices(this IServiceCollection services, IConfiguration configuration)
         {
-            var jwtSecurityKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(
-                    configuration.GetValue<string>("App:Auth:SymmetricSecurityKey")!
-                )
-            );
+            var keyString = configuration.GetValue<string>("App:Auth:SymmetricSecurityKey")
+                ?? throw new InvalidOperationException("App:Auth:SymmetricSecurityKey is not configured.");
+            var keyBytes = Encoding.UTF8.GetBytes(keyString);
+            if (keyBytes.Length < 32)
+            {
+                keyBytes = System.Security.Cryptography.SHA256.HashData(keyBytes);
+            }
+            var jwtSecurityKey = new SymmetricSecurityKey(keyBytes);
             services.AddAuthentication(options =>
                 {
                     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -104,6 +107,12 @@ namespace PassKee.Business.Extensions
                     options.Events = new JwtBearerEvents { 
                         
                         OnMessageReceived = (context) => {
+                            if (context.HttpContext.Items.TryGetValue("__AuthFailed", out var failureReason))
+                            {
+                                context.Fail(failureReason?.ToString() ?? "Authentication failed.");
+                                return Task.CompletedTask;
+                            }
+
                             var tokenResolver = context.HttpContext.RequestServices.GetService<IHttpTokenResolverService>();
                             if (tokenResolver == null)
                             {

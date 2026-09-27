@@ -54,10 +54,6 @@ public class HttpTokenResolverService: IHttpTokenResolverService
         {
             authToken = _httpCookiesService.Get(HttpCookieKeyEnum.JwtToken);
         }
-        if (string.IsNullOrEmpty(authToken))
-        {
-            authToken = _httpCookiesService.Get("jwt_token");
-        }
         if (!string.IsNullOrEmpty(authToken))
         {
             authToken = Uri.UnescapeDataString(authToken);

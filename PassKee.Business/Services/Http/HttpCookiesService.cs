@@ -19,10 +19,10 @@ public class HttpCookiesService: IHttpCookiesService
     )
     {
         _httpContextAccessor = httpContextAccessor;
-        _cookieDomains = configuration.GetSection("App:Auth:CookieDomains").Get<string[]>()!;
-        _jwtTokenLifeTime = configuration.GetValue<int>("App:Auth:JwtLifetime")!;
-        _cookieKeyPostfix = configuration.GetValue<string>("App:Auth:CookieKeyPostfix")!;
-        _accessTokenLifeTime = configuration.GetValue<int>("App:Auth:AccessTokenLifetime")!;
+        _cookieDomains = configuration.GetSection("App:Auth:CookieDomains").Get<string[]>() ?? [];
+        _jwtTokenLifeTime = configuration.GetValue<int>("App:Auth:JwtLifetime", 60);
+        _cookieKeyPostfix = configuration.GetValue<string>("App:Auth:CookieKeyPostfix") ?? string.Empty;
+        _accessTokenLifeTime = configuration.GetValue<int>("App:Auth:AccessTokenLifetime", 60);
     }
     
     public void AppendAuthCookies(string accessToken, string jwtToken)
@@ -100,7 +100,12 @@ public class HttpCookiesService: IHttpCookiesService
         return HttpUtility.UrlDecode(value);
     }
 
-    private string PrepareName(string name)
+    public string PrepareName(HttpCookieKeyEnum key)
+    {
+        return PrepareName(key.GetKey());
+    }
+
+    public string PrepareName(string name)
     {
         if (!string.IsNullOrEmpty(_cookieKeyPostfix))
         {

@@ -30,4 +30,8 @@ public interface IAuthService : IDomainService
         string email,
         CancellationToken cancellationToken = default
     );
+
+    Task<AuthResultDto> GenerateNewJwtToken(string accessTokenString, string? previousJwtToken = null, CancellationToken cancellationToken = default);
+
+    Task<AuthResultDto> GenerateNewJwtToken(UserAccessTokenEntity accessToken, CancellationToken cancellationToken = default);
 }

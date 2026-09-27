@@ -20,9 +20,9 @@ public static class CookieKeyEnumExtensions
         switch (type)
         {
             case HttpCookieKeyEnum.JwtToken:
-                return "tv_jwt_token";
+                return "pk_jwt_token";
             case HttpCookieKeyEnum.AccessToken:
-                return "tv_access_token";
+                return "pk_access_token";
         }
 
         throw new NotImplementedException($"CookieKey was not provided for such type: {type}");

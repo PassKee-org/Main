@@ -48,4 +48,9 @@ public class UserEntity : AEntity
     /// Stored as a raw byte array.
     /// </summary>
     public virtual byte[]? EncryptedUserVaultKey { get; set; }
+
+    /// <summary>
+    /// Active and historic access tokens for this user.
+    /// </summary>
+    public virtual ICollection<UserAccessTokenEntity> AccessTokens { get; set; } = new List<UserAccessTokenEntity>();
 }
