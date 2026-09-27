@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 using PassKee.Business.Clients.Smtp;
+using PassKee.Business.Common.Constants.Http;
+using PassKee.Business.Services.Http;
 using PassKee.Business.Services.Queue;
 using PassKee.Business.Testing.Factories;
 using PassKee.Business.Testing.Seeders.Entity;
@@ -36,6 +38,7 @@ public class BaseTest : IClassFixture<ApiCustomWebApplicationFactory>, IDisposab
     private readonly IDbCleanUpService _dbCleanUpService;
     protected readonly IQueueDao _queueDao;
     protected readonly IQueueService _queueService;
+    protected readonly IHttpCookiesService CookiesService;
     protected readonly SmtpClientServiceMock SmtpClientServiceMock;
 
     public BaseTest(ApiCustomWebApplicationFactory factory)
@@ -52,6 +55,7 @@ public class BaseTest : IClassFixture<ApiCustomWebApplicationFactory>, IDisposab
         UserFactory = ServiceProvider.GetRequiredService<IDataFactory<UserEntity>>();
         _queueDao = ServiceProvider.GetRequiredService<IQueueDao>();
         _queueService = ServiceProvider.GetRequiredService<IQueueService>();
+        CookiesService = ServiceProvider.GetRequiredService<IHttpCookiesService>();
         SmtpClientServiceMock = (ServiceProvider.GetRequiredService<ISmtpClientService>() as SmtpClientServiceMock)!;
 
         _dbCleanUpService.CleanUp().Wait();
@@ -132,6 +136,54 @@ public class BaseTest : IClassFixture<ApiCustomWebApplicationFactory>, IDisposab
         
         var uri = new Uri(QueryHelpers.AddQueryString(url, urlParams), UriKind.Relative);
         return await HttpClient.GetAsync(uri);
+    }
+
+    public async Task<HttpResponseMessage> GetRequestWithCookieAsync(
+        string url,
+        string cookieName,
+        string cookieValue,
+        Dictionary<string, string?>? urlParams = null
+    )
+    {
+        await FlushDbChanges();
+
+        urlParams ??= new Dictionary<string, string?>();
+        var uri = new Uri(QueryHelpers.AddQueryString(url, urlParams), UriKind.Relative);
+        var request = new HttpRequestMessage(HttpMethod.Get, uri);
+        request.Headers.Add("Cookie", $"{cookieName}={Uri.EscapeDataString(cookieValue)}");
+        request.Headers.Add(HeaderNames.Accept, "application/json");
+
+        return await HttpClient.SendAsync(request);
+    }
+
+    public async Task<HttpResponseMessage> PostRequestWithCookieAsync(
+        string url,
+        string cookieName,
+        string cookieValue,
+        object? data = null
+    )
+    {
+        await FlushDbChanges();
+
+        var requestData = JsonContent.Create(data ?? new { });
+        var request = new HttpRequestMessage(HttpMethod.Post, url)
+        {
+            Content = requestData
+        };
+        request.Headers.Add("Cookie", $"{cookieName}={Uri.EscapeDataString(cookieValue)}");
+        request.Headers.Add(HeaderNames.Accept, "application/json");
+
+        return await HttpClient.SendAsync(request);
+    }
+
+    protected string PrepareCookieName(string baseName)
+    {
+        return CookiesService.PrepareName(baseName);
+    }
+
+    protected string PrepareCookieName(HttpCookieKeyEnum key)
+    {
+        return CookiesService.PrepareName(key);
     }
     #endregion
 }

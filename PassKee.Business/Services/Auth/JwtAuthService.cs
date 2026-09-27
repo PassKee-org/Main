@@ -27,11 +27,13 @@ public class JwtAuthService : IJwtAuthService
     {
         _configuration = configuration;
         _logger = logger;
-        _key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(
-                _configuration.GetValue<string>("App:Auth:SymmetricSecurityKey") ?? "sDciuOhv2y4tXeM5Nd3t0cFBZB2S6P09q8k5ZmLXSC"
-            )
-        );
+        var keyString = _configuration.GetValue<string>("App:Auth:SymmetricSecurityKey") ?? "sDciuOhv2y4tXeM5Nd3t0cFBZB2S6P09q8k5ZmLXSC";
+        var keyBytes = Encoding.UTF8.GetBytes(keyString);
+        if (keyBytes.Length < 32)
+        {
+            keyBytes = System.Security.Cryptography.SHA256.HashData(keyBytes);
+        }
+        _key = new SymmetricSecurityKey(keyBytes);
         _issuer = _configuration.GetValue<string>("App:Auth:Issuer") ?? "PassKee API";
         _audience = _configuration.GetValue<string>("App:Auth:Audience") ?? "PassKee API";
         _lifeTime = _configuration.GetValue<int>("App:Auth:JwtLifetime", 60);

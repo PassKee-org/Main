@@ -21,4 +21,17 @@ public partial class ApiService
     {
         return await GetAsync<LoginParamsResponse>($"{ApiUrl.AuthLoginParams}?email={Uri.EscapeDataString(email)}");
     }
+
+    public async Task<bool> CheckAuthAsync()
+    {
+        try
+        {
+            await GetAsync<object>(ApiUrl.AuthCheck);
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
 }

@@ -20,5 +20,12 @@ public class UserMapping : BaseGuidMappings<UserEntity>
             .Fetch.Select()
             .LazyLoad()
             .Cascade.SaveUpdate();
+
+        HasMany(x => x.AccessTokens)
+            .KeyColumn("user_id")
+            .Fetch.Select()
+            .LazyLoad()
+            .Cascade.SaveUpdate()
+            .Inverse();
     }
 }

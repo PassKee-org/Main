@@ -42,7 +42,7 @@ public class RegisterEffect : Effect<RegisterAction>
             };
 
             var response = await _apiService.RegisterAsync(request);
-            if (response != null && !string.IsNullOrEmpty(response.AccessToken))
+            if (response != null)
             {
                 dispatcher.Dispatch(new RegisterSuccessAction(response, secretKeyBase64));
             }

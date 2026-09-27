@@ -39,5 +39,17 @@ public class AuthController : MainApiControllerBase
         => this.RequestAsync()
             .For<LoginParamsResponse>()
             .With(request);
+
+    [HttpGet("check")]
+    [Microsoft.AspNetCore.Authorization.Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public Task<IActionResult> Check([FromQuery] CheckAuthRequest? request = null)
+        => this.RequestAsync(request ?? new CheckAuthRequest());
+
+    [HttpPost("logout")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public Task<IActionResult> Logout([FromBody] LogoutRequest? request = null)
+        => this.RequestAsync(request ?? new LogoutRequest());
 }
 

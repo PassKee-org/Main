@@ -4,17 +4,23 @@ using AutoMapper;
 using PassKee.Api.Shared.Dto.RequestsAndResponses.Auth;
 using PassKee.Business.Common.Utils;
 using PassKee.Business.Services.Auth;
+using PassKee.Business.Services.Http;
 
 namespace PassKee.Api.Controllers.Auth.Actions;
 
 public class RegisterRequestHandler : IAsyncRequestHandler<RegisterRequest, AuthResponse>
 {
     private readonly IAuthService _authService;
+    private readonly IHttpCookiesService _cookiesService;
     private readonly IMapper _mapper;
 
-    public RegisterRequestHandler(IAuthService authService, IMapper mapper)
+    public RegisterRequestHandler(
+        IAuthService authService,
+        IHttpCookiesService cookiesService,
+        IMapper mapper)
     {
         _authService = authService;
+        _cookiesService = cookiesService;
         _mapper = mapper;
     }
 
@@ -34,8 +40,8 @@ public class RegisterRequestHandler : IAsyncRequestHandler<RegisterRequest, Auth
             kdfParams
         );
 
-        var response = _mapper.Map<AuthResponse>(authResult.User);
-        response.AccessToken = authResult.JwtToken;
-        return response;
+        _cookiesService.AppendAuthCookies(authResult.AccessToken, authResult.JwtToken);
+
+        return _mapper.Map<AuthResponse>(authResult.User);
     }
 }

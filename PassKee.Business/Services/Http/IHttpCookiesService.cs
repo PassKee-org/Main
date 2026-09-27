@@ -23,4 +23,8 @@ public interface IHttpCookiesService: IScopedDomainService
     void AppendAuthCookies(string accessToken, string jwtToken);
 
     void CleanUpAuthCookies();
+
+    string PrepareName(string name);
+
+    string PrepareName(HttpCookieKeyEnum key);
 }

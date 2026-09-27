@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using PassKee.Business.Common.Exceptions.Api;
@@ -6,10 +7,16 @@ using PassKee.Business.Common.Utils;
 using PassKee.Business.Dto.Auth;
 using PassKee.Orm.Dao;
 using PassKee.Orm.Entities;
+using Persistence.Transactions.Behaviors;
 
 namespace PassKee.Business.Services.Auth;
 
-public class AuthService(IUserDao userDao, IJwtAuthService jwtAuthService) : IAuthService
+public class AuthService(
+    IUserDao userDao,
+    IJwtAuthService jwtAuthService,
+    IUserAccessTokenDao accessTokenDao,
+    IDbSessionProvider sessionProvider
+) : IAuthService
 {
     public async Task<AuthResultDto> RegisterAsync(
         string email,
@@ -39,7 +46,7 @@ public class AuthService(IUserDao userDao, IJwtAuthService jwtAuthService) : IAu
             cancellationToken
         );
 
-        return CreateAuthResult(user);
+        return await CreateAuthResult(user, cancellationToken);
     }
 
     public async Task<AuthResultDto> LoginAsync(
@@ -54,7 +61,7 @@ public class AuthService(IUserDao userDao, IJwtAuthService jwtAuthService) : IAu
             throw new UserNotAuthorizedException();
         }
 
-        return CreateAuthResult(user);
+        return await CreateAuthResult(user, cancellationToken);
     }
 
     public async Task<UserEntity> GetLoginParamsAsync(
@@ -71,6 +78,69 @@ public class AuthService(IUserDao userDao, IJwtAuthService jwtAuthService) : IAu
         return user;
     }
 
-    private AuthResultDto CreateAuthResult(UserEntity user) =>
-        new(jwtAuthService.BuildJwt(user.Id), user);
+    public async Task<AuthResultDto> GenerateNewJwtToken(
+        string accessTokenString,
+        string? previousJwtToken = null,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var accessToken = await accessTokenDao.GetByToken(accessTokenString, cancellationToken);
+        if (
+            accessToken == null
+            || (
+                !string.IsNullOrWhiteSpace(previousJwtToken)
+                && !await accessTokenDao.HasJwtToken(accessToken, previousJwtToken, cancellationToken)
+            )
+        )
+        {
+            throw new UserNotAuthorizedException();
+        }
+
+        if (accessToken.ExpirationTime < DateTime.UtcNow)
+        {
+            throw new ExpiredJwtTokenException();
+        }
+
+        return await GenerateNewJwtToken(accessToken, cancellationToken);
+    }
+
+    public async Task<AuthResultDto> GenerateNewJwtToken(
+        UserAccessTokenEntity accessToken,
+        CancellationToken cancellationToken = default
+    )
+    {
+        ArgumentNullException.ThrowIfNull(accessToken);
+
+        if (accessToken.IsExpired)
+        {
+            await accessTokenDao.Delete(accessToken, cancellationToken);
+            throw new ExpiredJwtTokenException();
+        }
+
+        await accessTokenDao.DeleteExpiredJwtTokens(accessToken, cancellationToken);
+
+        var jwtToken = jwtAuthService.BuildJwt(accessToken.User.Id, accessToken.Id);
+        var expirationTime = jwtAuthService.GetTokenExpirationTime(jwtToken);
+        var jwtTokenEntity = new UserJwtTokenEntity
+        {
+            Token = jwtToken,
+            CreatedAt = DateTime.UtcNow,
+            ExpirationTime = expirationTime,
+            AccessToken = accessToken
+        };
+        accessToken.JwtTokens.Add(jwtTokenEntity);
+        await sessionProvider.CurrentSession.SaveAsync(jwtTokenEntity, cancellationToken);
+
+        return new AuthResultDto(
+            jwtTokenEntity.Token,
+            accessToken.Token,
+            accessToken.User
+        );
+    }
+
+    private async Task<AuthResultDto> CreateAuthResult(UserEntity user, CancellationToken cancellationToken = default)
+    {
+        var accessToken = await accessTokenDao.CreateNew(user, cancellationToken);
+        return await GenerateNewJwtToken(accessToken, cancellationToken);
+    }
 }
