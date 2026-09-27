@@ -9,31 +9,31 @@
             <div class="flex h-full flex-col justify-between gap-8 p-8 sm:p-10">
                 <div>
                     <div class="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-blue-300">
-                        <i class="fa-solid fa-shield-halved text-sm"></i>
-                        <span>Zero-Knowledge Architecture</span>
+                        <i class="fa-solid fa-lock text-sm"></i>
+                        <span>Zero-Knowledge Sign In</span>
                     </div>
                     <h1 class="mt-6 max-w-xl text-3xl font-bold leading-tight sm:text-4xl text-white">
-                        Access Your Encrypted PassKee Vault
+                        Access Your Encrypted Vault
                     </h1>
                     <p class="mt-4 max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
-                        Your master password and secret key derive your private cryptographic keys directly inside your browser. No unencrypted secrets ever reach the server.
+                        Your Master Password and Secret Key work together to unlock your vault directly in your browser. PassKee never sees your unencrypted data.
                     </p>
                 </div>
                 <div class="grid gap-4 sm:grid-cols-3">
                     <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
                         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-blue-300">01</p>
-                        <p class="mt-2 text-base font-semibold text-white">Local KDF</p>
-                        <p class="mt-1 text-xs text-slate-400">Argon2id derivation runs entirely on your device.</p>
+                        <p class="mt-2 text-base font-semibold text-white">Master Password</p>
+                        <p class="mt-1 text-xs text-slate-400">Your private master phrase, known only to you.</p>
                     </div>
                     <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
                         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">02</p>
-                        <p class="mt-2 text-base font-semibold text-white">AES-256-GCM</p>
-                        <p class="mt-1 text-xs text-slate-400">End-to-end AEAD encryption protects vault data.</p>
+                        <p class="mt-2 text-base font-semibold text-white">Secret Key</p>
+                        <p class="mt-1 text-xs text-slate-400">The 128-bit emergency code generated when you registered.</p>
                     </div>
                     <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
                         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-purple-300">03</p>
-                        <p class="mt-2 text-base font-semibold text-white">Full Privacy</p>
-                        <p class="mt-1 text-xs text-slate-400">Zero-knowledge proof protects your credentials.</p>
+                        <p class="mt-2 text-base font-semibold text-white">Local Decryption</p>
+                        <p class="mt-1 text-xs text-slate-400">Decrypted securely inside your browser on this device.</p>
                     </div>
                 </div>
             </div>
@@ -87,7 +87,7 @@
                         Type="password"
                         Icon="fa-solid fa-shield-halved"
                         Placeholder="Enter your 128-bit Secret Key"
-                        HelpText="The secret key generated when you created your account."
+                        HelpText="Where is my Secret Key? It is the 128-bit emergency key provided when you created your vault."
                         Required="true"
                         Disabled="@IsProcessing"
                         Autocomplete="off" />
@@ -104,6 +104,15 @@
                             </StartContent>
                             <ChildContent>Sign In to Vault</ChildContent>
                         </AppButton>
+                    </div>
+
+                    <div class="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600 leading-relaxed">
+                        <div class="flex items-start gap-2">
+                            <i class="fa-solid fa-circle-question text-blue-500 mt-0.5 shrink-0"></i>
+                            <span>
+                                <strong>Can't find your Secret Key?</strong> Because PassKee is zero-knowledge, we cannot reset your credentials. Look for the Emergency Secret Key saved during registration or sign in from an authorized device.
+                            </span>
+                        </div>
                     </div>
                 </form>
             </div>

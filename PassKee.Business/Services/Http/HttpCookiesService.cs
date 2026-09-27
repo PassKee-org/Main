@@ -62,11 +62,12 @@ public class HttpCookiesService: IHttpCookiesService
     public void Append(HttpContext context, string name, string value, DateTimeOffset? expires = null)
     {
         name = PrepareName(name);
-        foreach (var cookieDomain in _cookieDomains)
+        var cookieDomains = _cookieDomains.Length == 0 ? [string.Empty] : _cookieDomains;
+        foreach (var cookieDomain in cookieDomains)
         {
             var cookieOptions = new CookieOptions
             {
-                Domain = cookieDomain,
+                Domain = string.IsNullOrEmpty(cookieDomain) ? null : cookieDomain,
                 HttpOnly = false,
                 Secure = true,
                 SameSite = SameSiteMode.None,

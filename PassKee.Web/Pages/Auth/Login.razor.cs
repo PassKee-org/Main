@@ -16,11 +16,22 @@ public partial class Login
     [Inject]
     private NavigationManager NavigationManager { get; set; } = null!;
 
+    [SupplyParameterFromQuery(Name = "email")]
+    private string? QueryEmail { get; set; }
+
     private string Email { get; set; } = "";
     private string Password { get; set; } = "";
     private string SecretKeyBase64 { get; set; } = "";
     private bool IsProcessing { get; set; } = false;
     private string ErrorMessage { get; set; } = "";
+
+    protected override void OnInitialized()
+    {
+        if (!string.IsNullOrWhiteSpace(QueryEmail) && string.IsNullOrWhiteSpace(Email))
+        {
+            Email = QueryEmail;
+        }
+    }
 
     private async Task LoginAsync()
     {
