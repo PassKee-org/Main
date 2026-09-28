@@ -2,6 +2,7 @@ using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components.WebAssembly.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -35,6 +36,7 @@ public class CustomHttpClient
     {
         var fullUri = string.IsNullOrEmpty(_apiUrl) ? requestUri : $"{_apiUrl}/{requestUri.TrimStart('/')}";
         var request = new HttpRequestMessage(httpMethod, fullUri);
+        request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
 
         if (data != null && (httpMethod == HttpMethod.Post || httpMethod == HttpMethod.Put))
         {

@@ -2,8 +2,10 @@ using System;
 using System.Net;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Testing;
 using PassKee.Api.Shared.Constants;
 using PassKee.Api.Shared.Dto.RequestsAndResponses.Auth;
+using PassKee.Business.Common.Constants;
 using PassKee.Business.Common.Constants.Http;
 using PassKee.Business.Common.Utils;
 using PassKee.Business.Testing.Extensions;
@@ -105,5 +107,32 @@ public class CheckAuthTest : BaseTest
     {
         var checkResponse = await GetRequestWithCookieAsync(ApiUrl.AuthCheck, HttpCookieKeyEnum.JwtToken.GetKey(), "invalid_garbage_token");
         Assert.Equal(HttpStatusCode.Unauthorized, checkResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task ShouldIgnoreJwtInQueryString()
+    {
+        var regData = CryptoUtils.PrepareClientRegistration("SecurePassword#2026");
+        var regResponse = await PostRequestAsAnonymousAsync(ApiUrl.AuthRegister, new RegisterRequest
+        {
+            Email = $"query_token_{Guid.NewGuid():N}@example.com",
+            AuthHash = regData.AuthHash,
+            AuthSalt = regData.AuthSalt,
+            UserPublicKey = regData.KeyEnvelope.PublicKey,
+            EncryptedUserPrivateKey = regData.KeyEnvelope.EncryptedPrivateKey,
+            EncryptedUserVaultKey = regData.KeyEnvelope.EncryptedVaultKey
+        });
+        var jwtToken = regResponse.GetSetCookieValue(HttpCookieKeyEnum.JwtToken.GetKey());
+        Assert.NotNull(jwtToken);
+
+        using var clientWithoutCookies = _factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            HandleCookies = false
+        });
+        var response = await clientWithoutCookies.GetAsync(
+            $"{ApiUrl.AuthCheck}?{AuthConstants.ApiTokenKey}={Uri.EscapeDataString(jwtToken!)}"
+        );
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 }

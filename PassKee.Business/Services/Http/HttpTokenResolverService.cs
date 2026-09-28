@@ -26,18 +26,7 @@ public class HttpTokenResolverService: IHttpTokenResolverService
             return null;
         var request = _httpContextAccessor!.HttpContext!.Request;
         string? authToken = null;
-        if (request.Query.ContainsKey(AuthConstants.WebSocketAccessApiTokenKey))
-        {
-            authToken = request.Query[AuthConstants.WebSocketAccessApiTokenKey]!;
-        }
-        if (string.IsNullOrEmpty(authToken) && request.Query.ContainsKey(AuthConstants.ApiTokenKey))
-        {
-            authToken = request.Query[AuthConstants.ApiTokenKey]!;
-        }
-        if (string.IsNullOrEmpty(authToken))
-        {
-            authToken = _httpHeadersService.Get(HttpHeaderKeyEnum.JwtToken);
-        }
+        authToken = _httpHeadersService.Get(HttpHeaderKeyEnum.JwtToken);
         if (string.IsNullOrEmpty(authToken) && request.Headers.ContainsKey("Authorization"))
         {
             authToken = request.Headers["Authorization"].FirstOrDefault()!;
@@ -65,16 +54,7 @@ public class HttpTokenResolverService: IHttpTokenResolverService
     {
         if (_httpContextAccessor?.HttpContext == null)
             return null;
-        var request = _httpContextAccessor.HttpContext!.Request;
-        string? authToken = null;
-        if (request.Query.ContainsKey(HttpCookieKeyEnum.AccessToken.GetKey()))
-        {
-            authToken = request.Query[HttpCookieKeyEnum.AccessToken.GetKey()]!;
-        }
-        if (string.IsNullOrEmpty(authToken))
-        {
-            authToken = _httpHeadersService.Get(HttpHeaderKeyEnum.AccessToken);
-        }
+        string? authToken = _httpHeadersService.Get(HttpHeaderKeyEnum.AccessToken);
         if (string.IsNullOrEmpty(authToken))
         {
             authToken = _httpCookiesService.Get(HttpCookieKeyEnum.AccessToken);
