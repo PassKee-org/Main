@@ -46,6 +46,22 @@ public static class JsonHelper
         }
         return JsonConvert.DeserializeObject<T>(value, settings);
     }
+
+    public static T? DeserializeObject<T>(
+        byte[] bytes,
+        DateTimeZoneHandling? dateTimeZoneHandling = null,
+        List<JsonConverter>? converters = null,
+        IContractResolver? contractResolver = null
+    )
+    {
+        if (bytes == null || bytes.Length == 0)
+        {
+            return default;
+        }
+
+        var jsonString = Encoding.UTF8.GetString(bytes);
+        return DeserializeObject<T>(jsonString, dateTimeZoneHandling, converters, contractResolver);
+    }
     
     public static object? DeserializeObject(
         string value,

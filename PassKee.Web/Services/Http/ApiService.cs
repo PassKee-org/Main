@@ -28,4 +28,13 @@ public partial class ApiService
     {
         return await _httpClient.RequestAsync(ApiUrl.Ping, null, HttpMethod.Get);
     }
+    public async Task<TResponse?> PutAsync<TResponse>(string requestUri, object? data = null)
+    {
+        return await _httpClient.RequestAsync<TResponse>(requestUri, data, HttpMethod.Put);
+    }
+
+    public async Task<TResponse?> DeleteAsync<TResponse>(string requestUri)
+    {
+        return await _httpClient.RequestAsync<TResponse>(requestUri, null, HttpMethod.Delete);
+    }
 }

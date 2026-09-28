@@ -1,0 +1,68 @@
+using System;
+using Microsoft.AspNetCore.Components;
+using PassKee.Api.Shared.Models.Vaults.Enums;
+using PassKee.Web.Core.Services.UI.Modal;
+
+namespace PassKee.Web.Pages.App.Modals;
+
+public partial class EditCredentialModal : ComponentBase
+{
+    [CascadingParameter] public AppModalInstance ModalInstance { get; set; } = null!;
+    [Inject] public IAppModalDialogService ModalService { get; set; } = null!;
+
+    [Parameter] public bool IsEdit { get; set; }
+    [Parameter] public CredentialType Type { get; set; } = CredentialType.Login;
+    [Parameter] public string Title { get; set; } = string.Empty;
+    [Parameter] public string? Notes { get; set; }
+    
+    // Login/Password
+    [Parameter] public string? Username { get; set; }
+    [Parameter] public string? Password { get; set; }
+    [Parameter] public string? Website { get; set; }
+
+    // Card
+    [Parameter] public string? CardNumber { get; set; }
+    [Parameter] public string? CardholderName { get; set; }
+    [Parameter] public string? ExpirationDate { get; set; }
+    [Parameter] public string? Cvv { get; set; }
+
+    private void Cancel()
+    {
+        ModalService.Close(ModalInstance, AppModalResult.Cancel());
+    }
+
+    private void Save()
+    {
+        if (string.IsNullOrWhiteSpace(Title)) return;
+        
+        var result = new CredentialModalResult
+        {
+            Type = Type,
+            Title = Title,
+            Notes = Notes,
+            Username = Username,
+            Password = Password,
+            Website = Website,
+            CardNumber = CardNumber,
+            CardholderName = CardholderName,
+            ExpirationDate = ExpirationDate,
+            Cvv = Cvv
+        };
+        
+        ModalService.Close(ModalInstance, AppModalResult.Ok(result));
+    }
+}
+
+public class CredentialModalResult
+{
+    public CredentialType Type { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string? Notes { get; set; }
+    public string? Username { get; set; }
+    public string? Password { get; set; }
+    public string? Website { get; set; }
+    public string? CardNumber { get; set; }
+    public string? CardholderName { get; set; }
+    public string? ExpirationDate { get; set; }
+    public string? Cvv { get; set; }
+}

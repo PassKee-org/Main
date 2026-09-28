@@ -1,76 +1,206 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using PassKee.Web.Components;
-using PassKee.Web.Core.Services.UI.Modal;
+using Fluxor;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
+using PassKee.Web.Models.Vaults;
+using PassKee.Web.Store.Vaults;
+using PassKee.Web.Pages.App.Modals;
+using PassKee.Api.Shared.Models.Vaults.Enums;
+using PassKee.Api.Shared.Models.Vaults.Payloads;
+using PassKee.Web.Store.Auth;
 
 namespace PassKee.Web.Pages.App;
 
-public partial class AppPage : BaseComponent
+public partial class AppPage
 {
+    [Inject] public IState<VaultsState> VaultsState { get; set; } = null!;
+    [Inject] public PassKee.Web.Services.Storage.ISessionLockStorageService SessionLockStorage { get; set; } = null!;
 
+    private Guid? SelectedDirectoryId { get; set; }
 
-    protected async Task LockVaultAsync()
+    private IEnumerable<DecryptedCredential> FilteredCredentials =>
+        SelectedDirectoryId.HasValue
+            ? VaultsState.Value.Credentials.Where(c => c.DirectoryId == SelectedDirectoryId)
+            : VaultsState.Value.Credentials;
+
+    protected override void OnInitialized()
     {
-        var confirmed = await ModalService.ShowConfirmationAsync(
-            "Are you sure you want to lock your PassKee vault? Your decrypted keys will be cleared from memory.",
-            "Lock Vault",
-            "Lock Now",
-            "Keep Unlocked",
-            AppConfirmationType.Alert);
-
-        if (confirmed)
+        base.OnInitialized();
+        if (!VaultsState.Value.Vaults.Any() && !VaultsState.Value.IsLoading)
         {
-            ToastService.ShowInfo("Vault locked successfully.");
-            NavigationManager.NavigateTo("/login");
+            Dispatcher.Dispatch(new LoadVaultsAction());
         }
     }
 
-    protected void AddNewItemAsync()
+    private void OnVaultSelected(ChangeEventArgs e)
     {
-        ToastService.ShowInfo("Add Item dialog will be available in the next release.");
-    }
-
-    protected void TriggerSuccessToast()
-    {
-        ToastService.ShowSuccess("Vault synced securely with zero-knowledge encryption.");
-    }
-
-    protected void TriggerErrorToast()
-    {
-        ToastService.ShowError("Failed to decrypt entry. Master key mismatch.");
-    }
-
-    protected void TriggerWarningToast()
-    {
-        ToastService.ShowWarning("Password strength is weak for GitHub account.");
-    }
-
-    protected void TriggerInfoToast()
-    {
-        ToastService.ShowInfo("New device authorized from 192.168.1.100.");
-    }
-
-    protected async Task TriggerConfirmModal()
-    {
-        var confirmed = await ModalService.ShowConfirmationAsync(
-            "This action demonstrates the modal dialog component ported from TimeVic. Proceed?",
-            "Confirmation Dialog",
-            "Proceed",
-            "Dismiss",
-            AppConfirmationType.Info);
-
-        if (confirmed)
+        if (Guid.TryParse(e.Value?.ToString(), out var vaultId))
         {
-            ToastService.ShowSuccess("You confirmed the modal dialog action!");
-        }
-        else
-        {
-            ToastService.ShowWarning("Modal dialog was cancelled.");
+            Dispatcher.Dispatch(new SelectVaultAction(vaultId));
+            Dispatcher.Dispatch(new LoadVaultDetailsAction(vaultId));
+            SelectedDirectoryId = null;
         }
     }
 
-    protected void CopyPassword(string title)
+    private async Task OpenCreateVaultModal()
     {
-        ToastService.ShowSuccess($"Password for {title} copied to clipboard!");
+        var result = await ModalService.ShowAsync<CreateVaultModal>();
+        if (result.IsSuccess && result.Data != null)
+        {
+            var vaultName = (string)result.Data;
+            if (!string.IsNullOrWhiteSpace(vaultName))
+            {
+                Dispatcher.Dispatch(new CreateVaultAction(vaultName.Trim(), string.Empty));
+            }
+        }
+    }
+
+    private void SelectDirectory(Guid? id)
+    {
+        SelectedDirectoryId = id;
+    }
+
+    private async Task OpenDirectoryModal(DecryptedDirectory? dir)
+    {
+        if (!VaultsState.Value.ActiveVaultId.HasValue) return;
+        var vaultId = VaultsState.Value.ActiveVaultId.Value;
+
+        var parameters = new Dictionary<string, object?>
+        {
+            { "Name", dir?.Name ?? string.Empty },
+            { "IsEdit", dir != null }
+        };
+
+        var result = await ModalService.ShowAsync<EditDirectoryModal>(parameters);
+        if (result.IsSuccess && result.Data != null)
+        {
+            if (dir == null)
+            {
+                var newName = (string)result.Data;
+                Dispatcher.Dispatch(new CreateDirectoryAction(vaultId, SelectedDirectoryId, newName));
+            }
+            else
+            {
+                var newName = (string)result.Data;
+                Dispatcher.Dispatch(new UpdateDirectoryAction(vaultId, dir.Id, dir.ParentDirectoryId, newName));
+            }
+        }
+    }
+
+    private async Task DeleteDirectory(DecryptedDirectory dir)
+    {
+        if (!VaultsState.Value.ActiveVaultId.HasValue) return;
+        var vaultId = VaultsState.Value.ActiveVaultId.Value;
+
+        var confirm = await ModalService.ShowConfirmationAsync($"Are you sure you want to delete directory '{dir.Name}'? All nested items will be lost.");
+        if (confirm)
+        {
+            if (SelectedDirectoryId == dir.Id) SelectedDirectoryId = null;
+            Dispatcher.Dispatch(new DeleteDirectoryAction(vaultId, dir.Id));
+        }
+    }
+
+    private async Task OpenCredentialModal(DecryptedCredential? cred)
+    {
+        if (!VaultsState.Value.ActiveVaultId.HasValue) return;
+        var vaultId = VaultsState.Value.ActiveVaultId.Value;
+
+        var parameters = new Dictionary<string, object?>
+        {
+            { "IsEdit", cred != null },
+            { "Type", cred != null ? (CredentialType)cred.Type : CredentialType.Login },
+            { "Title", cred?.Payload?.Title ?? string.Empty },
+            { "Notes", cred?.Payload?.Notes ?? string.Empty }
+        };
+
+        if (cred?.Payload is LoginCredentialPayload login)
+        {
+            parameters.Add("Username", login.Username);
+            parameters.Add("Password", login.Password);
+            parameters.Add("Website", login.Website);
+        }
+        else if (cred?.Payload is PasswordCredentialPayload pass)
+        {
+            parameters.Add("Username", pass.Username);
+            parameters.Add("Password", pass.Password);
+        }
+        else if (cred?.Payload is CardCredentialPayload card)
+        {
+            parameters.Add("CardNumber", card.CardNumber);
+            parameters.Add("CardholderName", card.CardholderName);
+            parameters.Add("ExpirationDate", card.ExpirationDate);
+            parameters.Add("Cvv", card.Cvv);
+        }
+
+        var result = await ModalService.ShowAsync<EditCredentialModal>(parameters);
+        if (result.IsSuccess && result.Data != null)
+        {
+            var form = (CredentialModalResult)result.Data;
+            BaseCredentialPayload payload;
+            if (form.Type == CredentialType.Login)
+                payload = new LoginCredentialPayload { Title = form.Title, Notes = form.Notes, Username = form.Username, Password = form.Password, Website = form.Website };
+            else if (form.Type == CredentialType.Password)
+                payload = new PasswordCredentialPayload { Title = form.Title, Notes = form.Notes, Username = form.Username, Password = form.Password };
+            else if (form.Type == CredentialType.Card)
+                payload = new CardCredentialPayload { Title = form.Title, Notes = form.Notes, CardNumber = form.CardNumber, CardholderName = form.CardholderName, ExpirationDate = form.ExpirationDate, Cvv = form.Cvv };
+            else
+                payload = new SecureNoteCredentialPayload { Title = form.Title, Notes = form.Notes };
+
+            if (cred == null)
+            {
+                Dispatcher.Dispatch(new CreateCredentialAction(vaultId, SelectedDirectoryId, form.Type, payload));
+            }
+            else
+            {
+                Dispatcher.Dispatch(new UpdateCredentialAction(vaultId, cred.Id, cred.DirectoryId, form.Type, payload));
+            }
+        }
+    }
+
+    private async Task DeleteCredential(DecryptedCredential cred)
+    {
+        if (!VaultsState.Value.ActiveVaultId.HasValue) return;
+        var vaultId = VaultsState.Value.ActiveVaultId.Value;
+
+        var confirm = await ModalService.ShowConfirmationAsync($"Are you sure you want to delete '{cred.Payload.Title}'?");
+        if (confirm)
+        {
+            Dispatcher.Dispatch(new DeleteCredentialAction(vaultId, cred.Id));
+        }
+    }
+
+    private void HandleDirectoryMove((Guid SourceId, Guid? TargetId) moveAction)
+    {
+        if (!VaultsState.Value.ActiveVaultId.HasValue) return;
+        var vaultId = VaultsState.Value.ActiveVaultId.Value;
+
+        var dir = VaultsState.Value.Directories.FirstOrDefault(d => d.Id == moveAction.SourceId);
+        if (dir != null)
+        {
+            Dispatcher.Dispatch(new UpdateDirectoryAction(vaultId, dir.Id, moveAction.TargetId, dir.Name));
+        }
+    }
+
+    private void HandleRootDragOver(DragEventArgs e) { }
+    
+    private void HandleRootDrop(DragEventArgs e)
+    {
+        if (DragDropState.DraggedDirectoryId.HasValue)
+        {
+            HandleDirectoryMove((DragDropState.DraggedDirectoryId.Value, null));
+        }
+        DragDropState.DraggedDirectoryId = null;
+    }
+
+    private async Task LockVaultAsync()
+    {
+        await SessionLockStorage.LockSessionAsync();
+        Dispatcher.Dispatch(new ResetAuthStateAction());
+        Dispatcher.Dispatch(new ResetVaultsStateAction());
+        NavigationManager.NavigateTo("/login");
     }
 }
-

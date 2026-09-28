@@ -1,11 +1,11 @@
 @page "/app"
+@using PassKee.Web.Store.Vaults
+@using PassKee.Web.Core.Ui.Shared.Components.Enums
 @inherits BaseComponent
 
-
 <div class="min-h-screen bg-slate-50 flex flex-col font-sans">
-    @* Top App Bar *@
     <header class="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
-        <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+        <div class="mx-auto flex max-w-[1400px] items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
             <div class="flex items-center gap-6">
                 <a href="/app" class="flex items-center gap-2.5 font-bold text-xl text-blue-600">
                     <i class="fa-solid fa-shield-halved text-2xl text-blue-600"></i>
@@ -15,19 +15,9 @@
                     <a href="/app" class="px-3 py-1.5 rounded-lg text-sm font-semibold bg-blue-50 text-blue-600">
                         <i class="fa-solid fa-vault mr-1.5"></i> Vault
                     </a>
-                    <button type="button" @onclick="@(() => ToastService.ShowInfo("Password generator coming soon."))" class="px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer">
-                        <i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i> Generator
-                    </button>
-                    <button type="button" @onclick="@(() => ToastService.ShowInfo("Security audit coming soon."))" class="px-3 py-1.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer">
-                        <i class="fa-solid fa-chart-pie mr-1.5"></i> Security
-                    </button>
                 </nav>
             </div>
-
             <div class="flex items-center gap-3">
-                <AppBadge Variant="@BadgeVariant.Flat" Color="@ComponentColor.Success" Radius="@BadgeRadius.Full">
-                    <i class="fa-solid fa-circle text-[8px] mr-1"></i> Synced
-                </AppBadge>
                 <AppButton Color="@ComponentColor.Default" Variant="@ButtonVariant.Outlined" Radius="@ButtonRadius.Medium" OnClick="@LockVaultAsync">
                     <i class="fa-solid fa-lock mr-1.5"></i> Lock
                 </AppButton>
@@ -35,182 +25,149 @@
         </div>
     </header>
 
-    <main class="flex-1 max-w-7xl w-full mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        @* Page Header *@
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-            <div>
-                <div class="flex items-center gap-3">
-                    <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">PassKee Vault</h1>
-                    <AppBadge Variant="@BadgeVariant.Flat" Color="@ComponentColor.Success" Radius="@BadgeRadius.Full">
-                        <i class="fa-solid fa-shield-check"></i> Encrypted
-                    </AppBadge>
-                </div>
-                <p class="mt-1 text-sm text-slate-500">Your zero-knowledge encrypted credentials & secure secrets vault.</p>
+    <main class="flex-1 max-w-[1400px] w-full mx-auto py-8 px-4 sm:px-6 lg:px-8 flex gap-6 items-start">
+        @if (VaultsState.Value.IsLoading && !VaultsState.Value.Vaults.Any())
+        {
+            <div class="flex-1 flex items-center justify-center">
+                <AppSpinner Color="@ComponentColor.Primary" Size="@ComponentSize.Large" />
             </div>
-            <div class="flex items-center gap-3">
-                <AppButton Color="@ComponentColor.Default" Variant="@ButtonVariant.Outlined" OnClick="@LockVaultAsync">
-                    <i class="fa-solid fa-lock mr-2"></i> Lock Vault
-                </AppButton>
-                <AppButton Color="@ComponentColor.Primary" Variant="@ButtonVariant.Solid" OnClick="@AddNewItemAsync">
-                    <i class="fa-solid fa-plus mr-2"></i> Add Item
-                </AppButton>
+        }
+        else
+        {
+            <div class="w-72 flex-shrink-0 flex flex-col gap-4 sticky top-24 max-h-[calc(100vh-8rem)]">
+                <AppCard>
+                    <AppCardBody Class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Current Vault</label>
+                            <AppButton Color="@ComponentColor.Primary" Variant="@ButtonVariant.Light" OnClick="@OpenCreateVaultModal" Title="New Vault">
+                                <i class="fa-solid fa-plus text-xs"></i>
+                            </AppButton>
+                        </div>
+                        <select class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-slate-900 ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6" @onchange="OnVaultSelected">
+                            @foreach (var vault in VaultsState.Value.Vaults)
+                            {
+                                <option value="@vault.Id" selected="@(vault.Id == VaultsState.Value.ActiveVaultId)">@vault.Name</option>
+                            }
+                        </select>
+                    </AppCardBody>
+                </AppCard>
+
+                <AppCard Class="flex-1 flex flex-col min-h-0">
+                    <AppCardHeader Class="py-3 px-4 flex items-center justify-between border-b border-slate-100">
+                        <h3 class="font-semibold text-sm text-slate-900">Directories</h3>
+                        <AppButton Color="@ComponentColor.Primary" Variant="@ButtonVariant.Light" OnClick="@(() => OpenDirectoryModal(null))">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                        </AppButton>
+                    </AppCardHeader>
+                    <AppCardBody Class="p-2 flex-1 overflow-y-auto">
+                        @if (!VaultsState.Value.Directories.Any())
+                        {
+                            <div class="p-4 text-center text-sm text-slate-500">
+                                No directories yet.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="flex flex-col gap-1">
+                                <div class="group flex items-center justify-between py-1.5 px-2 rounded-md cursor-pointer transition-colors
+                                            @(SelectedDirectoryId == null ? "bg-blue-50 text-blue-700 font-medium" : "text-slate-600 hover:bg-slate-100")"
+                                     @onclick="() => SelectDirectory(null)"
+                                     @ondragover="HandleRootDragOver"
+                                     @ondragover:preventDefault="true"
+                                     @ondrop="HandleRootDrop"
+                                     @ondrop:preventDefault="true">
+                                    <div class="flex items-center gap-2">
+                                        <i class="fa-solid fa-vault text-blue-500 ml-1"></i>
+                                        <span class="text-sm">All Items</span>
+                                    </div>
+                                </div>
+
+                                @foreach (var dir in VaultsState.Value.Directories.Where(d => d.ParentDirectoryId == null))
+                                {
+                                    <DirectoryNode Directory="@dir" 
+                                                   AllDirectories="@VaultsState.Value.Directories" 
+                                                   SelectedDirectoryId="@SelectedDirectoryId"
+                                                   OnSelect="@(() => SelectDirectory(dir.Id))"
+                                                   OnMove="@HandleDirectoryMove"
+                                                   OnEdit="OpenDirectoryModal"
+                                                   OnDelete="DeleteDirectory" />
+                                }
+                            </div>
+                        }
+                    </AppCardBody>
+                </AppCard>
             </div>
-        </div>
 
-        @* Stat Cards *@
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <AppCard>
-                <AppCardBody>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm font-medium text-slate-500">Total Logins</span>
-                        <div class="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                            <i class="fa-solid fa-key text-sm"></i>
-                        </div>
-                    </div>
-                    <div class="mt-2 text-2xl font-bold text-slate-900">12</div>
-                    <span class="text-xs text-emerald-600 font-medium">All synced</span>
-                </AppCardBody>
-            </AppCard>
-
-            <AppCard>
-                <AppCardBody>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm font-medium text-slate-500">Secure Notes</span>
-                        <div class="h-8 w-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                            <i class="fa-solid fa-note-sticky text-sm"></i>
-                        </div>
-                    </div>
-                    <div class="mt-2 text-2xl font-bold text-slate-900">4</div>
-                    <span class="text-xs text-slate-400">Zero-knowledge</span>
-                </AppCardBody>
-            </AppCard>
-
-            <AppCard>
-                <AppCardBody>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm font-medium text-slate-500">Security Score</span>
-                        <div class="h-8 w-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
-                            <i class="fa-solid fa-shield-halved text-sm"></i>
-                        </div>
-                    </div>
-                    <div class="mt-2 text-2xl font-bold text-slate-900">98%</div>
-                    <span class="text-xs text-emerald-600 font-medium">Strong master key</span>
-                </AppCardBody>
-            </AppCard>
-
-            <AppCard>
-                <AppCardBody>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm font-medium text-slate-500">Compromised</span>
-                        <div class="h-8 w-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center">
-                            <i class="fa-solid fa-triangle-exclamation text-sm"></i>
-                        </div>
-                    </div>
-                    <div class="mt-2 text-2xl font-bold text-slate-900">0</div>
-                    <span class="text-xs text-emerald-600 font-medium">No leaks found</span>
-                </AppCardBody>
-            </AppCard>
-        </div>
-
-        @* Interactive Components Demo Section *@
-        <div class="mb-8">
-            <AppCard>
-                <AppCardHeader>
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-flask text-blue-600"></i>
-                        <h3 class="font-semibold text-slate-900">Interactive Core UI Showcase</h3>
-                    </div>
-                </AppCardHeader>
-                <AppCardBody>
-                    <p class="text-sm text-slate-600 mb-4">
-                        Test the new PassKee Core UI component system ported from TimeVic: Toasts, Modals, Buttons, Badges, and Switches.
-                    </p>
-                    <div class="flex flex-wrap items-center gap-3">
-                        <AppButton Color="@ComponentColor.Success" Variant="@ButtonVariant.Solid" OnClick="@TriggerSuccessToast">
-                            Show Success Toast
-                        </AppButton>
-                        <AppButton Color="@ComponentColor.Danger" Variant="@ButtonVariant.Solid" OnClick="@TriggerErrorToast">
-                            Show Error Toast
-                        </AppButton>
-                        <AppButton Color="@ComponentColor.Warning" Variant="@ButtonVariant.Outlined" OnClick="@TriggerWarningToast">
-                            Show Warning Toast
-                        </AppButton>
-                        <AppButton Color="@ComponentColor.Info" Variant="@ButtonVariant.Outlined" OnClick="@TriggerInfoToast">
-                            Show Info Toast
-                        </AppButton>
-                        <AppButton Color="@ComponentColor.Primary" Variant="@ButtonVariant.Flat" OnClick="@TriggerConfirmModal">
-                            Open Modal Dialog
-                        </AppButton>
-                    </div>
-                </AppCardBody>
-            </AppCard>
-        </div>
-
-        @* Vault Items Stub Table / List *@
-        <AppCard>
-            <AppCardHeader>
-                <div class="flex items-center justify-between">
-                    <h3 class="font-semibold text-slate-900">Recent Credentials</h3>
-                    <span class="text-xs text-slate-400">Encrypted with Master Vault Key</span>
-                </div>
-            </AppCardHeader>
-            <AppCardBody>
-                <div class="divide-y divide-slate-100">
-                    <div class="py-3.5 flex items-center justify-between">
-                        <div class="flex items-center gap-3.5">
-                            <div class="h-10 w-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-                                <i class="fa-brands fa-google"></i>
+            <div class="flex-1 flex flex-col">
+                <AppCard Class="flex-1 flex flex-col">
+                    <AppCardHeader Class="py-4 px-6 flex items-center justify-between border-b border-slate-100 bg-white">
+                        <div class="flex items-center gap-3">
+                            <div class="h-10 w-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg">
+                                <i class="fa-solid fa-folder-open"></i>
                             </div>
                             <div>
-                                <div class="font-medium text-slate-900">Google Workspace</div>
-                                <div class="text-xs text-slate-500">user@passkee.local</div>
+                                <h2 class="text-lg font-bold text-slate-900">
+                                    @(SelectedDirectoryId.HasValue ? VaultsState.Value.Directories.FirstOrDefault(d => d.Id == SelectedDirectoryId)?.Name : "All Items")
+                                </h2>
+                                <p class="text-sm text-slate-500">
+                                    @(FilteredCredentials.Count()) items
+                                </p>
                             </div>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <AppBadge Variant="@BadgeVariant.Flat" Color="@ComponentColor.Primary">Password</AppBadge>
-                            <AppButton Color="@ComponentColor.Default" Variant="@ButtonVariant.Light" OnClick="@(() => CopyPassword("Google"))">
-                                <i class="fa-regular fa-copy"></i>
-                            </AppButton>
+                        <AppButton Color="@ComponentColor.Primary" Variant="@ButtonVariant.Solid" OnClick="@(() => OpenCredentialModal(null))">
+                            <i class="fa-solid fa-plus mr-2"></i> New Item
+                        </AppButton>
+                    </AppCardHeader>
+                    
+                    <AppCardBody Class="p-0">
+                        <div class="divide-y divide-slate-100">
+                            @foreach (var cred in FilteredCredentials)
+                            {
+                                <div class="px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition group">
+                                    <div class="flex items-center gap-4 cursor-pointer flex-1" @onclick="() => OpenCredentialModal(cred)">
+                                        <div class="h-10 w-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center font-bold">
+                                            @if (cred.Type == CredentialType.SecureNote) { <i class="fa-solid fa-globe"></i> }
+                                            else if (cred.Type == CredentialType.Password) { <i class="fa-solid fa-key"></i> }
+                                            else if (cred.Type == CredentialType.Card) { <i class="fa-solid fa-note-sticky"></i> }
+                                            else { <i class="fa-solid fa-credit-card"></i> }
+                                        </div>
+                                        <div>
+                                            <div class="font-medium text-slate-900">@cred.Payload.Title</div>
+                                            @if (cred.Payload is PassKee.Api.Shared.Models.Vaults.Payloads.LoginCredentialPayload login)
+                                            {
+                                                <div class="text-xs text-slate-500">@login.Username</div>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <AppBadge Variant="@BadgeVariant.Flat" Color="@ComponentColor.Primary">
+                                            @(cred.Type == CredentialType.SecureNote ? "Login" : cred.Type == CredentialType.Password ? "Password" : cred.Type == CredentialType.Card ? "Secure Note" : "Card")
+                                        </AppBadge>
+                                        <div class="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity ml-4">
+                                            <AppButton Color="@ComponentColor.Default" Variant="@ButtonVariant.Light" OnClick="() => OpenCredentialModal(cred)">
+                                                <i class="fa-solid fa-pen text-slate-500"></i>
+                                            </AppButton>
+                                            <AppButton Color="@ComponentColor.Danger" Variant="@ButtonVariant.Light" OnClick="() => DeleteCredential(cred)">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </AppButton>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            @if (!FilteredCredentials.Any())
+                            {
+                                <div class="p-12 flex flex-col items-center justify-center text-center">
+                                    <div class="h-16 w-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300 mb-4 text-2xl">
+                                        <i class="fa-solid fa-ghost"></i>
+                                    </div>
+                                    <h3 class="text-sm font-semibold text-slate-900">It's empty here</h3>
+                                    <p class="text-sm text-slate-500 mt-1">Add your first item to this directory.</p>
+                                </div>
+                            }
                         </div>
-                    </div>
-
-                    <div class="py-3.5 flex items-center justify-between">
-                        <div class="flex items-center gap-3.5">
-                            <div class="h-10 w-10 rounded-xl bg-slate-900 text-white flex items-center justify-center font-bold">
-                                <i class="fa-brands fa-github"></i>
-                            </div>
-                            <div>
-                                <div class="font-medium text-slate-900">GitHub</div>
-                                <div class="text-xs text-slate-500">developer@github.com</div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <AppBadge Variant="@BadgeVariant.Flat" Color="@ComponentColor.Primary">Password</AppBadge>
-                            <AppButton Color="@ComponentColor.Default" Variant="@ButtonVariant.Light" OnClick="@(() => CopyPassword("GitHub"))">
-                                <i class="fa-regular fa-copy"></i>
-                            </AppButton>
-                        </div>
-                    </div>
-
-                    <div class="py-3.5 flex items-center justify-between">
-                        <div class="flex items-center gap-3.5">
-                            <div class="h-10 w-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
-                                <i class="fa-brands fa-aws"></i>
-                            </div>
-                            <div>
-                                <div class="font-medium text-slate-900">AWS Console</div>
-                                <div class="text-xs text-slate-500">admin-root</div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <AppBadge Variant="@BadgeVariant.Flat" Color="@ComponentColor.Warning">2FA Required</AppBadge>
-                            <AppButton Color="@ComponentColor.Default" Variant="@ButtonVariant.Light" OnClick="@(() => CopyPassword("AWS Console"))">
-                                <i class="fa-regular fa-copy"></i>
-                            </AppButton>
-                        </div>
-                    </div>
-                </div>
-            </AppCardBody>
-        </AppCard>
+                    </AppCardBody>
+                </AppCard>
+            </div>
+        }
     </main>
 </div>

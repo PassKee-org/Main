@@ -12,4 +12,7 @@ public record AuthState
     public string? SecretKeyBase64 { get; init; }
     public bool IsAuthenticated { get; init; }
     public AuthResponse? CurrentUser { get; init; }
+    public byte[]? UserPrivateKey { get; init; }
+    public byte[]? UserPublicKey { get; init; }
 }
+

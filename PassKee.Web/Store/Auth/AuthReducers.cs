@@ -43,6 +43,14 @@ public static class AuthReducers
         };
 
     [ReducerMethod]
+    public static AuthState OnUnlock(AuthState state, UnlockAction action) =>
+        state with
+        {
+            IsLoading = true,
+            ErrorMessage = null
+        };
+
+    [ReducerMethod]
     public static AuthState OnLoginSuccess(AuthState state, LoginSuccessAction action) =>
         state with
         {

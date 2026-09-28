@@ -1,19 +1,17 @@
 using System;
 using System.Threading.Tasks;
 using Fluxor;
-using PassKee.Api.Shared.Dto.RequestsAndResponses.Auth;
-using PassKee.Business.Common.Utils;
-using PassKee.Web.Services.Http;
+using PassKee.Web.Services.Auth;
 
 namespace PassKee.Web.Store.Auth.Effects;
 
 public class LoginEffect : Effect<LoginAction>
 {
-    private readonly ApiService _apiService;
+    private readonly IAuthClientService _authService;
 
-    public LoginEffect(ApiService apiService)
+    public LoginEffect(IAuthClientService authService)
     {
-        _apiService = apiService;
+        _authService = authService;
     }
 
     public override async Task HandleAsync(LoginAction action, IDispatcher dispatcher)
@@ -22,46 +20,12 @@ public class LoginEffect : Effect<LoginAction>
 
         try
         {
-            // 1. Fetch Login Parameters via ApiService
-            var loginParams = await _apiService.GetLoginParamsAsync(action.Email);
-            if (loginParams == null || string.IsNullOrEmpty(loginParams.AuthSalt))
-            {
-                dispatcher.Dispatch(new LoginFailureAction("User not found or error fetching login parameters."));
-                return;
-            }
-
-            // 2. Read KDF Parameters
-            int iterations = loginParams.KdfParams?.Iterations ?? CryptoUtils.DefaultKdfIterations;
-            int memorySize = loginParams.KdfParams?.MemorySize ?? CryptoUtils.DefaultKdfMemorySize;
-            int parallelism = loginParams.KdfParams?.Parallelism ?? CryptoUtils.DefaultKdfParallelism;
-
-            var authSaltBytes = Convert.FromBase64String(loginParams.AuthSalt);
-            var secretKeyBytes = Convert.FromBase64String(action.SecretKeyBase64.Trim());
-
-            // 3. Derive Master Key & Auth Hash using shared common helpers
-            var masterKey = CryptoUtils.DeriveMasterKey(action.Password, secretKeyBytes, authSaltBytes, iterations, memorySize, parallelism);
-            var authHash = CryptoUtils.ComputeAuthHash(masterKey);
-
-            // 4. Submit Login via ApiService
-            var request = new LoginRequest
-            {
-                Email = action.Email,
-                AuthHash = authHash
-            };
-
-            var authResponse = await _apiService.LoginAsync(request);
-            if (authResponse != null)
-            {
-                dispatcher.Dispatch(new LoginSuccessAction(authResponse));
-            }
-            else
-            {
-                dispatcher.Dispatch(new LoginFailureAction("Invalid credentials."));
-            }
+            var loginResult = await _authService.LoginAsync(action.Email, action.Password, action.SecretKeyBase64);
+            dispatcher.Dispatch(new LoginSuccessAction(loginResult.Response, loginResult.UserPrivateKey, loginResult.UserPublicKey));
         }
         catch (Exception ex)
         {
-            dispatcher.Dispatch(new LoginFailureAction($"Error during login: {ex.Message}"));
+            dispatcher.Dispatch(new LoginFailureAction(ex.Message));
         }
     }
 }

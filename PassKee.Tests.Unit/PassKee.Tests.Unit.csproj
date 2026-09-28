@@ -30,6 +30,7 @@
     <ItemGroup>
         <ProjectReference Include="..\PassKee.Business.Common\PassKee.Business.Common.csproj" />
         <ProjectReference Include="..\PassKee.Business.Extensions\PassKee.Business.Extensions.csproj" />
+        <ProjectReference Include="..\PassKee.Web.Core\PassKee.Web.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup>
