@@ -32,6 +32,7 @@ public class CommitPerformerMiddleware : ActionFilterAttribute
         }
         catch (Exception)
         {
+            
             queueDao.Clear();
             await dbSessionProvider.RollbackCommitAsync();
             throw;

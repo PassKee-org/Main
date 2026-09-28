@@ -7,6 +7,7 @@ using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Macs;
 using Org.BouncyCastle.Crypto.Modes;
+using Org.BouncyCastle.Crypto.Agreement;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 
@@ -103,6 +104,73 @@ public static class CryptoUtils
         var privKey = (X25519PrivateKeyParameters)pair.Private;
 
         return (pubKey.GetEncoded(), privKey.GetEncoded());
+    }
+
+    /// <summary>
+    /// Encrypts data for a recipient's X25519 public key using Ephemeral ECDH + AES-256-GCM.
+    /// Output format: [32 bytes Ephemeral Public Key][12 bytes Nonce][Ciphertext][16 bytes Auth Tag]
+    /// </summary>
+    public static byte[] EccEncrypt(byte[] recipientPublicKey, byte[] plaintext)
+    {
+        var (ephemeralPublicKey, ephemeralPrivateKey) = GenerateCurve25519KeyPair();
+
+        var agreement = new X25519Agreement();
+        agreement.Init(new X25519PrivateKeyParameters(ephemeralPrivateKey, 0));
+        var sharedSecret = new byte[agreement.AgreementSize];
+        agreement.CalculateAgreement(new X25519PublicKeyParameters(recipientPublicKey, 0), sharedSecret, 0);
+
+        var derivedKey = GenerateHmacSha256(sharedSecret, Encoding.UTF8.GetBytes("ecc_vault_encryption"));
+        var encryptedPayload = AesGcmEncrypt(derivedKey, plaintext);
+
+        var result = new byte[32 + encryptedPayload.Length];
+        Buffer.BlockCopy(ephemeralPublicKey, 0, result, 0, 32);
+        Buffer.BlockCopy(encryptedPayload, 0, result, 32, encryptedPayload.Length);
+        return result;
+    }
+
+    /// <summary>
+    /// Decrypts data that was encrypted for an X25519 public key using the recipient's private key.
+    /// </summary>
+    public static byte[] EccDecrypt(byte[] recipientPrivateKey, byte[] encryptedData)
+    {
+        if (encryptedData == null || encryptedData.Length < 32 + NonceSize + TagSize)
+        {
+            throw new ArgumentException("Encrypted data is invalid or truncated.", nameof(encryptedData));
+        }
+
+        var ephemeralPublicKey = new byte[32];
+        Buffer.BlockCopy(encryptedData, 0, ephemeralPublicKey, 0, 32);
+
+        var agreement = new X25519Agreement();
+        agreement.Init(new X25519PrivateKeyParameters(recipientPrivateKey, 0));
+        var sharedSecret = new byte[agreement.AgreementSize];
+        agreement.CalculateAgreement(new X25519PublicKeyParameters(ephemeralPublicKey, 0), sharedSecret, 0);
+
+        var derivedKey = GenerateHmacSha256(sharedSecret, Encoding.UTF8.GetBytes("ecc_vault_encryption"));
+
+        var encryptedPayload = new byte[encryptedData.Length - 32];
+        Buffer.BlockCopy(encryptedData, 32, encryptedPayload, 0, encryptedPayload.Length);
+
+        return AesGcmDecrypt(derivedKey, encryptedPayload);
+    }
+
+    /// <summary>
+    /// Encrypts the user's Secret Key for temporary local session storage using a key derived from Master Password and Auth Salt.
+    /// Allows unlocking the session using only the Master Password without re-entering the Secret Key.
+    /// </summary>
+    public static byte[] EncryptSecretKeyForSession(byte[] secretKey, string masterPassword, byte[] authSalt)
+    {
+        var sessionUnlockKey = GenerateHmacSha256(authSalt, Encoding.UTF8.GetBytes(masterPassword + ":session_unlock"));
+        return AesGcmEncrypt(sessionUnlockKey, secretKey);
+    }
+
+    /// <summary>
+    /// Decrypts the user's Secret Key from temporary local session storage using the Master Password and Auth Salt.
+    /// </summary>
+    public static byte[] DecryptSecretKeyFromSession(byte[] encryptedSecretKey, string masterPassword, byte[] authSalt)
+    {
+        var sessionUnlockKey = GenerateHmacSha256(authSalt, Encoding.UTF8.GetBytes(masterPassword + ":session_unlock"));
+        return AesGcmDecrypt(sessionUnlockKey, encryptedSecretKey);
     }
 
 

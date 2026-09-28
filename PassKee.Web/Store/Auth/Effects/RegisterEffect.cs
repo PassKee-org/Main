@@ -1,19 +1,17 @@
 using System;
 using System.Threading.Tasks;
 using Fluxor;
-using PassKee.Api.Shared.Dto.RequestsAndResponses.Auth;
-using PassKee.Business.Common.Utils;
-using PassKee.Web.Services.Http;
+using PassKee.Web.Services.Auth;
 
 namespace PassKee.Web.Store.Auth.Effects;
 
 public class RegisterEffect : Effect<RegisterAction>
 {
-    private readonly ApiService _apiService;
+    private readonly IAuthClientService _authService;
 
-    public RegisterEffect(ApiService apiService)
+    public RegisterEffect(IAuthClientService authService)
     {
-        _apiService = apiService;
+        _authService = authService;
     }
 
     public override async Task HandleAsync(RegisterAction action, IDispatcher dispatcher)
@@ -22,38 +20,12 @@ public class RegisterEffect : Effect<RegisterAction>
 
         try
         {
-            var regData = CryptoUtils.PrepareClientRegistration(action.Password);
-            var secretKeyBase64 = Convert.ToBase64String(regData.SecretKey);
-
-            var request = new RegisterRequest
-            {
-                Email = action.Email,
-                AuthHash = regData.AuthHash,
-                AuthSalt = regData.AuthSalt,
-                KdfParams = new KdfParamsRequest
-                {
-                    Iterations = regData.KdfParams.Iterations,
-                    MemorySize = regData.KdfParams.MemorySize,
-                    Parallelism = regData.KdfParams.Parallelism
-                },
-                UserPublicKey = regData.KeyEnvelope.PublicKey,
-                EncryptedUserPrivateKey = regData.KeyEnvelope.EncryptedPrivateKey,
-                EncryptedUserVaultKey = regData.KeyEnvelope.EncryptedVaultKey
-            };
-
-            var response = await _apiService.RegisterAsync(request);
-            if (response != null)
-            {
-                dispatcher.Dispatch(new RegisterSuccessAction(response, secretKeyBase64));
-            }
-            else
-            {
-                dispatcher.Dispatch(new RegisterFailureAction("Registration failed. Please try again."));
-            }
+            var result = await _authService.RegisterAsync(action.Email, action.Password);
+            dispatcher.Dispatch(new RegisterSuccessAction(result.Response, result.SecretKeyBase64, result.UserPrivateKey, result.UserPublicKey));
         }
         catch (Exception ex)
         {
-            dispatcher.Dispatch(new RegisterFailureAction($"Error during registration: {ex.Message}"));
+            dispatcher.Dispatch(new RegisterFailureAction(ex.Message));
         }
     }
 }

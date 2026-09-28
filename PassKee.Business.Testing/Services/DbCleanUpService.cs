@@ -21,6 +21,9 @@ public class DbCleanUpService : IDbCleanUpService
             "user_access_tokens",
             "user_kdf_params",
             "queues",
+            "credentials",
+            "directories",
+            "vaults",
             "users",
         };
 

@@ -46,6 +46,11 @@ builder.Services.AddFluxor(options =>
 // Custom HTTP Client & Api Service
 builder.Services.AddScoped<CustomHttpClient>();
 builder.Services.AddScoped<ApiService>();
+// Storage, Crypto & Business Services
+builder.Services.AddScoped<PassKee.Web.Services.Storage.ISessionLockStorageService, PassKee.Web.Services.Storage.SessionLockStorageService>();
+builder.Services.AddScoped<PassKee.Web.Services.Auth.IAuthClientService, PassKee.Web.Services.Auth.AuthClientService>();
+builder.Services.AddScoped<PassKee.Web.Core.Services.Vaults.IVaultCryptoService, PassKee.Web.Core.Services.Vaults.VaultCryptoService>();
+builder.Services.AddScoped<PassKee.Web.Services.Vaults.IVaultClientService, PassKee.Web.Services.Vaults.VaultClientService>();
 
 // UI Services
 builder.Services.AddScoped<PassKee.Web.Core.Services.UI.Toast.IToastService, PassKee.Web.Core.Services.UI.Toast.ToastService>();
