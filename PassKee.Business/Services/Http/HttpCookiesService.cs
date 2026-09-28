@@ -68,7 +68,7 @@ public class HttpCookiesService: IHttpCookiesService
             var cookieOptions = new CookieOptions
             {
                 Domain = string.IsNullOrEmpty(cookieDomain) ? null : cookieDomain,
-                HttpOnly = false,
+                HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.None,
                 Expires = expires

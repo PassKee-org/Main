@@ -62,6 +62,9 @@ public class RegisterTest : BaseTest
         var accessTokenCookie = response.GetSetCookieValue(HttpCookieKeyEnum.AccessToken.GetKey());
         Assert.NotNull(accessTokenCookie);
         Assert.NotEmpty(accessTokenCookie);
+        var setCookieHeaders = response.Headers.GetValues("Set-Cookie").ToArray();
+        Assert.Contains(setCookieHeaders, value => value.Contains(HttpCookieKeyEnum.JwtToken.GetKey()) && value.Contains("httponly", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(setCookieHeaders, value => value.Contains(HttpCookieKeyEnum.AccessToken.GetKey()) && value.Contains("httponly", StringComparison.OrdinalIgnoreCase));
 
         // Verify entity persisted in database with raw binary keys
         var userInDb = await _userDao.GetByEmail(email);
