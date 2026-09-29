@@ -114,6 +114,9 @@ Common cryptographic workflows live in `PassKee.Business.Common/Utils/CryptoUtil
   - `Feature.razor`: HTML markup, layout, UI binding.
   - `Feature.razor.cs`: Partial code-behind class containing properties, event handlers, and injected dependencies.
 - Use `[Inject]` attributes in code-behind rather than `@inject` directives in `.razor` markup.
+- Naming conventions: route-level components use the `Page` suffix, reusable UI fragments use the `Block` suffix, and layout components use the `Layout` suffix (for example, `VaultPage.razor`, `VaultWelcomeBlock.razor`, `MainLayout.razor`). Keep the Razor filename and partial class name aligned.
+- When a page or component grows beyond roughly 200 lines, split cohesive UI sections into block components with their own markup and code-behind where logic is needed.
+- For Blazor component invocations with multiple parameters, put each attribute on a separate line for readable diffs.
 
 ### 2. API Communication
 - All HTTP requests to the backend must go through `ApiService` (e.g. `PassKee.Web/Services/Http/ApiService.<Feature>.cs`).

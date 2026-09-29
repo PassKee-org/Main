@@ -20,6 +20,6 @@ public partial class EditDirectoryModal : ComponentBase
     private void Save()
     {
         if (string.IsNullOrWhiteSpace(Name)) return;
-        ModalService.Close(ModalInstance, AppModalResult.Ok(Name));
+        ModalService.Close(ModalInstance, AppModalResult.Ok<string>(Name.Trim()));
     }
 }

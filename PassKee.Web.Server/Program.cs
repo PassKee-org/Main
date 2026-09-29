@@ -1,5 +1,4 @@
 using Blazored.LocalStorage;
-using Fluxor;
 using PassKee.Web.Server.Components;
 using PassKee.Web.Services.Http;
 using PassKee.Web.Services.Http.Client;
@@ -16,12 +15,6 @@ builder.Services.AddHttpClient();
 
 // Blazored LocalStorage
 builder.Services.AddBlazoredLocalStorage();
-
-// Fluxor state management
-builder.Services.AddFluxor(options =>
-{
-    options.ScanAssemblies(typeof(PassKee.Web.App).Assembly);
-});
 
 // Custom HTTP Client & Api Service
 builder.Services.AddScoped<CustomHttpClient>();

@@ -12,6 +12,7 @@ public partial class AppInputText : ComponentBase
     [Parameter] public string Placeholder { get; set; } = string.Empty;
     [Parameter] public string? Icon { get; set; }
     [Parameter] public string? HelpText { get; set; }
+    [Parameter] public string? Name { get; set; }
     [Parameter] public string? Autocomplete { get; set; }
     [Parameter] public bool Required { get; set; }
     [Parameter] public bool Disabled { get; set; }

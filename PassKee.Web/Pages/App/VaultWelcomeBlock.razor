@@ -1,0 +1,25 @@
+@using PassKee.Web.Core.Ui.Shared.Components.Enums
+
+<section class="mx-auto flex min-h-[65vh] w-full max-w-5xl items-center px-4 py-12 sm:px-6">
+    <div class="grid w-full items-center gap-10 md:grid-cols-[minmax(0,1fr)_auto] md:gap-16">
+        <div class="max-w-2xl">
+            <p class="text-xs font-bold uppercase tracking-[0.18em] text-blue-700">Your private space</p>
+            <h1 class="mt-4 text-3xl font-bold leading-tight text-slate-950 sm:text-4xl">Start with your first vault.</h1>
+            <p class="mt-4 max-w-xl text-base leading-7 text-slate-600">
+                Create a vault to organize passwords, secure notes, and cards. Its contents are encrypted on this device before they are stored.
+            </p>
+            <AppButton Color="@ComponentColor.Primary"
+                       Variant="@ButtonVariant.Solid"
+                       OnClick="@OnAddVault"
+                       IsLoading="@IsCreating"
+                       Disabled="@IsCreating"
+                       Class="mt-7">
+                <i class="fa-solid fa-plus mr-2" aria-hidden="true"></i>
+                Add Vault
+            </AppButton>
+        </div>
+        <div class="flex h-36 w-36 items-center justify-center rounded-2xl border border-blue-100 bg-white text-blue-700 shadow-sm sm:h-44 sm:w-44" aria-hidden="true">
+            <i class="fa-solid fa-vault text-6xl"></i>
+        </div>
+    </div>
+</section>

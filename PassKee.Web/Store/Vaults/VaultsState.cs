@@ -10,6 +10,7 @@ namespace PassKee.Web.Store.Vaults;
 public record VaultsState
 {
     public bool IsLoading { get; init; }
+    public bool IsCreating { get; init; }
     public List<VaultDto> Vaults { get; init; } = new();
     public Guid? ActiveVaultId { get; init; }
     public byte[]? ActiveVaultKey { get; init; }
