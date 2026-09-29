@@ -26,6 +26,23 @@ public partial class EditCredentialModal : ComponentBase
     [Parameter] public string? ExpirationDate { get; set; }
     [Parameter] public string? Cvv { get; set; }
 
+    private void OnTypeChanged(CredentialType? newType)
+    {
+        if (newType.HasValue)
+        {
+            Type = newType.Value;
+        }
+    }
+
+    private static string GetCredentialTypeIcon(CredentialType type) => type switch
+    {
+        CredentialType.Login => "fa-solid fa-globe",
+        CredentialType.Password => "fa-solid fa-key",
+        CredentialType.Card => "fa-solid fa-credit-card",
+        CredentialType.SecureNote => "fa-solid fa-note-sticky",
+        _ => "fa-solid fa-shield-halved"
+    };
+
     private void Cancel()
     {
         ModalService.Close(ModalInstance, AppModalResult.Cancel());

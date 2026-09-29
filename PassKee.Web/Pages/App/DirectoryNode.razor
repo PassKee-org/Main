@@ -28,12 +28,12 @@
             <span class="text-sm truncate select-none">@Directory.Name</span>
         </div>
         
-        <div class="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity">
-            <button class="p-1 text-slate-400 hover:text-blue-600 rounded" @onclick="() => OnEdit.InvokeAsync(Directory)" @onclick:stopPropagation="true">
-                <i class="fa-solid fa-pen text-[10px]"></i>
+        <div class="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 flex items-center gap-1 transition-opacity">
+            <button type="button" class="p-1.5 sm:p-1 text-slate-400 hover:text-blue-600 rounded touch-manipulation" title="Edit" @onclick="() => OnEdit.InvokeAsync(Directory)" @onclick:stopPropagation="true">
+                <i class="fa-solid fa-pen text-xs sm:text-[10px]"></i>
             </button>
-            <button class="p-1 text-slate-400 hover:text-rose-600 rounded" @onclick="() => OnDelete.InvokeAsync(Directory)" @onclick:stopPropagation="true">
-                <i class="fa-solid fa-trash text-[10px]"></i>
+            <button type="button" class="p-1.5 sm:p-1 text-slate-400 hover:text-rose-600 rounded touch-manipulation" title="Delete" @onclick="() => OnDelete.InvokeAsync(Directory)" @onclick:stopPropagation="true">
+                <i class="fa-solid fa-trash text-xs sm:text-[10px]"></i>
             </button>
         </div>
     </div>

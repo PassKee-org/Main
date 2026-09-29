@@ -48,6 +48,15 @@ public partial class AppPage
         }
     }
 
+    private string ActiveDirectoryName =>
+        SelectedDirectoryId.HasValue
+            ? VaultsState.Value.Directories.FirstOrDefault(d => d.Id == SelectedDirectoryId)?.Name ?? "Directory"
+            : "All Items";
+
+    protected bool IsMobileDrawerOpen { get; set; }
+    protected void ToggleMobileDrawer() => IsMobileDrawerOpen = !IsMobileDrawerOpen;
+    protected void CloseMobileDrawer() => IsMobileDrawerOpen = false;
+
     private void OnVaultSelected(Guid? vaultId)
     {
         if (vaultId.HasValue)
@@ -55,6 +64,7 @@ public partial class AppPage
             Dispatcher.Dispatch(new SelectVaultAction(vaultId.Value));
             Dispatcher.Dispatch(new LoadVaultDetailsAction(vaultId.Value));
             SelectedDirectoryId = null;
+            IsMobileDrawerOpen = false;
         }
     }
 
@@ -74,6 +84,7 @@ public partial class AppPage
     private void SelectDirectory(Guid? id)
     {
         SelectedDirectoryId = id;
+        IsMobileDrawerOpen = false;
     }
 
     private async Task OpenDirectoryModal(DecryptedDirectory? dir)

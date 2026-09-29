@@ -1,0 +1,37 @@
+@namespace PassKee.Web.Pages.App
+@using PassKee.Web.Core.Ui.Shared.Components
+@using PassKee.Web.Core.Ui.Shared.Components.Enums
+
+<header class="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
+    <div class="mx-auto flex max-w-[1400px] items-center justify-between px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3">
+        <div class="flex items-center gap-2.5 sm:gap-6">
+            @if (HasVaults)
+            {
+                <button type="button"
+                        class="lg:hidden inline-flex items-center justify-center h-9 w-9 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 active:scale-95 transition"
+                        @onclick="OnToggleMobileDrawer"
+                        aria-label="Toggle Vaults and Directories">
+                    <i class="fa-solid fa-bars-staggered text-base"></i>
+                </button>
+            }
+            <a href="/app" class="flex items-center gap-2 sm:gap-2.5 font-bold text-lg sm:text-xl text-blue-600">
+                <i class="fa-solid fa-shield-halved text-xl sm:text-2xl text-blue-600"></i>
+                <span class="tracking-tight text-slate-900 font-extrabold">Pass<span class="text-blue-600">Kee</span></span>
+            </a>
+            <nav class="hidden sm:flex items-center gap-1">
+                <a href="/app" class="px-3 py-1.5 rounded-lg text-sm font-semibold bg-blue-50 text-blue-600">
+                    <i class="fa-solid fa-vault mr-1.5"></i> Vault
+                </a>
+            </nav>
+        </div>
+        <div class="flex items-center gap-2 sm:gap-3">
+            <AppButton Color="@ComponentColor.Default"
+                       Variant="@ButtonVariant.Outlined"
+                       Radius="@ButtonRadius.Medium"
+                       Size="@ComponentSize.Small"
+                       OnClick="@OnLock">
+                <i class="fa-solid fa-lock mr-1.5"></i> Lock
+            </AppButton>
+        </div>
+    </div>
+</header>
