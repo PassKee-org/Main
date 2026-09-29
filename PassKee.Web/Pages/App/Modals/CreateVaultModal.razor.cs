@@ -19,6 +19,6 @@ public partial class CreateVaultModal : ComponentBase
     private void Save()
     {
         if (string.IsNullOrWhiteSpace(Name)) return;
-        ModalService.Close(ModalInstance, AppModalResult.Ok(Name.Trim()));
+        ModalService.Close(ModalInstance, AppModalResult.Ok<string>(Name.Trim()));
     }
 }

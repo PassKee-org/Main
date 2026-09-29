@@ -30,22 +30,27 @@ public class CreateVaultEffect : Effect<CreateVaultAction>
             var userPublicKey = _authState.Value.UserPublicKey;
             if (userPublicKey == null)
             {
+                dispatcher.Dispatch(new CreateVaultFailureAction());
                 _toastService.ShowError("User public key not available.");
                 return;
             }
 
             var created = await _vaultService.CreateVaultAsync(action.Name, userPublicKey);
-            if (created != null)
+            if (created == null)
             {
-                _toastService.ShowSuccess($"Vault '{created.Name}' created");
-                dispatcher.Dispatch(new LoadVaultsAction());
-                dispatcher.Dispatch(new SelectVaultAction(created.Id));
-                dispatcher.Dispatch(new LoadVaultDetailsAction(created.Id));
+                dispatcher.Dispatch(new CreateVaultFailureAction());
+                _toastService.ShowError("The server did not return the created vault.");
+                return;
             }
+
+            dispatcher.Dispatch(new CreateVaultSuccessAction(created));
+            dispatcher.Dispatch(new LoadVaultDetailsAction(created.Id));
+            _toastService.ShowSuccess($"Vault '{created.Name}' created");
         }
         catch
         {
-            _toastService.ShowError("Error creating vault");
+            dispatcher.Dispatch(new CreateVaultFailureAction());
+            _toastService.ShowError("Couldn't create the vault. Check the connection and try again.");
         }
     }
 }

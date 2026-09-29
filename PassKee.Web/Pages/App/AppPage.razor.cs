@@ -28,6 +28,11 @@ public partial class AppPage
             ? VaultsState.Value.Credentials.Where(c => c.DirectoryId == SelectedDirectoryId)
             : VaultsState.Value.Credentials;
 
+    private IEnumerable<Guid?> VaultIds => VaultsState.Value.Vaults.Select(vault => (Guid?)vault.Id);
+
+    private string GetVaultName(Guid? vaultId) =>
+        VaultsState.Value.Vaults.FirstOrDefault(vault => vault.Id == vaultId)?.Name ?? string.Empty;
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
@@ -43,12 +48,12 @@ public partial class AppPage
         }
     }
 
-    private void OnVaultSelected(ChangeEventArgs e)
+    private void OnVaultSelected(Guid? vaultId)
     {
-        if (Guid.TryParse(e.Value?.ToString(), out var vaultId))
+        if (vaultId.HasValue)
         {
-            Dispatcher.Dispatch(new SelectVaultAction(vaultId));
-            Dispatcher.Dispatch(new LoadVaultDetailsAction(vaultId));
+            Dispatcher.Dispatch(new SelectVaultAction(vaultId.Value));
+            Dispatcher.Dispatch(new LoadVaultDetailsAction(vaultId.Value));
             SelectedDirectoryId = null;
         }
     }

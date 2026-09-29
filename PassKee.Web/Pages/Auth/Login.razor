@@ -91,6 +91,7 @@
                         <AppInputText
                             Label="Email Address"
                             @bind-Value="Email"
+                            Name="username"
                             Type="email"
                             Icon="fa-regular fa-envelope"
                             Placeholder="you@example.com"
@@ -102,6 +103,7 @@
                     <AppInputText
                         Label="Master Password"
                         @bind-Value="Password"
+                        Name="current-password"
                         Type="password"
                         Icon="fa-solid fa-key"
                         Placeholder="Enter your Master Password"
@@ -114,6 +116,7 @@
                         <AppInputText
                             Label="Secret Key"
                             @bind-Value="SecretKeyBase64"
+                            Name="secret-key"
                             Type="password"
                             Icon="fa-solid fa-shield-halved"
                             Placeholder="Enter your 128-bit Secret Key"

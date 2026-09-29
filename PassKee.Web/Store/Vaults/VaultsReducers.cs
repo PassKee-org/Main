@@ -1,4 +1,5 @@
 using Fluxor;
+using System.Linq;
 
 namespace PassKee.Web.Store.Vaults;
 
@@ -37,6 +38,25 @@ public static class VaultsReducers
     [ReducerMethod]
     public static VaultsState ReduceLoadVaultDetailsFailureAction(VaultsState state, LoadVaultDetailsFailureAction action)
         => state with { IsLoading = false };
+
+    [ReducerMethod]
+    public static VaultsState ReduceCreateVaultAction(VaultsState state, CreateVaultAction action)
+        => state with { IsCreating = true };
+
+    [ReducerMethod]
+    public static VaultsState ReduceCreateVaultSuccessAction(VaultsState state, CreateVaultSuccessAction action)
+        => state with
+        {
+            IsCreating = false,
+            Vaults = state.Vaults.Any(vault => vault.Id == action.Vault.Id)
+                ? state.Vaults
+                : state.Vaults.Append(action.Vault).ToList(),
+            ActiveVaultId = action.Vault.Id
+        };
+
+    [ReducerMethod]
+    public static VaultsState ReduceCreateVaultFailureAction(VaultsState state, CreateVaultFailureAction action)
+        => state with { IsCreating = false };
 
     [ReducerMethod]
     public static VaultsState ReduceResetVaultsStateAction(VaultsState state, ResetVaultsStateAction action)

@@ -22,6 +22,8 @@ public record LoadVaultDetailsFailureAction;
 
 // Vault Management
 public record CreateVaultAction(string Name, string Description);
+public record CreateVaultSuccessAction(VaultDto Vault);
+public record CreateVaultFailureAction;
 public record ResetVaultsStateAction;
 
 // Directory CRUD

@@ -39,16 +39,20 @@
                     <AppCardBody Class="p-4">
                         <div class="flex items-center justify-between mb-2">
                             <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Current Vault</label>
-                            <AppButton Color="@ComponentColor.Primary" Variant="@ButtonVariant.Light" OnClick="@OpenCreateVaultModal" Title="New Vault">
+                            <AppButton Color="@ComponentColor.Primary" Variant="@ButtonVariant.Light" OnClick="@OpenCreateVaultModal" Title="New Vault" IsLoading="@VaultsState.Value.IsCreating" Disabled="@VaultsState.Value.IsCreating">
                                 <i class="fa-solid fa-plus text-xs"></i>
                             </AppButton>
                         </div>
-                        <select class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-slate-900 ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-blue-600 sm:text-sm sm:leading-6" @onchange="OnVaultSelected">
-                            @foreach (var vault in VaultsState.Value.Vaults)
-                            {
-                                <option value="@vault.Id" selected="@(vault.Id == VaultsState.Value.ActiveVaultId)">@vault.Name</option>
-                            }
-                        </select>
+                        <AppSelect TValue="Guid?"
+                                   Value="@VaultsState.Value.ActiveVaultId"
+                                   ValueChanged="@OnVaultSelected"
+                                   Items="@VaultIds"
+                                   ItemText="@GetVaultName"
+                                   Placeholder="Select a vault"
+                                   IsDisabled="@VaultsState.Value.IsLoading"
+                                   SelectType="DropDownType.Select"
+                                   IsFullWidth="true"
+                                   Size="ComponentSize.Small" />
                     </AppCardBody>
                 </AppCard>
 
