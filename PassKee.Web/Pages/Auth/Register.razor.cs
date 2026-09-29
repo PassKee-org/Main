@@ -1,13 +1,19 @@
 using System;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
+using Fluxor;
+using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using PassKee.Web.Components;
 using PassKee.Web.Store.Auth;
+using PassKee.Web.Store.Vaults;
 
 namespace PassKee.Web.Pages.Auth;
 
 public partial class Register : BaseReactiveComponent
 {
+    [Inject] private IState<VaultsState> VaultsState { get; set; } = null!;
+
     private string Email { get; set; } = "";
     private string Password { get; set; } = "";
     private string _localErrorMessage = "";
@@ -21,7 +27,17 @@ public partial class Register : BaseReactiveComponent
     protected override void OnInitialized()
     {
         base.OnInitialized();
+        if (AuthState.Value.UserPrivateKey is { } userPrivateKey)
+        {
+            CryptographicOperations.ZeroMemory(userPrivateKey);
+        }
+        if (VaultsState.Value.ActiveVaultKey is { } activeVaultKey)
+        {
+            CryptographicOperations.ZeroMemory(activeVaultKey);
+        }
+
         Dispatcher.Dispatch(new ResetAuthStateAction());
+        Dispatcher.Dispatch(new ResetVaultsStateAction());
     }
 
     private void RegisterAsync()

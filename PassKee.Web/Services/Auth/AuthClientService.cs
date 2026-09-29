@@ -1,4 +1,5 @@
 using System;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using PassKee.Api.Shared.Dto.RequestsAndResponses.Auth;
 using PassKee.Business.Common.Utils;
@@ -22,48 +23,65 @@ public class AuthClientService : IAuthClientService
     {
         var regData = CryptoUtils.PrepareClientRegistration(password);
         var secretKeyBase64 = Convert.ToBase64String(regData.SecretKey);
+        byte[]? userPrivateKey = null;
+        var succeeded = false;
 
-        var request = new RegisterRequest
+        try
         {
-            Email = email,
-            AuthHash = regData.AuthHash,
-            AuthSalt = regData.AuthSalt,
-            KdfParams = new KdfParamsRequest
+            var request = new RegisterRequest
             {
+                Email = email,
+                AuthHash = regData.AuthHash,
+                AuthSalt = regData.AuthSalt,
+                KdfParams = new KdfParamsRequest
+                {
+                    Iterations = regData.KdfParams.Iterations,
+                    MemorySize = regData.KdfParams.MemorySize,
+                    Parallelism = regData.KdfParams.Parallelism
+                },
+                UserPublicKey = regData.KeyEnvelope.PublicKey,
+                EncryptedUserPrivateKey = regData.KeyEnvelope.EncryptedPrivateKey,
+                EncryptedUserVaultKey = regData.KeyEnvelope.EncryptedVaultKey
+            };
+
+            var response = await _apiService.RegisterAsync(request);
+            if (response == null)
+            {
+                throw new InvalidOperationException("Registration failed. Please try again.");
+            }
+
+            userPrivateKey = CryptoUtils.AesGcmDecrypt(regData.MasterKey, regData.KeyEnvelope.EncryptedPrivateKey);
+
+            var sessionUnlockSalt = CryptoUtils.GenerateRandomBytes(32);
+            var encryptedSecretKey = CryptoUtils.EncryptSecretKeyForSession(regData.SecretKey, password, sessionUnlockSalt);
+            var sessionLock = new SessionLockInfo
+            {
+                FormatVersion = SessionLockInfo.CurrentFormatVersion,
+                Email = email,
+                AuthSaltBase64 = Convert.ToBase64String(regData.AuthSalt),
+                EncryptedSecretKeyBase64 = Convert.ToBase64String(encryptedSecretKey),
+                SessionUnlockSaltBase64 = Convert.ToBase64String(sessionUnlockSalt),
                 Iterations = regData.KdfParams.Iterations,
                 MemorySize = regData.KdfParams.MemorySize,
-                Parallelism = regData.KdfParams.Parallelism
-            },
-            UserPublicKey = regData.KeyEnvelope.PublicKey,
-            EncryptedUserPrivateKey = regData.KeyEnvelope.EncryptedPrivateKey,
-            EncryptedUserVaultKey = regData.KeyEnvelope.EncryptedVaultKey
-        };
+                Parallelism = regData.KdfParams.Parallelism,
+                IsLocked = false
+            };
+            await _sessionLockStorage.SetSessionLockInfoAsync(sessionLock);
 
-        var response = await _apiService.RegisterAsync(request);
-        if (response == null)
-        {
-            throw new InvalidOperationException("Registration failed. Please try again.");
+            succeeded = true;
+            return new RegisterResult(response, secretKeyBase64, userPrivateKey, regData.KeyEnvelope.PublicKey);
         }
-
-        // Decrypt ECC private key for in-memory session use
-        var userPrivateKey = CryptoUtils.AesGcmDecrypt(regData.MasterKey, regData.KeyEnvelope.EncryptedPrivateKey);
-
-        // Store encrypted secret key in session storage to enable session unlock with Master Password only
-        var encryptedSecretKey = CryptoUtils.EncryptSecretKeyForSession(regData.SecretKey, password, regData.AuthSalt);
-        var sessionLock = new SessionLockInfo
+        finally
         {
-            Email = email,
-            AuthSaltBase64 = Convert.ToBase64String(regData.AuthSalt),
-            EncryptedSecretKeyBase64 = Convert.ToBase64String(encryptedSecretKey),
-            EncryptedUserPrivateKeyBase64 = Convert.ToBase64String(regData.KeyEnvelope.EncryptedPrivateKey),
-            Iterations = regData.KdfParams.Iterations,
-            MemorySize = regData.KdfParams.MemorySize,
-            Parallelism = regData.KdfParams.Parallelism,
-            IsLocked = false
-        };
-        await _sessionLockStorage.SetSessionLockInfoAsync(sessionLock);
-
-        return new RegisterResult(response, secretKeyBase64, userPrivateKey, regData.KeyEnvelope.PublicKey);
+            CryptographicOperations.ZeroMemory(regData.SecretKey);
+            CryptographicOperations.ZeroMemory(regData.MasterKey);
+            CryptographicOperations.ZeroMemory(regData.AuthHash);
+            CryptographicOperations.ZeroMemory(regData.KeyEnvelope.PlainVaultKey);
+            if (!succeeded && userPrivateKey != null)
+            {
+                CryptographicOperations.ZeroMemory(userPrivateKey);
+            }
+        }
     }
 
     public async Task<LoginResult> LoginAsync(string email, string password, string secretKeyBase64)
@@ -80,51 +98,73 @@ public class AuthClientService : IAuthClientService
 
         var authSaltBytes = Convert.FromBase64String(loginParams.AuthSalt);
         var secretKeyBytes = Convert.FromBase64String(secretKeyBase64.Trim());
-
-        var masterKey = CryptoUtils.DeriveMasterKey(password, secretKeyBytes, authSaltBytes, iterations, memorySize, parallelism);
-        var authHash = CryptoUtils.ComputeAuthHash(masterKey);
-
-        var request = new LoginRequest
-        {
-            Email = email,
-            AuthHash = authHash
-        };
-
-        var authResponse = await _apiService.LoginAsync(request);
-        if (authResponse == null)
-        {
-            throw new InvalidOperationException("Invalid credentials.");
-        }
-
+        byte[]? masterKey = null;
+        byte[]? authHash = null;
         byte[]? userPrivateKey = null;
-        if (!string.IsNullOrEmpty(authResponse.EncryptedUserPrivateKey))
+        var succeeded = false;
+
+        try
         {
-            var encPrivKey = Convert.FromBase64String(authResponse.EncryptedUserPrivateKey);
-            userPrivateKey = CryptoUtils.AesGcmDecrypt(masterKey, encPrivKey);
+            masterKey = CryptoUtils.DeriveMasterKey(password, secretKeyBytes, authSaltBytes, iterations, memorySize, parallelism);
+            authHash = CryptoUtils.ComputeAuthHash(masterKey);
+
+            var authResponse = await _apiService.LoginAsync(new LoginRequest
+            {
+                Email = email,
+                AuthHash = authHash
+            });
+            if (authResponse == null)
+            {
+                throw new InvalidOperationException("Invalid credentials.");
+            }
+
+            if (!string.IsNullOrEmpty(authResponse.EncryptedUserPrivateKey))
+            {
+                var encryptedPrivateKey = Convert.FromBase64String(authResponse.EncryptedUserPrivateKey);
+                userPrivateKey = CryptoUtils.AesGcmDecrypt(masterKey, encryptedPrivateKey);
+            }
+
+            byte[]? userPublicKey = null;
+            if (!string.IsNullOrEmpty(authResponse.UserPublicKey))
+            {
+                userPublicKey = Convert.FromBase64String(authResponse.UserPublicKey);
+            }
+
+            var sessionUnlockSalt = CryptoUtils.GenerateRandomBytes(32);
+            var encryptedSecretKey = CryptoUtils.EncryptSecretKeyForSession(secretKeyBytes, password, sessionUnlockSalt);
+            var sessionLock = new SessionLockInfo
+            {
+                FormatVersion = SessionLockInfo.CurrentFormatVersion,
+                Email = email,
+                AuthSaltBase64 = loginParams.AuthSalt,
+                EncryptedSecretKeyBase64 = Convert.ToBase64String(encryptedSecretKey),
+                SessionUnlockSaltBase64 = Convert.ToBase64String(sessionUnlockSalt),
+                Iterations = iterations,
+                MemorySize = memorySize,
+                Parallelism = parallelism,
+                IsLocked = false
+            };
+            await _sessionLockStorage.SetSessionLockInfoAsync(sessionLock);
+
+            succeeded = true;
+            return new LoginResult(authResponse, userPrivateKey, userPublicKey);
         }
-
-        byte[]? userPublicKey = null;
-        if (!string.IsNullOrEmpty(authResponse.UserPublicKey))
+        finally
         {
-            userPublicKey = Convert.FromBase64String(authResponse.UserPublicKey);
+            CryptographicOperations.ZeroMemory(secretKeyBytes);
+            if (masterKey != null)
+            {
+                CryptographicOperations.ZeroMemory(masterKey);
+            }
+            if (authHash != null)
+            {
+                CryptographicOperations.ZeroMemory(authHash);
+            }
+            if (!succeeded && userPrivateKey != null)
+            {
+                CryptographicOperations.ZeroMemory(userPrivateKey);
+            }
         }
-
-        // Save encrypted Secret Key for fast session unlock with only Master Password
-        var encryptedSecretKey = CryptoUtils.EncryptSecretKeyForSession(secretKeyBytes, password, authSaltBytes);
-        var sessionLock = new SessionLockInfo
-        {
-            Email = email,
-            AuthSaltBase64 = loginParams.AuthSalt,
-            EncryptedSecretKeyBase64 = Convert.ToBase64String(encryptedSecretKey),
-            EncryptedUserPrivateKeyBase64 = authResponse.EncryptedUserPrivateKey,
-            Iterations = iterations,
-            MemorySize = memorySize,
-            Parallelism = parallelism,
-            IsLocked = false
-        };
-        await _sessionLockStorage.SetSessionLockInfoAsync(sessionLock);
-
-        return new LoginResult(authResponse, userPrivateKey, userPublicKey);
     }
 
     public async Task<LoginResult> UnlockWithMasterPasswordAsync(string password)
@@ -134,21 +174,32 @@ public class AuthClientService : IAuthClientService
         {
             throw new InvalidOperationException("No locked session found. Please sign in with your Secret Key.");
         }
+        if (sessionLock.FormatVersion != SessionLockInfo.CurrentFormatVersion || string.IsNullOrWhiteSpace(sessionLock.SessionUnlockSaltBase64))
+        {
+            throw new InvalidOperationException("This saved session uses an outdated format. Switch account and sign in with your Secret Key.");
+        }
 
-        var authSaltBytes = Convert.FromBase64String(sessionLock.AuthSaltBase64);
+        var sessionUnlockSalt = Convert.FromBase64String(sessionLock.SessionUnlockSaltBase64);
         var encryptedSecretKey = Convert.FromBase64String(sessionLock.EncryptedSecretKeyBase64);
 
         byte[] secretKeyBytes;
         try
         {
-            secretKeyBytes = CryptoUtils.DecryptSecretKeyFromSession(encryptedSecretKey, password, authSaltBytes);
+            secretKeyBytes = CryptoUtils.DecryptSecretKeyFromSession(encryptedSecretKey, password, sessionUnlockSalt);
         }
         catch
         {
             throw new InvalidOperationException("Invalid Master Password.");
         }
 
-        var secretKeyBase64 = Convert.ToBase64String(secretKeyBytes);
-        return await LoginAsync(sessionLock.Email, password, secretKeyBase64);
+        try
+        {
+            var secretKeyBase64 = Convert.ToBase64String(secretKeyBytes);
+            return await LoginAsync(sessionLock.Email, password, secretKeyBase64);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(secretKeyBytes);
+        }
     }
 }
