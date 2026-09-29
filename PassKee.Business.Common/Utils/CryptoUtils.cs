@@ -41,6 +41,9 @@ public static class CryptoUtils
     private const int NonceSize = 12;
     private const int TagSize = 16;
     private const int MacSizeBits = 128;
+    private const int SessionUnlockKdfIterations = 2;
+    private const int SessionUnlockKdfMemorySize = 19456;
+    private const int SessionUnlockKdfParallelism = 1;
     public const string AuthLoginContext = "auth_login";
 
     public const int DefaultKdfIterations = 1;
@@ -113,19 +116,30 @@ public static class CryptoUtils
     public static byte[] EccEncrypt(byte[] recipientPublicKey, byte[] plaintext)
     {
         var (ephemeralPublicKey, ephemeralPrivateKey) = GenerateCurve25519KeyPair();
+        var sharedSecret = Array.Empty<byte>();
+        var derivedKey = Array.Empty<byte>();
 
-        var agreement = new X25519Agreement();
-        agreement.Init(new X25519PrivateKeyParameters(ephemeralPrivateKey, 0));
-        var sharedSecret = new byte[agreement.AgreementSize];
-        agreement.CalculateAgreement(new X25519PublicKeyParameters(recipientPublicKey, 0), sharedSecret, 0);
+        try
+        {
+            var agreement = new X25519Agreement();
+            agreement.Init(new X25519PrivateKeyParameters(ephemeralPrivateKey, 0));
+            sharedSecret = new byte[agreement.AgreementSize];
+            agreement.CalculateAgreement(new X25519PublicKeyParameters(recipientPublicKey, 0), sharedSecret, 0);
 
-        var derivedKey = GenerateHmacSha256(sharedSecret, Encoding.UTF8.GetBytes("ecc_vault_encryption"));
-        var encryptedPayload = AesGcmEncrypt(derivedKey, plaintext);
+            derivedKey = GenerateHmacSha256(sharedSecret, Encoding.UTF8.GetBytes("ecc_vault_encryption"));
+            var encryptedPayload = AesGcmEncrypt(derivedKey, plaintext);
 
-        var result = new byte[32 + encryptedPayload.Length];
-        Buffer.BlockCopy(ephemeralPublicKey, 0, result, 0, 32);
-        Buffer.BlockCopy(encryptedPayload, 0, result, 32, encryptedPayload.Length);
-        return result;
+            var result = new byte[32 + encryptedPayload.Length];
+            Buffer.BlockCopy(ephemeralPublicKey, 0, result, 0, 32);
+            Buffer.BlockCopy(encryptedPayload, 0, result, 32, encryptedPayload.Length);
+            return result;
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(ephemeralPrivateKey);
+            CryptographicOperations.ZeroMemory(sharedSecret);
+            CryptographicOperations.ZeroMemory(derivedKey);
+        }
     }
 
     /// <summary>
@@ -144,14 +158,22 @@ public static class CryptoUtils
         var agreement = new X25519Agreement();
         agreement.Init(new X25519PrivateKeyParameters(recipientPrivateKey, 0));
         var sharedSecret = new byte[agreement.AgreementSize];
-        agreement.CalculateAgreement(new X25519PublicKeyParameters(ephemeralPublicKey, 0), sharedSecret, 0);
+        var derivedKey = Array.Empty<byte>();
+        try
+        {
+            agreement.CalculateAgreement(new X25519PublicKeyParameters(ephemeralPublicKey, 0), sharedSecret, 0);
+            derivedKey = GenerateHmacSha256(sharedSecret, Encoding.UTF8.GetBytes("ecc_vault_encryption"));
 
-        var derivedKey = GenerateHmacSha256(sharedSecret, Encoding.UTF8.GetBytes("ecc_vault_encryption"));
+            var encryptedPayload = new byte[encryptedData.Length - 32];
+            Buffer.BlockCopy(encryptedData, 32, encryptedPayload, 0, encryptedPayload.Length);
 
-        var encryptedPayload = new byte[encryptedData.Length - 32];
-        Buffer.BlockCopy(encryptedData, 32, encryptedPayload, 0, encryptedPayload.Length);
-
-        return AesGcmDecrypt(derivedKey, encryptedPayload);
+            return AesGcmDecrypt(derivedKey, encryptedPayload);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(sharedSecret);
+            CryptographicOperations.ZeroMemory(derivedKey);
+        }
     }
 
     /// <summary>
@@ -160,8 +182,15 @@ public static class CryptoUtils
     /// </summary>
     public static byte[] EncryptSecretKeyForSession(byte[] secretKey, string masterPassword, byte[] authSalt)
     {
-        var sessionUnlockKey = GenerateHmacSha256(authSalt, Encoding.UTF8.GetBytes(masterPassword + ":session_unlock"));
-        return AesGcmEncrypt(sessionUnlockKey, secretKey);
+        var sessionUnlockKey = DeriveSessionUnlockKey(masterPassword, authSalt);
+        try
+        {
+            return AesGcmEncrypt(sessionUnlockKey, secretKey);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(sessionUnlockKey);
+        }
     }
 
     /// <summary>
@@ -169,8 +198,39 @@ public static class CryptoUtils
     /// </summary>
     public static byte[] DecryptSecretKeyFromSession(byte[] encryptedSecretKey, string masterPassword, byte[] authSalt)
     {
-        var sessionUnlockKey = GenerateHmacSha256(authSalt, Encoding.UTF8.GetBytes(masterPassword + ":session_unlock"));
-        return AesGcmDecrypt(sessionUnlockKey, encryptedSecretKey);
+        var sessionUnlockKey = DeriveSessionUnlockKey(masterPassword, authSalt);
+        try
+        {
+            return AesGcmDecrypt(sessionUnlockKey, encryptedSecretKey);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(sessionUnlockKey);
+        }
+    }
+
+    private static byte[] DeriveSessionUnlockKey(string masterPassword, byte[] sessionSalt)
+    {
+        if (sessionSalt.Length < 16)
+        {
+            throw new ArgumentException("Session unlock salt must be at least 16 bytes.", nameof(sessionSalt));
+        }
+
+        var passwordBytes = Encoding.UTF8.GetBytes(masterPassword + ":session_unlock");
+        try
+        {
+            return GenerateArgon2idHash(
+                passwordBytes,
+                sessionSalt,
+                SessionUnlockKdfIterations,
+                SessionUnlockKdfMemorySize,
+                SessionUnlockKdfParallelism,
+                32);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(passwordBytes);
+        }
     }
 
 
@@ -236,10 +296,18 @@ public static class CryptoUtils
     {
         var passwordBytes = Encoding.UTF8.GetBytes(password);
         var combinedPassword = new byte[passwordBytes.Length + secretKey.Length];
-        Buffer.BlockCopy(passwordBytes, 0, combinedPassword, 0, passwordBytes.Length);
-        Buffer.BlockCopy(secretKey, 0, combinedPassword, passwordBytes.Length, secretKey.Length);
+        try
+        {
+            Buffer.BlockCopy(passwordBytes, 0, combinedPassword, 0, passwordBytes.Length);
+            Buffer.BlockCopy(secretKey, 0, combinedPassword, passwordBytes.Length, secretKey.Length);
 
-        return GenerateArgon2idHash(combinedPassword, salt, iterations, memorySize, parallelism, 32);
+            return GenerateArgon2idHash(combinedPassword, salt, iterations, memorySize, parallelism, 32);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(passwordBytes);
+            CryptographicOperations.ZeroMemory(combinedPassword);
+        }
     }
 
     /// <summary>
@@ -257,11 +325,17 @@ public static class CryptoUtils
     {
         var (publicKey, privateKey) = GenerateCurve25519KeyPair();
         var vaultKey = GenerateRandomBytes(32);
+        try
+        {
+            var encryptedPrivateKey = AesGcmEncrypt(masterKey, privateKey);
+            var encryptedVaultKey = AesGcmEncrypt(masterKey, vaultKey);
 
-        var encryptedPrivateKey = AesGcmEncrypt(masterKey, privateKey);
-        var encryptedVaultKey = AesGcmEncrypt(masterKey, vaultKey);
-
-        return new UserKeyEnvelope(publicKey, encryptedPrivateKey, encryptedVaultKey, vaultKey);
+            return new UserKeyEnvelope(publicKey, encryptedPrivateKey, encryptedVaultKey, vaultKey);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(privateKey);
+        }
     }
 
     /// <summary>

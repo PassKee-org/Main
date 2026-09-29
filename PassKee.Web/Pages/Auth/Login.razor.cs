@@ -1,15 +1,19 @@
 using System;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
+using Fluxor;
 using Microsoft.AspNetCore.Components;
 using PassKee.Web.Components;
 using PassKee.Web.Services.Storage;
 using PassKee.Web.Store.Auth;
+using PassKee.Web.Store.Vaults;
 
 namespace PassKee.Web.Pages.Auth;
 
 public partial class Login : BaseReactiveComponent
 {
     [Inject] private ISessionLockStorageService SessionLockStorage { get; set; } = null!;
+    [Inject] private IState<VaultsState> VaultsState { get; set; } = null!;
 
     [SupplyParameterFromQuery(Name = "email")]
     private string? QueryEmail { get; set; }
@@ -25,13 +29,30 @@ public partial class Login : BaseReactiveComponent
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+        if (AuthState.Value.UserPrivateKey is { } userPrivateKey)
+        {
+            CryptographicOperations.ZeroMemory(userPrivateKey);
+        }
+        if (VaultsState.Value.ActiveVaultKey is { } activeVaultKey)
+        {
+            CryptographicOperations.ZeroMemory(activeVaultKey);
+        }
         Dispatcher.Dispatch(new ResetAuthStateAction());
+        Dispatcher.Dispatch(new ResetVaultsStateAction());
 
         var lockInfo = await SessionLockStorage.GetSessionLockInfoAsync();
         if (lockInfo != null && !string.IsNullOrWhiteSpace(lockInfo.EncryptedSecretKeyBase64))
         {
-            IsLockedSession = true;
             Email = lockInfo.Email;
+            if (lockInfo.FormatVersion == SessionLockInfo.CurrentFormatVersion && !string.IsNullOrWhiteSpace(lockInfo.SessionUnlockSaltBase64))
+            {
+                IsLockedSession = true;
+            }
+            else
+            {
+                await SessionLockStorage.ClearAllSessionDataAsync();
+                _localErrorMessage = "Your saved session uses an older security format. Sign in with your Secret Key.";
+            }
         }
         else if (!string.IsNullOrWhiteSpace(QueryEmail) && string.IsNullOrWhiteSpace(Email))
         {

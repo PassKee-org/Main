@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Fluxor;
 using Microsoft.AspNetCore.Components;
@@ -30,6 +31,12 @@ public partial class AppPage
     protected override void OnInitialized()
     {
         base.OnInitialized();
+        if (!AuthState.Value.IsAuthenticated || AuthState.Value.UserPrivateKey == null)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
         if (!VaultsState.Value.Vaults.Any() && !VaultsState.Value.IsLoading)
         {
             Dispatcher.Dispatch(new LoadVaultsAction());
@@ -198,9 +205,17 @@ public partial class AppPage
 
     private async Task LockVaultAsync()
     {
-        await SessionLockStorage.LockSessionAsync();
+        if (AuthState.Value.UserPrivateKey is { } userPrivateKey)
+        {
+            CryptographicOperations.ZeroMemory(userPrivateKey);
+        }
+        if (VaultsState.Value.ActiveVaultKey is { } activeVaultKey)
+        {
+            CryptographicOperations.ZeroMemory(activeVaultKey);
+        }
         Dispatcher.Dispatch(new ResetAuthStateAction());
         Dispatcher.Dispatch(new ResetVaultsStateAction());
+        await SessionLockStorage.LockSessionAsync();
         NavigationManager.NavigateTo("/login");
     }
 }

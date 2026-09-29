@@ -153,16 +153,19 @@ public class VaultCryptoServiceTests
     {
         var secretKey = CryptoUtils.GenerateRandomBytes(16);
         var masterPassword = "MyMasterPassword#2026";
-        var authSalt = CryptoUtils.GenerateRandomBytes(32);
+        var sessionSalt = CryptoUtils.GenerateRandomBytes(32);
 
-        var encryptedSecretKey = CryptoUtils.EncryptSecretKeyForSession(secretKey, masterPassword, authSalt);
+        var encryptedSecretKey = CryptoUtils.EncryptSecretKeyForSession(secretKey, masterPassword, sessionSalt);
         Assert.NotNull(encryptedSecretKey);
 
-        var decryptedSecretKey = CryptoUtils.DecryptSecretKeyFromSession(encryptedSecretKey, masterPassword, authSalt);
+        var decryptedSecretKey = CryptoUtils.DecryptSecretKeyFromSession(encryptedSecretKey, masterPassword, sessionSalt);
         Assert.Equal(secretKey, decryptedSecretKey);
 
         // Incorrect password should fail decryption
         Assert.ThrowsAny<Exception>(() =>
-            CryptoUtils.DecryptSecretKeyFromSession(encryptedSecretKey, "WrongPassword#9999", authSalt));
+            CryptoUtils.DecryptSecretKeyFromSession(encryptedSecretKey, "WrongPassword#9999", sessionSalt));
+
+        Assert.ThrowsAny<Exception>(() =>
+            CryptoUtils.DecryptSecretKeyFromSession(encryptedSecretKey, masterPassword, CryptoUtils.GenerateRandomBytes(32)));
     }
 }

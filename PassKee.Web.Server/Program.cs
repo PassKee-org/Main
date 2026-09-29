@@ -40,6 +40,19 @@ builder.Services.AddScoped<PassKee.Web.Core.Services.UI.Modal.IAppModalDialogSer
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+var apiConnectSources = app.Environment.IsProduction()
+    ? "https://api.passkee.org"
+    : "https://api.passkee.org https://dev-api.passkee.org http://localhost:5265 https://localhost:5265";
+
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["Content-Security-Policy"] = $"default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' data: https://cdn.jsdelivr.net; img-src 'self' data: blob:; connect-src 'self' {apiConnectSources}";
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    context.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
+    await next();
+});
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);

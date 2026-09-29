@@ -22,7 +22,9 @@ public static class AuthReducers
             ShowSecretKey = true,
             SecretKeyBase64 = action.SecretKeyBase64,
             IsAuthenticated = true,
-            CurrentUser = action.Response
+            CurrentUser = action.Response,
+            UserPrivateKey = action.UserPrivateKey,
+            UserPublicKey = action.UserPublicKey
         };
 
     [ReducerMethod]
@@ -57,7 +59,9 @@ public static class AuthReducers
             IsLoading = false,
             ErrorMessage = null,
             IsAuthenticated = true,
-            CurrentUser = action.Response
+            CurrentUser = action.Response,
+            UserPrivateKey = action.UserPrivateKey,
+            UserPublicKey = action.UserPublicKey
         };
 
     [ReducerMethod]
@@ -66,7 +70,9 @@ public static class AuthReducers
         {
             IsLoading = false,
             ErrorMessage = action.ErrorMessage,
-            IsAuthenticated = false
+            IsAuthenticated = false,
+            UserPrivateKey = null,
+            UserPublicKey = null
         };
 
     [ReducerMethod]
