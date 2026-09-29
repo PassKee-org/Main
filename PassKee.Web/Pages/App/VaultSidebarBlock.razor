@@ -1,0 +1,83 @@
+@namespace PassKee.Web.Pages.App
+@using PassKee.Web.Models.Vaults
+@using PassKee.Web.Core.Ui.Shared.Components
+@using PassKee.Web.Core.Ui.Shared.Components.Enums
+
+<div class="flex flex-col gap-4 w-full">
+    <AppCard>
+        <AppCardBody Class="p-4">
+            <div class="flex items-center justify-between mb-2">
+                <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider">Current Vault</label>
+                <AppButton Color="@ComponentColor.Primary"
+                           Variant="@ButtonVariant.Light"
+                           Size="@ComponentSize.Small"
+                           OnClick="@OnCreateVault"
+                           Title="New Vault"
+                           IsLoading="@IsCreatingVault"
+                           Disabled="@IsCreatingVault"
+                           Class="h-7 w-7 min-w-7 p-0">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                </AppButton>
+            </div>
+            <AppSelect TValue="Guid?"
+                       Value="@ActiveVaultId"
+                       ValueChanged="@OnSelectVault"
+                       Items="@VaultIds"
+                       ItemText="@GetVaultName"
+                       Placeholder="Select a vault"
+                       IsDisabled="@IsVaultsLoading"
+                       SelectType="DropDownType.Select"
+                       IsFullWidth="true"
+                       Size="ComponentSize.Small" />
+        </AppCardBody>
+    </AppCard>
+
+    <AppCard Class="flex-1 flex flex-col min-h-0">
+        <AppCardHeader Class="py-3 px-4 flex items-center justify-between border-b border-slate-100">
+            <h3 class="font-semibold text-sm text-slate-900">Directories</h3>
+            <AppButton Color="@ComponentColor.Primary"
+                       Variant="@ButtonVariant.Light"
+                       Size="@ComponentSize.Small"
+                       OnClick="@(() => OnOpenDirectoryModal.InvokeAsync(null))"
+                       Class="h-7 w-7 min-w-7 p-0">
+                <i class="fa-solid fa-plus text-xs"></i>
+            </AppButton>
+        </AppCardHeader>
+        <AppCardBody Class="p-2 flex-1 overflow-y-auto">
+            @if (!Directories.Any())
+            {
+                <div class="p-4 text-center text-sm text-slate-500">
+                    No directories yet.
+                </div>
+            }
+            else
+            {
+                <div class="flex flex-col gap-1">
+                    <div class="group flex items-center justify-between py-1.5 px-2 rounded-md cursor-pointer transition-colors
+                                @(SelectedDirectoryId == null ? "bg-blue-50 text-blue-700 font-medium" : "text-slate-600 hover:bg-slate-100")"
+                         @onclick="() => OnSelectDirectory.InvokeAsync(null)"
+                         @ondragover="HandleRootDragOver"
+                         @ondragover:preventDefault="true"
+                         @ondrop="HandleRootDrop"
+                         @ondrop:preventDefault="true">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-vault text-blue-500 ml-1"></i>
+                            <span class="text-sm">All Items</span>
+                        </div>
+                    </div>
+
+                    @foreach (var dir in Directories.Where(d => d.ParentDirectoryId == null))
+                    {
+                        <DirectoryNode Directory="@dir" 
+                                       AllDirectories="@Directories" 
+                                       SelectedDirectoryId="@SelectedDirectoryId"
+                                       OnSelect="@(() => OnSelectDirectory.InvokeAsync(dir.Id))"
+                                       OnMove="@OnMoveDirectory"
+                                       OnEdit="@OnOpenDirectoryModal"
+                                       OnDelete="@OnDeleteDirectory" />
+                    }
+                </div>
+            }
+        </AppCardBody>
+    </AppCard>
+</div>

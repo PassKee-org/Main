@@ -3,89 +3,52 @@
 @inherits BaseReactiveComponent
 @layout PassKee.Web.Layout.LandingLayout
 
-<div class="py-10 px-4 sm:px-6 lg:px-8">
-    <div class="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,440px)]">
-        @* Left: Zero-Knowledge Explanation Card *@
-        <section class="overflow-hidden rounded-[2rem] bg-slate-900 text-white shadow-2xl">
-            <div class="flex h-full flex-col justify-between gap-8 p-8 sm:p-10">
-                <div>
-                    <div class="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-blue-300">
-                        <i class="fa-solid fa-lock text-sm"></i>
-                        <span>Zero-Knowledge Sign In</span>
-                    </div>
-                    <h1 class="mt-6 max-w-xl text-3xl font-bold leading-tight sm:text-4xl text-white">
-                        @(IsLockedSession ? "Unlock Your Vault" : "Access Your Encrypted Vault")
-                    </h1>
-                    <p class="mt-4 max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
-                        @(IsLockedSession 
-                            ? "Your session is securely locked in your browser. Enter your Master Password to decrypt your keys and resume your session."
-                            : "Your Master Password and Secret Key work together to unlock your vault directly in your browser. PassKee never sees your unencrypted data.")
-                    </p>
-                </div>
-                <div class="grid gap-4 sm:grid-cols-3">
-                    <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-blue-300">01</p>
-                        <p class="mt-2 text-base font-semibold text-white">Master Password</p>
-                        <p class="mt-1 text-xs text-slate-400">Your private master phrase, known only to you.</p>
-                    </div>
-                    <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">02</p>
-                        <p class="mt-2 text-base font-semibold text-white">Secret Key</p>
-                        <p class="mt-1 text-xs text-slate-400">@(IsLockedSession ? "Encrypted safely in session storage." : "The 128-bit emergency code generated when you registered.")</p>
-                    </div>
-                    <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
-                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-purple-300">03</p>
-                        <p class="mt-2 text-base font-semibold text-white">Local Decryption</p>
-                        <p class="mt-1 text-xs text-slate-400">Decrypted securely inside your browser on this device.</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        @* Right: Login Form Card *@
-        <section class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl sm:p-8 flex flex-col justify-between">
+<div class="py-5 sm:py-10 px-3 sm:px-6 lg:px-8">
+    <div class="mx-auto grid max-w-6xl gap-5 sm:gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,440px)]">
+        @* Login Form Card (First on mobile, right on desktop) *@
+        <section class="order-1 lg:order-2 rounded-2xl sm:rounded-[2rem] border border-slate-200 bg-white p-5 sm:p-8 shadow-xl flex flex-col justify-between">
             <div>
-                <div class="flex items-start justify-between gap-4 mb-6">
+                <div class="flex items-start justify-between gap-4 mb-5 sm:mb-6">
                     <div>
-                        <p class="text-xs font-semibold uppercase tracking-[0.25em] text-blue-600">
+                        <p class="text-[11px] sm:text-xs font-semibold uppercase tracking-[0.25em] text-blue-600">
                             @(IsLockedSession ? "SESSION LOCKED" : "AUTHENTICATION")
                         </p>
-                        <h2 class="mt-1 text-2xl font-bold text-slate-900">
+                        <h2 class="mt-1 text-xl sm:text-2xl font-bold text-slate-900">
                             @(IsLockedSession ? "Unlock Session" : "Sign In to PassKee")
                         </h2>
                     </div>
-                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-md shadow-blue-500/20">
-                        <i class="fa-solid @(IsLockedSession ? "fa-lock-open" : "fa-lock") text-lg"></i>
+                    <div class="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl bg-blue-600 text-white shadow-md shadow-blue-500/20 shrink-0">
+                        <i class="fa-solid @(IsLockedSession ? "fa-lock-open" : "fa-lock") text-base sm:text-lg"></i>
                     </div>
                 </div>
 
                 @if (!string.IsNullOrEmpty(ErrorMessage))
                 {
-                    <div class="mb-5 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 flex items-start gap-3">
-                        <i class="fa-solid fa-circle-exclamation text-rose-500 mt-0.5"></i>
+                    <div class="mb-4 sm:mb-5 rounded-xl border border-rose-200 bg-rose-50 p-3.5 sm:p-4 text-xs sm:text-sm text-rose-700 flex items-start gap-2.5 sm:gap-3">
+                        <i class="fa-solid fa-circle-exclamation text-rose-500 mt-0.5 shrink-0"></i>
                         <span>@ErrorMessage</span>
                     </div>
                 }
 
                 @if (IsLockedSession)
                 {
-                    <div class="mb-4 p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                        <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-semibold text-xs">
+                    <div class="mb-4 p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-semibold text-xs shrink-0">
                                 @(string.IsNullOrEmpty(Email) ? "U" : Email[0].ToString().ToUpper())
                             </div>
-                            <div>
-                                <p class="text-xs text-slate-500">Locked account</p>
-                                <p class="text-sm font-medium text-slate-900">@Email</p>
+                            <div class="min-w-0">
+                                <p class="text-[11px] text-slate-500">Locked account</p>
+                                <p class="text-xs sm:text-sm font-medium text-slate-900 truncate">@Email</p>
                             </div>
                         </div>
-                        <button type="button" @onclick="SwitchAccountAsync" class="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline">
+                        <button type="button" @onclick="SwitchAccountAsync" class="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline shrink-0">
                             Switch
                         </button>
                     </div>
                 }
 
-                <form @onsubmit="LoginAsync" class="grid gap-4">
+                <form @onsubmit="LoginAsync" class="grid gap-3.5 sm:gap-4">
                     @if (!IsLockedSession)
                     {
                         <AppInputText
@@ -162,11 +125,48 @@
                 </form>
             </div>
 
-            <div class="mt-8 pt-6 border-t border-slate-100 text-center text-sm text-slate-500">
+            <div class="mt-6 pt-5 sm:mt-8 sm:pt-6 border-t border-slate-100 text-center text-xs sm:text-sm text-slate-500">
                 <span>Don't have an account yet?</span>
                 <a href="/registration" class="ml-1.5 font-semibold text-blue-600 hover:text-blue-700 transition hover:underline">
                     Create Account
                 </a>
+            </div>
+        </section>
+
+        @* Explanation Card (Second on mobile, left on desktop) *@
+        <section class="order-2 lg:order-1 overflow-hidden rounded-2xl sm:rounded-[2rem] bg-slate-900 text-white shadow-xl lg:shadow-2xl">
+            <div class="flex h-full flex-col justify-between gap-6 sm:gap-8 p-6 sm:p-10">
+                <div>
+                    <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-blue-300">
+                        <i class="fa-solid fa-lock text-xs sm:text-sm"></i>
+                        <span>Zero-Knowledge Sign In</span>
+                    </div>
+                    <h1 class="mt-4 sm:mt-6 max-w-xl text-2xl sm:text-4xl font-bold leading-tight text-white">
+                        @(IsLockedSession ? "Unlock Your Vault" : "Access Your Encrypted Vault")
+                    </h1>
+                    <p class="mt-3 sm:mt-4 max-w-2xl text-xs sm:text-base leading-relaxed text-slate-300">
+                        @(IsLockedSession 
+                            ? "Your session is securely locked in your browser. Enter your Master Password to decrypt your keys and resume your session."
+                            : "Your Master Password and Secret Key work together to unlock your vault directly in your browser. PassKee never sees your unencrypted data.")
+                    </p>
+                </div>
+                <div class="grid gap-3 sm:gap-4 sm:grid-cols-3">
+                    <div class="rounded-xl sm:rounded-2xl border border-white/10 bg-white/5 p-3.5 sm:p-4">
+                        <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-blue-300">01</p>
+                        <p class="mt-1.5 sm:mt-2 text-sm sm:text-base font-semibold text-white">Master Password</p>
+                        <p class="mt-1 text-xs text-slate-400">Your private master phrase, known only to you.</p>
+                    </div>
+                    <div class="rounded-xl sm:rounded-2xl border border-white/10 bg-white/5 p-3.5 sm:p-4">
+                        <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">02</p>
+                        <p class="mt-1.5 sm:mt-2 text-sm sm:text-base font-semibold text-white">Secret Key</p>
+                        <p class="mt-1 text-xs text-slate-400">@(IsLockedSession ? "Encrypted safely in session storage." : "The 128-bit emergency code generated when you registered.")</p>
+                    </div>
+                    <div class="rounded-xl sm:rounded-2xl border border-white/10 bg-white/5 p-3.5 sm:p-4">
+                        <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-purple-300">03</p>
+                        <p class="mt-1.5 sm:mt-2 text-sm sm:text-base font-semibold text-white">Local Decryption</p>
+                        <p class="mt-1 text-xs text-slate-400">Decrypted securely inside your browser on this device.</p>
+                    </div>
+                </div>
             </div>
         </section>
     </div>
