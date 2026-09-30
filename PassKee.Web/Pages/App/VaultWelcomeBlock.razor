@@ -1,4 +1,6 @@
+@using PassKee.Web.Components
 @using PassKee.Web.Core.Ui.Shared.Components.Enums
+@inherits BaseReactiveComponent
 
 <section class="mx-auto flex min-h-[65vh] w-full max-w-5xl items-center px-4 py-12 sm:px-6">
     <div class="grid w-full items-center gap-10 md:grid-cols-[minmax(0,1fr)_auto] md:gap-16">
@@ -10,9 +12,9 @@
             </p>
             <AppButton Color="@ComponentColor.Primary"
                        Variant="@ButtonVariant.Solid"
-                       OnClick="@OnAddVault"
-                       IsLoading="@IsCreating"
-                       Disabled="@IsCreating"
+                       OnClick="@OpenCreateVaultModal"
+                       IsLoading="@VaultsState.Value.IsCreating"
+                       Disabled="@VaultsState.Value.IsCreating"
                        Class="mt-7">
                 <i class="fa-solid fa-plus mr-2" aria-hidden="true"></i>
                 Add Vault

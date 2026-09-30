@@ -4,24 +4,10 @@
 @inherits BaseReactiveComponent
 
 <div class="min-h-screen bg-slate-50 flex flex-col font-sans">
-    <AppHeaderBlock HasVaults="@VaultsState.Value.Vaults.Any()"
-                    OnToggleMobileDrawer="@ToggleMobileDrawer"
-                    OnLock="@LockVaultAsync" />
+    <AppHeaderBlock OnToggleMobileDrawer="@ToggleMobileDrawer" />
 
     <VaultDrawerBlock IsOpen="@IsMobileDrawerOpen"
-                      ActiveVaultId="@VaultsState.Value.ActiveVaultId"
-                      Vaults="@VaultsState.Value.Vaults"
-                      Directories="@VaultsState.Value.Directories"
-                      SelectedDirectoryId="@SelectedDirectoryId"
-                      IsCreatingVault="@VaultsState.Value.IsCreating"
-                      IsVaultsLoading="@VaultsState.Value.IsLoading"
-                      OnClose="@CloseMobileDrawer"
-                      OnSelectVault="@OnVaultSelected"
-                      OnCreateVault="@OpenCreateVaultModal"
-                      OnSelectDirectory="@SelectDirectory"
-                      OnOpenDirectoryModal="@OpenDirectoryModal"
-                      OnDeleteDirectory="@DeleteDirectory"
-                      OnMoveDirectory="@HandleDirectoryMove" />
+                      OnClose="@CloseMobileDrawer" />
 
     <main class="flex-1 max-w-[1400px] w-full mx-auto py-4 sm:py-8 px-3 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-6 items-start">
         @if (VaultsState.Value.IsLoading && !VaultsState.Value.Vaults.Any())
@@ -33,33 +19,16 @@
         }
         else if (!VaultsState.Value.Vaults.Any())
         {
-            <VaultWelcomeBlock IsCreating="@VaultsState.Value.IsCreating"
-                               OnAddVault="@OpenCreateVaultModal" />
+            <VaultWelcomeBlock />
         }
         else
         {
             <aside class="hidden lg:flex w-72 flex-shrink-0 flex-col gap-4 sticky top-24 max-h-[calc(100vh-8rem)]">
-                <VaultSidebarBlock ActiveVaultId="@VaultsState.Value.ActiveVaultId"
-                                   Vaults="@VaultsState.Value.Vaults"
-                                   Directories="@VaultsState.Value.Directories"
-                                   SelectedDirectoryId="@SelectedDirectoryId"
-                                   IsCreatingVault="@VaultsState.Value.IsCreating"
-                                   IsVaultsLoading="@VaultsState.Value.IsLoading"
-                                   OnSelectVault="@OnVaultSelected"
-                                   OnCreateVault="@OpenCreateVaultModal"
-                                   OnSelectDirectory="@SelectDirectory"
-                                   OnOpenDirectoryModal="@OpenDirectoryModal"
-                                   OnDeleteDirectory="@DeleteDirectory"
-                                   OnMoveDirectory="@HandleDirectoryMove" />
+                <VaultSidebarBlock />
             </aside>
 
             <div class="flex-1 w-full flex flex-col min-w-0">
-                <CredentialListBlock ActiveDirectoryName="@ActiveDirectoryName"
-                                     Credentials="@FilteredCredentials"
-                                     OnToggleMobileDrawer="@ToggleMobileDrawer"
-                                     OnAddCredential="@(() => OpenCredentialModal(null))"
-                                     OnEditCredential="@OpenCredentialModal"
-                                     OnDeleteCredential="@DeleteCredential" />
+                <CredentialListBlock OnToggleMobileDrawer="@ToggleMobileDrawer" />
             </div>
         }
     </main>

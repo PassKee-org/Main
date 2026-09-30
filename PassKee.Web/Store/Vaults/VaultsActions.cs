@@ -27,6 +27,7 @@ public record CreateVaultFailureAction;
 public record ResetVaultsStateAction;
 
 // Directory CRUD
+public record SelectDirectoryAction(Guid? DirectoryId);
 public record CreateDirectoryAction(Guid VaultId, Guid? ParentId, string Name);
 public record UpdateDirectoryAction(Guid VaultId, Guid DirectoryId, Guid? ParentId, string Name);
 public record DeleteDirectoryAction(Guid VaultId, Guid DirectoryId);

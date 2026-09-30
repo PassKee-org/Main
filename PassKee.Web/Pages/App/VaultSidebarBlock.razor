@@ -1,7 +1,9 @@
 @namespace PassKee.Web.Pages.App
+@using PassKee.Web.Components
 @using PassKee.Web.Models.Vaults
 @using PassKee.Web.Core.Ui.Shared.Components
 @using PassKee.Web.Core.Ui.Shared.Components.Enums
+@inherits BaseReactiveComponent
 
 <div class="flex flex-col gap-4 w-full">
     <AppCard>
@@ -11,21 +13,21 @@
                 <AppButton Color="@ComponentColor.Primary"
                            Variant="@ButtonVariant.Light"
                            Size="@ComponentSize.Small"
-                           OnClick="@OnCreateVault"
+                           OnClick="@OpenCreateVaultModal"
                            Title="New Vault"
-                           IsLoading="@IsCreatingVault"
-                           Disabled="@IsCreatingVault"
+                           IsLoading="@VaultsState.Value.IsCreating"
+                           Disabled="@VaultsState.Value.IsCreating"
                            Class="h-7 w-7 min-w-7 p-0">
                     <i class="fa-solid fa-plus text-xs"></i>
                 </AppButton>
             </div>
             <AppSelect TValue="Guid?"
-                       Value="@ActiveVaultId"
+                       Value="@VaultsState.Value.ActiveVaultId"
                        ValueChanged="@OnSelectVault"
                        Items="@VaultIds"
                        ItemText="@GetVaultName"
                        Placeholder="Select a vault"
-                       IsDisabled="@IsVaultsLoading"
+                       IsDisabled="@VaultsState.Value.IsLoading"
                        SelectType="DropDownType.Select"
                        IsFullWidth="true"
                        Size="ComponentSize.Small" />
@@ -38,13 +40,13 @@
             <AppButton Color="@ComponentColor.Primary"
                        Variant="@ButtonVariant.Light"
                        Size="@ComponentSize.Small"
-                       OnClick="@(() => OnOpenDirectoryModal.InvokeAsync(null))"
+                       OnClick="@(() => OpenDirectoryModal(null))"
                        Class="h-7 w-7 min-w-7 p-0">
                 <i class="fa-solid fa-plus text-xs"></i>
             </AppButton>
         </AppCardHeader>
         <AppCardBody Class="p-2 flex-1 overflow-y-auto">
-            @if (!Directories.Any())
+            @if (!VaultsState.Value.Directories.Any())
             {
                 <div class="p-4 text-center text-sm text-slate-500">
                     No directories yet.
@@ -54,8 +56,8 @@
             {
                 <div class="flex flex-col gap-1">
                     <div class="group flex items-center justify-between py-1.5 px-2 rounded-md cursor-pointer transition-colors
-                                @(SelectedDirectoryId == null ? "bg-blue-50 text-blue-700 font-medium" : "text-slate-600 hover:bg-slate-100")"
-                         @onclick="() => OnSelectDirectory.InvokeAsync(null)"
+                                @(VaultsState.Value.SelectedDirectoryId == null ? "bg-blue-50 text-blue-700 font-medium" : "text-slate-600 hover:bg-slate-100")"
+                         @onclick="() => SelectDirectory(null)"
                          @ondragover="HandleRootDragOver"
                          @ondragover:preventDefault="true"
                          @ondrop="HandleRootDrop"
@@ -66,15 +68,16 @@
                         </div>
                     </div>
 
-                    @foreach (var dir in Directories.Where(d => d.ParentDirectoryId == null))
+                    @foreach (var dir in VaultsState.Value.Directories.Where(d => d.ParentDirectoryId == null))
                     {
                         <DirectoryNode Directory="@dir" 
-                                       AllDirectories="@Directories" 
-                                       SelectedDirectoryId="@SelectedDirectoryId"
-                                       OnSelect="@(() => OnSelectDirectory.InvokeAsync(dir.Id))"
-                                       OnMove="@OnMoveDirectory"
-                                       OnEdit="@OnOpenDirectoryModal"
-                                       OnDelete="@OnDeleteDirectory" />
+                                       AllDirectories="@VaultsState.Value.Directories" 
+                                       SelectedDirectoryId="@VaultsState.Value.SelectedDirectoryId"
+                                       OnSelect="@SelectDirectory"
+                                       OnAddSubdirectory="@OpenCreateSubDirectoryModal"
+                                       OnMove="@HandleDirectoryMove"
+                                       OnEdit="@OpenDirectoryModal"
+                                       OnDelete="@DeleteDirectory" />
                     }
                 </div>
             }
