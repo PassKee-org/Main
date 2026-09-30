@@ -10,12 +10,15 @@
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Production' ">
         <DefineConstants>TRACE;IS_RELEASE_BUILD;IS_WEB_APP</DefineConstants>
+        <RunAOTCompilation>true</RunAOTCompilation>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <DefineConstants>TRACE;IS_RELEASE_BUILD;IS_WEB_APP</DefineConstants>
+        <RunAOTCompilation>true</RunAOTCompilation>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Development' ">
         <DefineConstants>TRACE;IS_DEVELOPMENT_BUILD;IS_WEB_APP</DefineConstants>
+        <RunAOTCompilation>true</RunAOTCompilation>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)' == 'Local' ">
         <DefineConstants>TRACE;IS_LOCAL_BUILD;IS_WEB_APP</DefineConstants>
