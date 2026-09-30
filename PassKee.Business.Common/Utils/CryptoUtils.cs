@@ -32,7 +32,8 @@ public record ClientRegistrationData(
     byte[] MasterKey,
     byte[] AuthHash,
     KdfParameters KdfParams,
-    UserKeyEnvelope KeyEnvelope
+    UserKeyEnvelope KeyEnvelope,
+    string? SecretKeyString = null
 );
 
 
@@ -209,6 +210,38 @@ public static class CryptoUtils
         }
     }
 
+    /// <summary>
+    /// Encrypts the user's string Secret Key for temporary local session storage.
+    /// </summary>
+    public static byte[] EncryptSecretKeyForSession(string secretKey, string masterPassword, byte[] authSalt)
+    {
+        var secretKeyBytes = Encoding.UTF8.GetBytes(secretKey);
+        try
+        {
+            return EncryptSecretKeyForSession(secretKeyBytes, masterPassword, authSalt);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(secretKeyBytes);
+        }
+    }
+
+    /// <summary>
+    /// Decrypts the user's string Secret Key from temporary local session storage.
+    /// </summary>
+    public static string DecryptSecretKeyStringFromSession(byte[] encryptedSecretKey, string masterPassword, byte[] authSalt)
+    {
+        var decryptedBytes = DecryptSecretKeyFromSession(encryptedSecretKey, masterPassword, authSalt);
+        try
+        {
+            return Encoding.UTF8.GetString(decryptedBytes);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(decryptedBytes);
+        }
+    }
+
     private static byte[] DeriveSessionUnlockKey(string masterPassword, byte[] sessionSalt)
     {
         if (sessionSalt.Length < 16)
@@ -311,6 +344,30 @@ public static class CryptoUtils
     }
 
     /// <summary>
+    /// Derives the client-side Master Key directly from Password and string Secret Key and Salt using Argon2id.
+    /// Does not require Base64 conversion.
+    /// </summary>
+    public static byte[] DeriveMasterKey(
+        string password,
+        string secretKey,
+        byte[] salt,
+        int iterations = DefaultKdfIterations,
+        int memorySize = DefaultKdfMemorySize,
+        int parallelism = DefaultKdfParallelism
+    )
+    {
+        var secretKeyBytes = ParseSecretKey(secretKey);
+        try
+        {
+            return DeriveMasterKey(password, secretKeyBytes, salt, iterations, memorySize, parallelism);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(secretKeyBytes);
+        }
+    }
+
+    /// <summary>
     /// Calculates the client-side Auth Hash from the Master Key.
     /// </summary>
     public static byte[] ComputeAuthHash(byte[] masterKey)
@@ -336,6 +393,30 @@ public static class CryptoUtils
         {
             CryptographicOperations.ZeroMemory(privateKey);
         }
+    }
+
+    /// <summary>
+    /// Shared helper to prepare all cryptographic data required for user registration from a string Secret Key.
+    /// </summary>
+    public static ClientRegistrationData PrepareClientRegistration(
+        string password,
+        string? secretKey,
+        byte[]? authSalt = null,
+        int iterations = DefaultKdfIterations,
+        int memorySize = DefaultKdfMemorySize,
+        int parallelism = DefaultKdfParallelism
+    )
+    {
+        var keyString = !string.IsNullOrWhiteSpace(secretKey) ? secretKey.Trim() : GenerateSecretKeyString();
+        var keyBytes = ParseSecretKey(keyString);
+        authSalt ??= GenerateRandomBytes(32);
+        var kdfParams = new KdfParameters(iterations, memorySize, parallelism);
+
+        var masterKey = DeriveMasterKey(password, keyBytes, authSalt, iterations, memorySize, parallelism);
+        var authHash = ComputeAuthHash(masterKey);
+        var keyEnvelope = GenerateUserKeyEnvelope(masterKey);
+
+        return new ClientRegistrationData(keyBytes, authSalt, masterKey, authHash, kdfParams, keyEnvelope, keyString);
     }
 
     /// <summary>
@@ -368,6 +449,48 @@ public static class CryptoUtils
     public static byte[] ComputeServerHash(byte[] authHash, byte[] authSalt)
     {
         return GenerateArgon2idHash(authHash, authSalt, DefaultKdfIterations, DefaultKdfMemorySize, DefaultKdfParallelism, 32);
+    }
+
+    /// <summary>
+    /// Generates a human-readable high-entropy Secret Key formatted as PK-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX.
+    /// </summary>
+    public static string GenerateSecretKeyString()
+    {
+        return SecurityUtil.GenerateSecretKey();
+    }
+
+    /// <summary>
+    /// Parses a Secret Key string into raw bytes for master key derivation.
+    /// Handles both formatted string keys (UTF-8 encoding) and legacy 16-byte Base64 keys.
+    /// </summary>
+    public static byte[] ParseSecretKey(string secretKey)
+    {
+        if (string.IsNullOrWhiteSpace(secretKey))
+        {
+            throw new ArgumentException("Secret key cannot be empty.", nameof(secretKey));
+        }
+
+        var trimmed = secretKey.Trim();
+
+        // Check if it's a legacy Base64 16-byte key (e.g. 24 chars, valid Base64)
+        if (!trimmed.StartsWith("PK-", StringComparison.OrdinalIgnoreCase) && Base64Utils.IsValidBase64(trimmed))
+        {
+            try
+            {
+                var bytes = Convert.FromBase64String(trimmed);
+                if (bytes.Length == 16)
+                {
+                    return bytes;
+                }
+            }
+            catch
+            {
+                // Not valid Base64, fall back to UTF-8
+            }
+        }
+
+        // String-based key: UTF-8 bytes of the key string
+        return Encoding.UTF8.GetBytes(trimmed);
     }
 
     /// <summary>

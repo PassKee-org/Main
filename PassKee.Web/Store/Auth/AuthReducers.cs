@@ -20,7 +20,7 @@ public static class AuthReducers
             IsLoading = false,
             ErrorMessage = null,
             ShowSecretKey = true,
-            SecretKeyBase64 = action.SecretKeyBase64,
+            SecretKey = action.SecretKey,
             IsAuthenticated = true,
             CurrentUser = action.Response,
             UserPrivateKey = action.UserPrivateKey,

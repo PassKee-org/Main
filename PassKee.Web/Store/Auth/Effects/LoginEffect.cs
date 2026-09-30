@@ -20,7 +20,7 @@ public class LoginEffect : Effect<LoginAction>
 
         try
         {
-            var loginResult = await _authService.LoginAsync(action.Email, action.Password, action.SecretKeyBase64);
+            var loginResult = await _authService.LoginAsync(action.Email, action.Password, action.SecretKey);
             dispatcher.Dispatch(new LoginSuccessAction(loginResult.Response, loginResult.UserPrivateKey, loginResult.UserPublicKey));
         }
         catch (Exception ex)

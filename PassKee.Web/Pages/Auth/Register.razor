@@ -38,7 +38,7 @@
                         </p>
                         <div class="space-y-2">
                             <div class="p-3 sm:p-3.5 bg-white rounded-xl border border-emerald-300/80 font-mono text-xs sm:text-sm text-slate-900 break-all select-all font-semibold shadow-inner">
-                                @SecretKeyBase64
+                                @SecretKeyDisplay
                             </div>
                             <AppButton
                                 Color="@(IsCopied ? ComponentColor.Success : ComponentColor.Default)"
@@ -61,7 +61,7 @@
                         <div class="pt-1">
                             <AppCheckbox @bind-Value="HasSavedSecretKey" Color="@ComponentColor.Primary">
                                 <span class="text-xs font-medium text-slate-700">
-                                    I have saved my Secret Key and understand PassKee cannot recover it.
+                                     I have saved my Secret Key and understand PassKee cannot recover it.
                                 </span>
                             </AppCheckbox>
                         </div>
@@ -92,16 +92,27 @@
                             Disabled="@IsProcessing"
                             Autocomplete="username" />
 
-                        <AppInputText
+                        <SecretInput
                             Label="Master Password"
                             @bind-Value="Password"
-                            Type="password"
-                            Icon="fa-solid fa-key"
+                            SecretType="SecretInputType.Password"
                             Placeholder="Create a strong Master Password"
-                            HelpText="A 128-bit Secret Key will be automatically created on the next step. PassKee cannot recover your password if forgotten."
+                            HelpText="At least 10 characters with uppercase, lowercase Latin letters and digits."
+                            ErrorMessage="@PasswordErrorMessage"
                             Required="true"
                             Disabled="@IsProcessing"
-                            Autocomplete="new-password" />
+                            Autocomplete="new-password"
+                            OnGenerate="@GeneratePassword" />
+
+                        <SecretInput
+                            Label="Emergency Secret Key"
+                            @bind-Value="SecretKey"
+                            SecretType="SecretInputType.SecretKey"
+                            HelpText="Generated on your device. You will need both your Master Password and this Secret Key to sign in."
+                            Required="true"
+                            Disabled="@IsProcessing"
+                            Autocomplete="off"
+                            OnGenerate="@GenerateNewSecretKey" />
 
                         <div class="mt-2">
                             <AppButton

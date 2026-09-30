@@ -19,10 +19,10 @@ public class AuthClientService : IAuthClientService
         _sessionLockStorage = sessionLockStorage;
     }
 
-    public async Task<RegisterResult> RegisterAsync(string email, string password)
+    public async Task<RegisterResult> RegisterAsync(string email, string password, string? secretKey = null)
     {
-        var regData = CryptoUtils.PrepareClientRegistration(password);
-        var secretKeyBase64 = Convert.ToBase64String(regData.SecretKey);
+        secretKey = !string.IsNullOrWhiteSpace(secretKey) ? secretKey.Trim() : CryptoUtils.GenerateSecretKeyString();
+        var regData = CryptoUtils.PrepareClientRegistration(password, secretKey);
         byte[]? userPrivateKey = null;
         var succeeded = false;
 
@@ -69,7 +69,7 @@ public class AuthClientService : IAuthClientService
             await _sessionLockStorage.SetSessionLockInfoAsync(sessionLock);
 
             succeeded = true;
-            return new RegisterResult(response, secretKeyBase64, userPrivateKey, regData.KeyEnvelope.PublicKey);
+            return new RegisterResult(response, secretKey, userPrivateKey, regData.KeyEnvelope.PublicKey);
         }
         finally
         {
@@ -84,7 +84,13 @@ public class AuthClientService : IAuthClientService
         }
     }
 
-    public async Task<LoginResult> LoginAsync(string email, string password, string secretKeyBase64)
+    public async Task<LoginResult> LoginAsync(string email, string password, string secretKey)
+    {
+        var secretKeyBytes = CryptoUtils.ParseSecretKey(secretKey);
+        return await LoginAsync(email, password, secretKeyBytes);
+    }
+
+    public async Task<LoginResult> LoginAsync(string email, string password, byte[] secretKeyBytes)
     {
         var loginParams = await _apiService.GetLoginParamsAsync(email);
         if (loginParams == null || string.IsNullOrEmpty(loginParams.AuthSalt))
@@ -97,7 +103,6 @@ public class AuthClientService : IAuthClientService
         int parallelism = loginParams.KdfParams?.Parallelism ?? CryptoUtils.DefaultKdfParallelism;
 
         var authSaltBytes = Convert.FromBase64String(loginParams.AuthSalt);
-        var secretKeyBytes = Convert.FromBase64String(secretKeyBase64.Trim());
         byte[]? masterKey = null;
         byte[]? authHash = null;
         byte[]? userPrivateKey = null;
@@ -194,8 +199,7 @@ public class AuthClientService : IAuthClientService
 
         try
         {
-            var secretKeyBase64 = Convert.ToBase64String(secretKeyBytes);
-            return await LoginAsync(sessionLock.Email, password, secretKeyBase64);
+            return await LoginAsync(sessionLock.Email, password, secretKeyBytes);
         }
         finally
         {

@@ -20,8 +20,8 @@ public class RegisterEffect : Effect<RegisterAction>
 
         try
         {
-            var result = await _authService.RegisterAsync(action.Email, action.Password);
-            dispatcher.Dispatch(new RegisterSuccessAction(result.Response, result.SecretKeyBase64, result.UserPrivateKey, result.UserPublicKey));
+            var result = await _authService.RegisterAsync(action.Email, action.Password, action.SecretKey);
+            dispatcher.Dispatch(new RegisterSuccessAction(result.Response, result.SecretKey, result.UserPrivateKey, result.UserPublicKey));
         }
         catch (Exception ex)
         {
