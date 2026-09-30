@@ -130,7 +130,7 @@ Common cryptographic workflows live in `PassKee.Business.Common/Utils/CryptoUtil
 
 ### 4. Mandatory Use of Shared UI Components (`PassKee.Web.Core/Ui/Shared/Components/`)
 - **Always Reuse Existing Shared Components**: Never hand-craft raw HTML inputs, buttons, tables, dropdowns, popovers, or modals in pages. Always use standard components from `PassKee.Web.Core.Ui.Shared.Components`:
-  - **Inputs & Text Fields**: `AppInputText`, `InputTextField`, `InputTextareaField`, `InputNumericField`, `InputDateField` (with `AppCalendar`), `InlineTextEdit`.
+  - **Inputs & Text Fields**: `AppInputText`, `SecretInput`, `InputTextField`, `InputTextareaField`, `InputNumericField`, `InputDateField` (with `AppCalendar`), `InlineTextEdit`.
   - **Select & Pickers**: `AppSelect`, `AppSelectItem`, `BooleanSelect`, `EnumSelect`.
   - **Switches & Toggles**: `AppCheckbox`, `AppSwitch`.
   - **Buttons & Spinners**: `AppButton`, `AppSpinner`, `AppSkeleton`.

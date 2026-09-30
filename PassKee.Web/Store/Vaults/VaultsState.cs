@@ -18,4 +18,5 @@ public record VaultsState
     // Details for the active vault
     public List<DecryptedDirectory> Directories { get; init; } = new();
     public List<DecryptedCredential> Credentials { get; init; } = new();
+    public Guid? SelectedDirectoryId { get; init; }
 }

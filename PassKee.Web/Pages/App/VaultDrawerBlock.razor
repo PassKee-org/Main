@@ -20,18 +20,7 @@
         </div>
 
         <div class="flex-1 flex flex-col gap-4 overflow-y-auto min-h-0">
-            <VaultSidebarBlock ActiveVaultId="@ActiveVaultId"
-                               Vaults="@Vaults"
-                               Directories="@Directories"
-                               SelectedDirectoryId="@SelectedDirectoryId"
-                               IsCreatingVault="@IsCreatingVault"
-                               IsVaultsLoading="@IsVaultsLoading"
-                               OnSelectVault="@OnSelectVault"
-                               OnCreateVault="@OnCreateVault"
-                               OnSelectDirectory="@OnSelectDirectory"
-                               OnOpenDirectoryModal="@OnOpenDirectoryModal"
-                               OnDeleteDirectory="@OnDeleteDirectory"
-                               OnMoveDirectory="@OnMoveDirectory" />
+            <VaultSidebarBlock OnItemNavigated="@OnClose" />
         </div>
     </aside>
 }

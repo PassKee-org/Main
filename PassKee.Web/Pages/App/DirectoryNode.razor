@@ -14,7 +14,7 @@
          @ondrop="HandleDrop"
          @ondrop:preventDefault="true">
         
-        <div class="flex items-center gap-2 overflow-hidden flex-1" @onclick="() => OnSelect.InvokeAsync()">
+        <div class="flex items-center gap-2 overflow-hidden flex-1" @onclick="HandleSelect">
             @if (HasChildren)
             {
                 <i class="fa-solid fa-chevron-right text-[10px] w-3 text-center transition-transform @(IsExpanded ? "rotate-90" : "") text-slate-400" 
@@ -29,6 +29,9 @@
         </div>
         
         <div class="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 flex items-center gap-1 transition-opacity">
+            <button type="button" class="p-1.5 sm:p-1 text-slate-400 hover:text-blue-600 rounded touch-manipulation" title="Add Subdirectory" @onclick="() => OnAddSubdirectory.InvokeAsync(Directory)" @onclick:stopPropagation="true">
+                <i class="fa-solid fa-plus text-xs sm:text-[10px]"></i>
+            </button>
             <button type="button" class="p-1.5 sm:p-1 text-slate-400 hover:text-blue-600 rounded touch-manipulation" title="Edit" @onclick="() => OnEdit.InvokeAsync(Directory)" @onclick:stopPropagation="true">
                 <i class="fa-solid fa-pen text-xs sm:text-[10px]"></i>
             </button>
@@ -47,6 +50,7 @@
                                AllDirectories="AllDirectories" 
                                SelectedDirectoryId="SelectedDirectoryId"
                                OnSelect="OnSelect"
+                               OnAddSubdirectory="OnAddSubdirectory"
                                OnMove="OnMove"
                                OnEdit="OnEdit"
                                OnDelete="OnDelete" />

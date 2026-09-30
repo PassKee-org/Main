@@ -9,7 +9,8 @@ public record AuthState
     public bool IsLoading { get; init; }
     public string? ErrorMessage { get; init; }
     public bool ShowSecretKey { get; init; }
-    public string? SecretKeyBase64 { get; init; }
+    public string? SecretKey { get; init; }
+    public string? SecretKeyBase64 => SecretKey;
     public bool IsAuthenticated { get; init; }
     public AuthResponse? CurrentUser { get; init; }
     public byte[]? UserPrivateKey { get; init; }

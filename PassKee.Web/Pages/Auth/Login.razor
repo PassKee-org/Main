@@ -63,30 +63,31 @@
                             Autocomplete="username" />
                     }
 
-                    <AppInputText
+                    <SecretInput
                         Label="Master Password"
                         @bind-Value="Password"
                         Name="current-password"
-                        Type="password"
-                        Icon="fa-solid fa-key"
+                        SecretType="SecretInputType.Password"
                         Placeholder="Enter your Master Password"
                         Required="true"
                         Disabled="@IsProcessing"
-                        Autocomplete="current-password" />
+                        Autocomplete="current-password"
+                        ShowGenerateButton="false" />
 
                     @if (!IsLockedSession)
                     {
-                        <AppInputText
+                        <SecretInput
                             Label="Secret Key"
-                            @bind-Value="SecretKeyBase64"
+                            @bind-Value="SecretKey"
                             Name="secret-key"
-                            Type="password"
-                            Icon="fa-solid fa-shield-halved"
-                            Placeholder="Enter your 128-bit Secret Key"
-                            HelpText="Where is my Secret Key? It is the 128-bit emergency key provided when you created your vault."
+                            SecretType="SecretInputType.SecretKey"
+                            Placeholder="Enter your Emergency Secret Key"
+                            HelpText="Where is my Secret Key? It is the emergency key provided when you created your vault."
                             Required="true"
                             Disabled="@IsProcessing"
-                            Autocomplete="off" />
+                            Autocomplete="off"
+                            ShowGenerateButton="false"
+                            InitiallyMasked="true" />
                     }
 
                     <div class="mt-2">

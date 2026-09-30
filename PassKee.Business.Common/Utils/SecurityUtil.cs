@@ -39,6 +39,58 @@ namespace PassKee.Business.Common.Utils
             return GetBase58RandomString(passwordSize);
         }
 
+        private const string LowercaseLetters = "abcdefghjkmnpqrstuvwxyz";
+        private const string UppercaseLetters = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+        private const string DigitChars = "23456789";
+        private const string SpecialCharacters = "!@#$%&*_-+=";
+        private const string CrockfordBase32Alphabet = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+
+        public static string GenerateStrongPassword(int length = 16, bool includeSpecialChars = true)
+        {
+            if (length < 8)
+            {
+                length = 8;
+            }
+
+            var pool = LowercaseLetters + UppercaseLetters + DigitChars + (includeSpecialChars ? SpecialCharacters : string.Empty);
+            var chars = new char[length];
+
+            chars[0] = LowercaseLetters[RandomNumberGenerator.GetInt32(LowercaseLetters.Length)];
+            chars[1] = UppercaseLetters[RandomNumberGenerator.GetInt32(UppercaseLetters.Length)];
+            chars[2] = DigitChars[RandomNumberGenerator.GetInt32(DigitChars.Length)];
+
+            int nextIndex = 3;
+            if (includeSpecialChars && length >= 4)
+            {
+                chars[3] = SpecialCharacters[RandomNumberGenerator.GetInt32(SpecialCharacters.Length)];
+                nextIndex = 4;
+            }
+
+            for (int i = nextIndex; i < length; i++)
+            {
+                chars[i] = pool[RandomNumberGenerator.GetInt32(pool.Length)];
+            }
+
+            for (int i = chars.Length - 1; i > 0; i--)
+            {
+                int j = RandomNumberGenerator.GetInt32(i + 1);
+                (chars[i], chars[j]) = (chars[j], chars[i]);
+            }
+
+            return new string(chars);
+        }
+
+        public static string GenerateSecretKey()
+        {
+            var chars = new char[24];
+            for (int i = 0; i < chars.Length; i++)
+            {
+                chars[i] = CrockfordBase32Alphabet[RandomNumberGenerator.GetInt32(CrockfordBase32Alphabet.Length)];
+            }
+
+            return $"PK-{new string(chars, 0, 4)}-{new string(chars, 4, 4)}-{new string(chars, 8, 4)}-{new string(chars, 12, 4)}-{new string(chars, 16, 4)}-{new string(chars, 20, 4)}";
+        }
+
         public static byte[] GeneratePasswordHash(string password, byte[] salt)
         {
             return GeneratePasswordHash(password, salt, HASH_ITERATIONS);

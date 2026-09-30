@@ -19,7 +19,15 @@ public static class VaultsReducers
 
     [ReducerMethod]
     public static VaultsState ReduceSelectVaultAction(VaultsState state, SelectVaultAction action)
-        => state with { ActiveVaultId = action.VaultId };
+        => state with { ActiveVaultId = action.VaultId, SelectedDirectoryId = null };
+
+    [ReducerMethod]
+    public static VaultsState ReduceSelectDirectoryAction(VaultsState state, SelectDirectoryAction action)
+        => state with { SelectedDirectoryId = action.DirectoryId };
+
+    [ReducerMethod]
+    public static VaultsState ReduceDeleteDirectoryAction(VaultsState state, DeleteDirectoryAction action)
+        => state.SelectedDirectoryId == action.DirectoryId ? state with { SelectedDirectoryId = null } : state;
 
     [ReducerMethod]
     public static VaultsState ReduceLoadVaultDetailsAction(VaultsState state, LoadVaultDetailsAction action)
@@ -51,7 +59,8 @@ public static class VaultsReducers
             Vaults = state.Vaults.Any(vault => vault.Id == action.Vault.Id)
                 ? state.Vaults
                 : state.Vaults.Append(action.Vault).ToList(),
-            ActiveVaultId = action.Vault.Id
+            ActiveVaultId = action.Vault.Id,
+            SelectedDirectoryId = null
         };
 
     [ReducerMethod]
