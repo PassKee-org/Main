@@ -24,7 +24,7 @@ RUN dotnet workload install wasm-tools
 COPY . /app
 WORKDIR /app
 
-RUN dotnet publish PassKee.Web.Server/PassKee.Web.Server.csproj --configuration=${ASPNETCORE_ENVIRONMENT} -p:RunAOTCompilation=true -o /app/publish
+RUN dotnet publish PassKee.Web.Server/PassKee.Web.Server.csproj --configuration=${ASPNETCORE_ENVIRONMENT} -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 
