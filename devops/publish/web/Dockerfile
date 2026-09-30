@@ -8,17 +8,23 @@ ENV DOTNET_USE_POLLING_FILE_WATCHER=true
 ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
+RUN apt update && apt install -y apt-transport-https wget ca-certificates curl python3 \
+    && ln -sf /usr/bin/python3 /usr/bin/python \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js for client-side asset build (LESS/Tailwind).
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
+    && apt install -y nodejs \
+    && rm -rf /var/lib/apt/lists/* \
+    && node -v && npm -v
+
+# Install .NET WebAssembly AOT tools
+RUN dotnet workload install wasm-tools
+
 COPY . /app
 WORKDIR /app
 
-RUN apt update && apt install -y apt-transport-https wget ca-certificates curl
-
-# Install Node.js for client-side asset build (LESS/Tailwind).
-RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash -
-RUN apt install -y nodejs
-RUN node -v && npm -v
-
-RUN dotnet publish PassKee.Web.Server/PassKee.Web.Server.csproj --configuration=${ASPNETCORE_ENVIRONMENT} -o /app/publish
+RUN dotnet publish PassKee.Web.Server/PassKee.Web.Server.csproj --configuration=${ASPNETCORE_ENVIRONMENT} -p:RunAOTCompilation=true -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 
