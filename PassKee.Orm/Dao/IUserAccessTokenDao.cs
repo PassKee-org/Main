@@ -2,11 +2,12 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Domain.Abstractions;
+using PassKee.Orm.Dao.Common;
 using PassKee.Orm.Entities;
 
 namespace PassKee.Orm.Dao;
 
-public interface IUserAccessTokenDao : IDomainService
+public interface IUserAccessTokenDao : IBaseDao
 {
     Task<UserAccessTokenEntity> CreateNew(UserEntity user, CancellationToken cancellationToken = default);
 
@@ -19,4 +20,5 @@ public interface IUserAccessTokenDao : IDomainService
     Task DeleteExpiredJwtTokens(UserAccessTokenEntity accessToken, CancellationToken cancellationToken = default);
 
     Task Delete(UserAccessTokenEntity accessToken, CancellationToken cancellationToken = default);
+    Task<UserJwtTokenEntity> CreateJwtToken(UserAccessTokenEntity accessToken, string token, DateTime expirationTime, CancellationToken cancellationToken = default);
 }

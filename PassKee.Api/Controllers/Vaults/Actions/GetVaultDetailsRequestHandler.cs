@@ -1,25 +1,36 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Api.Requests.Abstractions;
 using AutoMapper;
+using PassKee.Api.Services.Security;
 using PassKee.Api.Shared.Models.Vaults;
-using PassKee.Business.Services.Vaults;
+using PassKee.Business.Common.Constants;
 using PassKee.Business.Services.Http;
-using System.Collections.Generic;
+using PassKee.Orm.Dao.Vaults;
 
 namespace PassKee.Api.Controllers.Vaults.Actions;
 
 public class GetVaultDetailsRequestHandler : IAsyncRequestHandler<GetVaultDetailsRequest, VaultDetailsResponse>
 {
-    private readonly IVaultService _vaultService;
+    private readonly IVaultDao _vaultDao;
+    private readonly IDirectoryDao _directoryDao;
+    private readonly ICredentialDao _credentialDao;
+    private readonly ISecurityService _securityService;
     private readonly IApiRequestService _apiRequestService;
     private readonly IMapper _mapper;
 
     public GetVaultDetailsRequestHandler(
-        IVaultService vaultService,
+        IVaultDao vaultDao,
+        IDirectoryDao directoryDao,
+        ICredentialDao credentialDao,
+        ISecurityService securityService,
         IApiRequestService apiRequestService,
         IMapper mapper)
     {
-        _vaultService = vaultService;
+        _vaultDao = vaultDao;
+        _directoryDao = directoryDao;
+        _credentialDao = credentialDao;
+        _securityService = securityService;
         _apiRequestService = apiRequestService;
         _mapper = mapper;
     }
@@ -28,9 +39,11 @@ public class GetVaultDetailsRequestHandler : IAsyncRequestHandler<GetVaultDetail
     {
         var userId = _apiRequestService.GetCurrentUserId();
         
-        var vault = await _vaultService.GetVaultAsync(userId, request.VaultId);
-        var directories = await _vaultService.GetVaultDirectoriesAsync(request.VaultId);
-        var credentials = await _vaultService.GetVaultCredentialsAsync(request.VaultId);
+        var vault = await _vaultDao.GetById(request.VaultId);
+        await _securityService.CheckAccess(AccessLevel.Read, userId, vault);
+
+        var directories = await _directoryDao.GetByVaultId(request.VaultId);
+        var credentials = await _credentialDao.GetByVaultId(request.VaultId);
 
         return new VaultDetailsResponse
         {

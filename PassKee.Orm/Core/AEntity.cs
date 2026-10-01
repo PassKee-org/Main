@@ -61,6 +61,11 @@ public class AEntity: IEntity
     public virtual bool IsDeleted => DeletedAt != null;
     
     public virtual bool IsNew => Id == Guid.Empty;
+
+    public virtual void Delete()
+    {
+        DeletedAt = DateTime.UtcNow;
+    }
     
     #endregion
 }

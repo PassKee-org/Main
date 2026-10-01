@@ -19,7 +19,7 @@ public class UserDao : BaseDao, IUserDao
     public async Task<UserEntity?> GetById(Guid id, CancellationToken cancellationToken = default)
     {
         return await Session.Query<UserEntity>()
-            .Where(x => x.Id == id)
+            .Where(x => x.Id == id && x.DeletedAt == null)
             .FirstOrDefaultAsync(cancellationToken);
     }
 
@@ -27,7 +27,7 @@ public class UserDao : BaseDao, IUserDao
     {
         var normalizedEmail = email.Trim().ToLower();
         return await Session.Query<UserEntity>()
-            .Where(x => x.Email.ToLower() == normalizedEmail)
+            .Where(x => x.Email.ToLower() == normalizedEmail && x.DeletedAt == null)
             .FirstOrDefaultAsync(cancellationToken);
     }
 

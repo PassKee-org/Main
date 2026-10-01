@@ -138,6 +138,23 @@ public class BaseTest : IClassFixture<ApiCustomWebApplicationFactory>, IDisposab
         return await HttpClient.GetAsync(uri);
     }
 
+    public async Task<HttpResponseMessage> PutRequestAsync(string url, string jwtToken, object? data = null)
+    {
+        await FlushDbChanges();
+
+        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+        var requestData = JsonContent.Create(data ?? new { });
+        return await HttpClient.PutAsync(url, requestData);
+    }
+
+    public async Task<HttpResponseMessage> DeleteRequestAsync(string url, string jwtToken)
+    {
+        await FlushDbChanges();
+
+        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+        return await HttpClient.DeleteAsync(url);
+    }
+
     public async Task<HttpResponseMessage> GetRequestWithCookieAsync(
         string url,
         string cookieName,

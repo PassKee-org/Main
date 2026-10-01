@@ -14,10 +14,6 @@ public class UserKdfParamsMapping : BaseGuidMappings<UserKdfParamsEntity>
         Map(x => x.MemorySize).Not.Nullable();
         Map(x => x.Parallelism).Not.Nullable();
 
-        Map(x => x.CreatedAt).DateTime();
-        Map(x => x.UpdatedAt).DateTimeNullable();
-        Map(x => x.DeletedAt).DateTimeNullable();
-
         References(x => x.User)
             .Column("user_id")
             .Unique()

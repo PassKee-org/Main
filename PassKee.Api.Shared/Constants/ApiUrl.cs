@@ -1,3 +1,5 @@
+using System;
+
 namespace PassKee.Api.Shared.Constants;
 
 public class ApiUrl
@@ -8,4 +10,12 @@ public class ApiUrl
     public const string AuthLoginParams = "api/auth/login-params";
     public const string AuthCheck = "api/auth/check";
     public const string AuthLogout = "api/auth/logout";
+
+    public const string Vaults = "api/vaults";
+    public static string VaultDetails(Guid vaultId) => $"api/vaults/{vaultId}";
+    public const string VaultDirectories = "api/vaults/directories";
+    public static string VaultDirectory(Guid directoryId) => $"api/vaults/directories/{directoryId}";
+    public const string VaultCredentials = "api/vaults/credentials";
+    public static string VaultCredential(Guid credentialId) => $"api/vaults/credentials/{credentialId}";
 }
+

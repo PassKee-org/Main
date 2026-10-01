@@ -9,4 +9,6 @@ public interface IUserSeeder : IDomainService
 {
     Task<UserEntity> CreateAsync(string? email = null);
     Task<ICollection<UserEntity>> CreateAsync(int counter);
+    Task<(string jwtToken, UserEntity user)> CreateAuthorizedAsync(string? email = null);
 }
+

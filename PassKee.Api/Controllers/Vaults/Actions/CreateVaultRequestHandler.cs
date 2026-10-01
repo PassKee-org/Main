@@ -2,20 +2,20 @@ using System.Threading.Tasks;
 using Api.Requests.Abstractions;
 using AutoMapper;
 using PassKee.Api.Shared.Models.Vaults;
-using PassKee.Business.Services.Vaults;
 using PassKee.Business.Services.Http;
+using PassKee.Orm.Dao.Vaults;
 
 namespace PassKee.Api.Controllers.Vaults.Actions;
 
 public class CreateVaultRequestHandler : IAsyncRequestHandler<CreateVaultRequest, VaultResponse>
 {
-    private readonly IVaultService _vaultService;
+    private readonly IVaultDao _vaultDao;
     private readonly IApiRequestService _apiRequestService;
     private readonly IMapper _mapper;
 
-    public CreateVaultRequestHandler(IVaultService vaultService, IApiRequestService apiRequestService, IMapper mapper)
+    public CreateVaultRequestHandler(IVaultDao vaultDao, IApiRequestService apiRequestService, IMapper mapper)
     {
-        _vaultService = vaultService;
+        _vaultDao = vaultDao;
         _apiRequestService = apiRequestService;
         _mapper = mapper;
     }
@@ -23,7 +23,7 @@ public class CreateVaultRequestHandler : IAsyncRequestHandler<CreateVaultRequest
     public async Task<VaultResponse> ExecuteAsync(CreateVaultRequest request)
     {
         var userId = _apiRequestService.GetCurrentUserId();
-        var vault = await _vaultService.CreateVaultAsync(userId, request.Name, request.EncryptedVaultKey ?? System.Array.Empty<byte>());
+        var vault = await _vaultDao.CreateAsync(userId, request.Name, request.EncryptedVaultKey ?? System.Array.Empty<byte>());
         return new VaultResponse { Vault = _mapper.Map<VaultDto>(vault) };
     }
 }

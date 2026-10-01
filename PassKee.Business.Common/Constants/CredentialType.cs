@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace PassKee.Api.Shared.Models.Vaults.Enums;
+namespace PassKee.Business.Common.Constants;
 
 public enum CredentialType
 {
