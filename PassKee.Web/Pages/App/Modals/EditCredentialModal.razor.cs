@@ -1,6 +1,6 @@
 using System;
 using Microsoft.AspNetCore.Components;
-using PassKee.Api.Shared.Models.Vaults.Enums;
+using PassKee.Business.Common.Constants;
 using PassKee.Web.Core.Services.UI.Modal;
 
 namespace PassKee.Web.Pages.App.Modals;

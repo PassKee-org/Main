@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using NHibernate;
 using NHibernate.Linq;
 using NHibernate.Transform;
@@ -57,7 +57,7 @@ public class QueueDao: IQueueDao
     )
     {
         var query = _session.Query<QueueEntity>()
-            .Where(item => item.Id == id);
+            .Where(item => item.Id == id && item.DeletedAt == null);
         return await query
             .OrderBy(item => item.CreatedAt)
             .FirstOrDefaultAsync(cancellationToken: cancellationToken);
@@ -113,6 +113,7 @@ public class QueueDao: IQueueDao
     public async Task<int> CompleteAllPending(CancellationToken cancellationToken = default)
     {
         return await _session.Query<QueueEntity>()
+            .Where(x => x.DeletedAt == null)
             .UpdateBuilder()
             .Set(x => x.Status, QueueStatus.Success)
             .UpdateAsync(cancellationToken);
@@ -121,11 +122,10 @@ public class QueueDao: IQueueDao
     public async Task UpdateProcessAtForPending()
     {
         await _session.Query<QueueEntity>()
-            .Where(x => x.Status == QueueStatus.Pending)
+            .Where(x => x.Status == QueueStatus.Pending && x.DeletedAt == null)
             .UpdateBuilder()
             .Set(x => x.ProcessAt, DateTime.UtcNow.AddSeconds(-1))
             .UpdateAsync();
-
     }
     
     public void Clear()

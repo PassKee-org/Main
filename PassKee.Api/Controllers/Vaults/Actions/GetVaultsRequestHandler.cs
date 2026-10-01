@@ -1,25 +1,25 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Api.Requests.Abstractions;
 using AutoMapper;
 using PassKee.Api.Shared.Models.Vaults;
-using PassKee.Business.Services.Vaults;
 using PassKee.Business.Services.Http;
-using System.Collections.Generic;
+using PassKee.Orm.Dao.Vaults;
 
 namespace PassKee.Api.Controllers.Vaults.Actions;
 
 public class GetVaultsRequestHandler : IAsyncRequestHandler<GetVaultsRequest, VaultsResponse>
 {
-    private readonly IVaultService _vaultService;
+    private readonly IVaultDao _vaultDao;
     private readonly IApiRequestService _apiRequestService;
     private readonly IMapper _mapper;
 
     public GetVaultsRequestHandler(
-        IVaultService vaultService,
+        IVaultDao vaultDao,
         IApiRequestService apiRequestService,
         IMapper mapper)
     {
-        _vaultService = vaultService;
+        _vaultDao = vaultDao;
         _apiRequestService = apiRequestService;
         _mapper = mapper;
     }
@@ -27,7 +27,7 @@ public class GetVaultsRequestHandler : IAsyncRequestHandler<GetVaultsRequest, Va
     public async Task<VaultsResponse> ExecuteAsync(GetVaultsRequest request)
     {
         var userId = _apiRequestService.GetCurrentUserId();
-        var vaults = await _vaultService.GetUserVaultsAsync(userId);
+        var vaults = await _vaultDao.GetByUserId(userId);
         return new VaultsResponse
         {
             Vaults = _mapper.Map<List<VaultDto>>(vaults)

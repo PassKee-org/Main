@@ -11,9 +11,6 @@ public class UserAccessTokenMapping : BaseGuidMappings<UserAccessTokenEntity>
 
         Map(x => x.Token).Not.Nullable();
         Map(x => x.ExpirationTime).Not.Nullable();
-        Map(x => x.CreatedAt).Not.Nullable();
-        Map(x => x.UpdatedAt).Nullable();
-        Map(x => x.DeletedAt).Nullable();
 
         References(x => x.User)
             .Column("user_id")

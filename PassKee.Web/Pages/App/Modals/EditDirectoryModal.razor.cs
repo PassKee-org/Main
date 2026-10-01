@@ -11,6 +11,7 @@ public partial class EditDirectoryModal : ComponentBase
 
     [Parameter] public string Name { get; set; } = string.Empty;
     [Parameter] public bool IsEdit { get; set; }
+    [Parameter] public string? ParentDirectoryName { get; set; }
 
     private void Cancel()
     {

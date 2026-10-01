@@ -19,7 +19,5 @@ public class QueueMapping: BaseGuidMappings<QueueEntity>
         Map(x => x.ContextData);
         
         Map(x => x.ProcessAt).DateTime();
-        Map(x => x.CreatedAt).DateTime();
-        Map(x => x.UpdatedAt).DateTime();
     }
 }

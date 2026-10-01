@@ -39,40 +39,59 @@ public class UserAccessTokenDao : BaseDao, IUserAccessTokenDao
     public async Task<UserAccessTokenEntity?> GetByToken(string accessToken, CancellationToken cancellationToken = default)
     {
         return await Session.Query<UserAccessTokenEntity>()
-            .Where(item => item.Token == accessToken)
+            .Where(item => item.Token == accessToken && item.DeletedAt == null && item.User.DeletedAt == null)
             .FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<UserAccessTokenEntity?> GetById(Guid id, CancellationToken cancellationToken = default)
     {
         return await Session.Query<UserAccessTokenEntity>()
-            .Where(item => item.Id == id)
+            .Where(item => item.Id == id && item.DeletedAt == null && item.User.DeletedAt == null)
             .FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<bool> HasJwtToken(UserAccessTokenEntity accessToken, string jwtToken, CancellationToken cancellationToken = default)
     {
         return await Session.Query<UserJwtTokenEntity>()
-            .Where(item => item.AccessToken.Id == accessToken.Id)
+            .Where(item => item.AccessToken.Id == accessToken.Id && item.DeletedAt == null)
             .Where(item => item.Token == jwtToken)
             .AnyAsync(cancellationToken);
     }
 
     public async Task DeleteExpiredJwtTokens(UserAccessTokenEntity accessToken, CancellationToken cancellationToken = default)
     {
+        var now = DateTime.UtcNow;
         await Session.Query<UserJwtTokenEntity>()
-            .Where(item => item.AccessToken.Id == accessToken.Id)
-            .Where(item => item.ExpirationTime < DateTime.UtcNow)
-            .DeleteAsync(cancellationToken);
+            .Where(item => item.AccessToken.Id == accessToken.Id && item.DeletedAt == null)
+            .Where(item => item.ExpirationTime < now)
+            .UpdateBuilder()
+            .Set(x => x.DeletedAt, now)
+            .UpdateAsync(cancellationToken);
     }
 
     public async Task Delete(UserAccessTokenEntity accessToken, CancellationToken cancellationToken = default)
     {
+        var now = DateTime.UtcNow;
         await Session.Query<UserJwtTokenEntity>()
-            .Where(item => item.AccessToken.Id == accessToken.Id)
-            .DeleteAsync(cancellationToken);
-        await Session.Query<UserAccessTokenEntity>()
-            .Where(item => item.Id == accessToken.Id)
-            .DeleteAsync(cancellationToken);
+            .Where(item => item.AccessToken.Id == accessToken.Id && item.DeletedAt == null)
+            .UpdateBuilder()
+            .Set(x => x.DeletedAt, now)
+            .UpdateAsync(cancellationToken);
+
+        await DeleteAsync(accessToken, cancellationToken);
+    }
+
+    public async Task<UserJwtTokenEntity> CreateJwtToken(UserAccessTokenEntity accessToken, string token, DateTime expirationTime, CancellationToken cancellationToken = default)
+    {
+        var jwtTokenEntity = new UserJwtTokenEntity
+        {
+            Token = token,
+            CreatedAt = DateTime.UtcNow,
+            ExpirationTime = expirationTime,
+            AccessToken = accessToken
+        };
+        accessToken.JwtTokens.Add(jwtTokenEntity);
+        await Session.SaveAsync(jwtTokenEntity, cancellationToken);
+        return jwtTokenEntity;
     }
 }

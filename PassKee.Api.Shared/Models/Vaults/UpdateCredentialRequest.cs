@@ -1,6 +1,6 @@
 using System;
 using Api.Requests.Abstractions;
-using PassKee.Api.Shared.Models.Vaults.Enums;
+using PassKee.Business.Common.Constants;
 
 namespace PassKee.Api.Shared.Models.Vaults;
 

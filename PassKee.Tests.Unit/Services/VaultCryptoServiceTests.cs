@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using PassKee.Api.Shared.Models.Vaults;
-using PassKee.Api.Shared.Models.Vaults.Enums;
 using PassKee.Api.Shared.Models.Vaults.Payloads;
+using PassKee.Business.Common.Constants;
 using PassKee.Business.Common.Utils;
 using PassKee.Web.Core.Services.Vaults;
 using Xunit;

@@ -14,8 +14,7 @@ namespace PassKee.Business.Services.Auth;
 public class AuthService(
     IUserDao userDao,
     IJwtAuthService jwtAuthService,
-    IUserAccessTokenDao accessTokenDao,
-    IDbSessionProvider sessionProvider
+    IUserAccessTokenDao accessTokenDao
 ) : IAuthService
 {
     public async Task<AuthResultDto> RegisterAsync(
@@ -121,15 +120,7 @@ public class AuthService(
 
         var jwtToken = jwtAuthService.BuildJwt(accessToken.User.Id, accessToken.Id);
         var expirationTime = jwtAuthService.GetTokenExpirationTime(jwtToken);
-        var jwtTokenEntity = new UserJwtTokenEntity
-        {
-            Token = jwtToken,
-            CreatedAt = DateTime.UtcNow,
-            ExpirationTime = expirationTime,
-            AccessToken = accessToken
-        };
-        accessToken.JwtTokens.Add(jwtTokenEntity);
-        await sessionProvider.CurrentSession.SaveAsync(jwtTokenEntity, cancellationToken);
+        var jwtTokenEntity = await accessTokenDao.CreateJwtToken(accessToken, jwtToken, expirationTime, cancellationToken);
 
         return new AuthResultDto(
             jwtTokenEntity.Token,

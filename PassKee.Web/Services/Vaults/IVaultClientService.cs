@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using PassKee.Api.Shared.Models.Vaults;
-using PassKee.Api.Shared.Models.Vaults.Enums;
 using PassKee.Api.Shared.Models.Vaults.Payloads;
+using PassKee.Business.Common.Constants;
 using PassKee.Web.Models.Vaults;
 
 namespace PassKee.Web.Services.Vaults;

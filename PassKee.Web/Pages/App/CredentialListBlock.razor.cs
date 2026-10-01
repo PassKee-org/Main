@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Fluxor;
 using Microsoft.AspNetCore.Components;
-using PassKee.Api.Shared.Models.Vaults.Enums;
 using PassKee.Api.Shared.Models.Vaults.Payloads;
+using PassKee.Business.Common.Constants;
 using PassKee.Web.Components;
 using PassKee.Web.Models.Vaults;
 using PassKee.Web.Pages.App.Modals;
@@ -38,7 +38,7 @@ public partial class CredentialListBlock : BaseReactiveComponent
         var parameters = new Dictionary<string, object?>
         {
             { "IsEdit", cred != null },
-            { "Type", cred != null ? (CredentialType)cred.Type : CredentialType.Login },
+            { "Type", cred != null ? cred.Type : CredentialType.Login },
             { "Title", cred?.Payload?.Title ?? string.Empty },
             { "Notes", cred?.Payload?.Notes ?? string.Empty }
         };

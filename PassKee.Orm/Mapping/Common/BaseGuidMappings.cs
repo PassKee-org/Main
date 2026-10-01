@@ -1,10 +1,11 @@
-using Domain.Abstractions;
 using FluentNHibernate.Mapping;
+using PassKee.Orm.Core;
 using PassKee.Orm.Core.Generators;
+using PassKee.Orm.Extensions;
 
 namespace PassKee.Orm.Mapping.Common;
 
-public class BaseGuidMappings<T>: ClassMap<T> where T : IEntity
+public class BaseGuidMappings<T>: ClassMap<T> where T : AEntity
 {
     public BaseGuidMappings()
     {
@@ -13,5 +14,9 @@ public class BaseGuidMappings<T>: ClassMap<T> where T : IEntity
             .Unique()
             .Not.Nullable()
             .CustomSqlType("uuid");
+
+        Map(x => x.CreatedAt).DateTime();
+        Map(x => x.UpdatedAt).DateTimeNullable();
+        Map(x => x.DeletedAt).DateTimeNullable();
     }
 }

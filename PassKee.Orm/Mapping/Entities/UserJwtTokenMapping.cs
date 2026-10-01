@@ -11,9 +11,6 @@ public class UserJwtTokenMapping : BaseGuidMappings<UserJwtTokenEntity>
 
         Map(x => x.Token).Not.Nullable().Length(2056);
         Map(x => x.ExpirationTime).Not.Nullable();
-        Map(x => x.CreatedAt).Not.Nullable();
-        Map(x => x.UpdatedAt).Nullable();
-        Map(x => x.DeletedAt).Nullable();
 
         References(x => x.AccessToken)
             .Column("access_token_id")

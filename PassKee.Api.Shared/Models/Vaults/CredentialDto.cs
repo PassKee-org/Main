@@ -1,5 +1,5 @@
 using System;
-using PassKee.Api.Shared.Models.Vaults.Enums;
+using PassKee.Business.Common.Constants;
 
 namespace PassKee.Api.Shared.Models.Vaults;
 

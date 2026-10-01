@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Components;
-using PassKee.Api.Shared.Models.Vaults.Enums;
+using PassKee.Business.Common.Constants;
 using PassKee.Web.Models.Vaults;
 
 namespace PassKee.Web.Pages.App;

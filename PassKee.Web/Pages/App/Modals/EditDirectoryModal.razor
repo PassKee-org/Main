@@ -10,6 +10,13 @@
     </div>
 
     <div class="space-y-4">
+        @if (!IsEdit && !string.IsNullOrEmpty(ParentDirectoryName))
+        {
+            <div class="flex items-center gap-2 rounded-lg bg-slate-50 border border-slate-200/80 px-3 py-2 text-xs text-slate-600">
+                <i class="fa-regular fa-folder text-blue-500"></i>
+                <span>Inside: <strong class="text-slate-800">@ParentDirectoryName</strong></span>
+            </div>
+        }
         <div>
             <AppInputText Label="Directory Name" @bind-Value="Name" Placeholder="E.g., Work, Personal" Class="w-full" Required="true" />
         </div>
