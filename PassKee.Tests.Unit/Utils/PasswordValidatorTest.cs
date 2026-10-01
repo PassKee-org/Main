@@ -175,4 +175,23 @@ public class PasswordValidatorTest
         Assert.NotNull(regData.MasterKey);
         Assert.NotNull(regData.AuthHash);
     }
+
+    [Theory]
+    [InlineData("PK-ABCD-EFGH-JKMN-PQRS-TVWX-YZ23")]
+    [InlineData("pk-abcd-efgh-jkmn-pqrs-tvwx-yz23")]
+    [InlineData("PKABCDEFGHJKMNPQRSTVWXYZ23")]
+    [InlineData("  PK-ABCD EFGH JKMN PQRS TVWX YZ23\r\n")]
+    public void LoginSecretKey_ShouldDeriveRegistrationAuthHash(string loginSecretKey)
+    {
+        const string password = "MasterPassword#2026";
+        const string registrationSecretKey = "PK-ABCD-EFGH-JKMN-PQRS-TVWX-YZ23";
+        var registration = CryptoUtils.PrepareClientRegistration(
+            password, registrationSecretKey, iterations: 1, memorySize: 1024, parallelism: 1);
+
+        var loginMasterKey = CryptoUtils.DeriveMasterKey(
+            password, loginSecretKey, registration.AuthSalt,
+            registration.KdfParams.Iterations, registration.KdfParams.MemorySize, registration.KdfParams.Parallelism);
+
+        Assert.Equal(registration.AuthHash, CryptoUtils.ComputeAuthHash(loginMasterKey));
+    }
 }

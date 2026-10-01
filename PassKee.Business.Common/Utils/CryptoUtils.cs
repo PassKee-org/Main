@@ -472,6 +472,41 @@ public static class CryptoUtils
 
         var trimmed = secretKey.Trim();
 
+        var compactKey = new StringBuilder(trimmed.Length);
+        foreach (var character in trimmed)
+        {
+            if (character != '-' && !char.IsWhiteSpace(character))
+            {
+                compactKey.Append(char.ToUpperInvariant(character));
+            }
+        }
+
+        var normalizedKey = compactKey.ToString();
+        if (normalizedKey.Length == 26 && normalizedKey.StartsWith("PK", StringComparison.Ordinal))
+        {
+            const string alphabet = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+            var isFormattedKey = true;
+            for (var index = 2; index < normalizedKey.Length; index++)
+            {
+                if (!alphabet.Contains(normalizedKey[index]))
+                {
+                    isFormattedKey = false;
+                    break;
+                }
+            }
+
+            if (isFormattedKey)
+            {
+                var formattedKey = new StringBuilder("PK", 32);
+                for (var index = 2; index < normalizedKey.Length; index += 4)
+                {
+                    formattedKey.Append('-').Append(normalizedKey, index, 4);
+                }
+
+                return Encoding.UTF8.GetBytes(formattedKey.ToString());
+            }
+        }
+
         // Check if it's a legacy Base64 16-byte key (e.g. 24 chars, valid Base64)
         if (!trimmed.StartsWith("PK-", StringComparison.OrdinalIgnoreCase) && Base64Utils.IsValidBase64(trimmed))
         {
