@@ -17,6 +17,12 @@ public partial class AppHeaderBlock : BaseReactiveComponent
     [Parameter]
     public EventCallback OnToggleMobileDrawer { get; set; }
 
+    private async Task LogoutAsync()
+    {
+        await SessionLockStorage.ClearAllSessionDataAsync();
+        await LockVaultAsync();
+    }
+
     private async Task LockVaultAsync()
     {
         if (AuthState.Value.UserPrivateKey is { } userPrivateKey)
