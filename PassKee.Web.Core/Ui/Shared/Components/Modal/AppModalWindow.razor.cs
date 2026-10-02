@@ -4,10 +4,13 @@ using PassKee.Web.Core.Services.UI.Modal;
 
 namespace PassKee.Web.Core.Ui.Shared.Components.Modal;
 
-public partial class AppModalWindow : ComponentBase
+public partial class AppModalWindow : ComponentBase, IHandleEvent
 {
     [Parameter]
     public required AppModalInstance ModalInstance { get; set; }
+
+    Task IHandleEvent.HandleEventAsync(EventCallbackWorkItem callback, object? argument)
+        => callback.InvokeAsync(argument);
 
     private string _sizeClass => ModalInstance.Options.Size switch
     {

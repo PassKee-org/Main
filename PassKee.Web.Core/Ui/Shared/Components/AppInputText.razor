@@ -12,7 +12,7 @@
         </label>
     }
 
-    <div class="relative flex items-center rounded-xl border border-slate-200 bg-slate-50 transition focus-within:border-blue-500 focus-within:bg-white focus-within:ring-3 focus-within:ring-blue-500/15 @(Disabled ? "opacity-60 cursor-not-allowed bg-slate-100" : "")">
+    <div class="relative flex items-center rounded-xl border transition @BorderAndBgClasses @(Disabled ? "opacity-60 cursor-not-allowed bg-slate-100" : "")">
         @if (!string.IsNullOrWhiteSpace(Icon))
         {
             <div class="flex items-center pl-3.5 pr-1 text-slate-400 shrink-0">
@@ -29,6 +29,9 @@
             disabled="@Disabled"
             readonly="@ReadOnly"
             autocomplete="@Autocomplete"
+            aria-required="@Required"
+            aria-invalid="@HasError"
+            aria-describedby="@(HasVisibleError ? _errorId : null)"
             class="w-full bg-transparent border-0 px-3.5 py-2.5 text-base sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 disabled:cursor-not-allowed @(!string.IsNullOrWhiteSpace(Icon) ? "!pl-1.5" : "")" />
 
         @if (Type == "password")
@@ -43,7 +46,14 @@
         }
     </div>
 
-    @if (!string.IsNullOrWhiteSpace(HelpText))
+    @if (HasVisibleError)
+    {
+        <p id="@_errorId" role="alert" class="mt-1.5 text-xs text-rose-500 flex items-center gap-1">
+            <i class="fa-solid fa-circle-exclamation text-[11px] shrink-0" aria-hidden="true"></i>
+            <span>@ErrorMessage</span>
+        </p>
+    }
+    else if (!string.IsNullOrWhiteSpace(HelpText))
     {
         <p class="mt-1 text-xs text-slate-500">@HelpText</p>
     }
