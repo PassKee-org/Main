@@ -40,7 +40,9 @@ public partial class CredentialListBlock : BaseReactiveComponent
             { "IsEdit", cred != null },
             { "Type", cred != null ? cred.Type : CredentialType.Login },
             { "Title", cred?.Payload?.Title ?? string.Empty },
-            { "Notes", cred?.Payload?.Notes ?? string.Empty }
+            { "Notes", cred?.Payload?.Notes ?? string.Empty },
+            { "AdditionalFields", cred?.Payload?.AdditionalFields ?? [] },
+            { "Sections", cred?.Payload?.Sections ?? [] }
         };
 
         if (cred?.Payload is LoginCredentialPayload login)
@@ -75,6 +77,9 @@ public partial class CredentialListBlock : BaseReactiveComponent
                 payload = new CardCredentialPayload { Title = form.Title, Notes = form.Notes, CardNumber = form.CardNumber, CardholderName = form.CardholderName, ExpirationDate = form.ExpirationDate, Cvv = form.Cvv };
             else
                 payload = new SecureNoteCredentialPayload { Title = form.Title, Notes = form.Notes };
+
+            payload.AdditionalFields = form.AdditionalFields;
+            payload.Sections = form.Sections;
 
             if (cred == null)
             {

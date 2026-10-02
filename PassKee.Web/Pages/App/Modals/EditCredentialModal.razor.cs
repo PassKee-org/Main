@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Components;
+using PassKee.Api.Shared.Models.Vaults.Payloads;
 using PassKee.Business.Common.Constants;
 using PassKee.Web.Core.Services.UI.Modal;
 
@@ -14,6 +17,38 @@ public partial class EditCredentialModal : ComponentBase
     [Parameter] public CredentialType Type { get; set; } = CredentialType.Login;
     [Parameter] public string Title { get; set; } = string.Empty;
     [Parameter] public string? Notes { get; set; }
+    [Parameter] public List<CredentialField> AdditionalFields { get; set; } = [];
+    [Parameter] public List<CredentialSection> Sections { get; set; } = [];
+
+    private List<CredentialField> _additionalFields = [];
+    private List<CredentialSection> _sections = [];
+
+    protected override void OnInitialized()
+    {
+        _additionalFields = AdditionalFields.Select(CloneField).ToList();
+        _sections = Sections.Select(section => new CredentialSection
+        {
+            Title = section.Title,
+            Fields = section.Fields.Select(CloneField).ToList()
+        }).ToList();
+    }
+
+    private static CredentialField CloneField(CredentialField field) => new()
+    {
+        Type = field.Type,
+        Label = field.Label,
+        Value = field.Value
+    };
+
+    private void AddField(CredentialFieldType type)
+    {
+        _additionalFields.Add(new CredentialField { Type = type, Label = Parts.CredentialFieldMenuBlock.GetFieldLabel(type) });
+    }
+
+    private void AddSection()
+    {
+        _sections.Add(new CredentialSection { Title = "New section" });
+    }
     
     // Login/Password
     [Parameter] public string? Username { get; set; }
@@ -57,6 +92,8 @@ public partial class EditCredentialModal : ComponentBase
             Type = Type,
             Title = Title,
             Notes = Notes,
+            AdditionalFields = _additionalFields,
+            Sections = _sections,
             Username = Username,
             Password = Password,
             Website = Website,
@@ -75,6 +112,8 @@ public class CredentialModalResult
     public CredentialType Type { get; set; }
     public string Title { get; set; } = string.Empty;
     public string? Notes { get; set; }
+    public List<CredentialField> AdditionalFields { get; set; } = [];
+    public List<CredentialSection> Sections { get; set; } = [];
     public string? Username { get; set; }
     public string? Password { get; set; }
     public string? Website { get; set; }

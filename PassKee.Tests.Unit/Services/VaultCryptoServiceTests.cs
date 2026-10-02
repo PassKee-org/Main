@@ -148,6 +148,70 @@ public class VaultCryptoServiceTests
         Assert.Equal(payload.Notes, note.Notes);
     }
 
+    [Theory]
+    [InlineData(CredentialType.Login)]
+    [InlineData(CredentialType.Password)]
+    [InlineData(CredentialType.Card)]
+    [InlineData(CredentialType.SecureNote)]
+    public void Should_Preserve_Additional_Info_In_Encrypted_Payload(CredentialType type)
+    {
+        BaseCredentialPayload payload = type switch
+        {
+            CredentialType.Login => new LoginCredentialPayload(),
+            CredentialType.Password => new PasswordCredentialPayload(),
+            CredentialType.Card => new CardCredentialPayload(),
+            _ => new SecureNoteCredentialPayload()
+        };
+        foreach (var fieldType in Enum.GetValues<CredentialFieldType>())
+        {
+            payload.AdditionalFields.Add(new CredentialField { Type = fieldType, Label = fieldType.ToString(), Value = "Private value" });
+        }
+        payload.Sections.Add(new CredentialSection
+        {
+            Title = "Recovery",
+            Fields = [new CredentialField { Type = CredentialFieldType.SecurityQuestion, Label = "First pet?", Value = "Secret answer" }]
+        });
+        payload.Sections.Add(new CredentialSection { Title = "Empty section" });
+        var vaultKey = CryptoUtils.GenerateRandomBytes(32);
+
+        var encrypted = _service.EncryptCredentialPayload(payload, vaultKey);
+        var decrypted = _service.DecryptCredentialPayload(encrypted, type, vaultKey);
+
+        Assert.DoesNotContain("Private value", System.Text.Encoding.UTF8.GetString(encrypted));
+        Assert.Equal(payload.AdditionalFields.Count, decrypted.AdditionalFields.Count);
+        for (var fieldIndex = 0; fieldIndex < payload.AdditionalFields.Count; fieldIndex++)
+        {
+            Assert.Equal(payload.AdditionalFields[fieldIndex].Type, decrypted.AdditionalFields[fieldIndex].Type);
+            Assert.Equal(payload.AdditionalFields[fieldIndex].Label, decrypted.AdditionalFields[fieldIndex].Label);
+            Assert.Equal(payload.AdditionalFields[fieldIndex].Value, decrypted.AdditionalFields[fieldIndex].Value);
+        }
+        Assert.Equal(2, decrypted.Sections.Count);
+        Assert.Equal("Recovery", decrypted.Sections[0].Title);
+        var question = Assert.Single(decrypted.Sections[0].Fields);
+        Assert.Equal(CredentialFieldType.SecurityQuestion, question.Type);
+        Assert.Equal("First pet?", question.Label);
+        Assert.Equal("Secret answer", question.Value);
+        Assert.Empty(decrypted.Sections[1].Fields);
+    }
+
+    [Theory]
+    [InlineData(CredentialType.Login)]
+    [InlineData(CredentialType.Password)]
+    [InlineData(CredentialType.Card)]
+    [InlineData(CredentialType.SecureNote)]
+    public void Should_Decrypt_Legacy_Payload_Without_Additional_Info(CredentialType type)
+    {
+        var vaultKey = CryptoUtils.GenerateRandomBytes(32);
+        var encrypted = CryptoUtils.AesGcmEncrypt(vaultKey, System.Text.Encoding.UTF8.GetBytes("{\"Title\":\"Legacy\",\"Notes\":\"Existing notes\"}"));
+
+        var decrypted = _service.DecryptCredentialPayload(encrypted, type, vaultKey);
+
+        Assert.Equal("Legacy", decrypted.Title);
+        Assert.Equal("Existing notes", decrypted.Notes);
+        Assert.Empty(decrypted.AdditionalFields);
+        Assert.Empty(decrypted.Sections);
+    }
+
     [Fact]
     public void Should_Encrypt_And_Decrypt_SecretKey_For_Session()
     {
