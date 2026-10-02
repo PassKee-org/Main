@@ -7,12 +7,6 @@ namespace PassKee.Web.Shared.Modals.Parts;
 public partial class CredentialFieldsBlock : ComponentBase
 {
     [Parameter] public List<CredentialField> Fields { get; set; } = [];
-    [Parameter] public bool ShowAddMenu { get; set; } = true;
-
-    private void AddField(CredentialFieldType type)
-    {
-        Fields.Add(new CredentialField { Type = type, Label = CredentialFieldMenuBlock.GetFieldLabel(type) });
-    }
 
     private static string GetInputType(CredentialFieldType type) => type switch
     {

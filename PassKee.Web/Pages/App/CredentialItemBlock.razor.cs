@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using PassKee.Business.Common.Constants;
 using PassKee.Web.Models.Vaults;
@@ -10,10 +11,25 @@ public partial class CredentialItemBlock : ComponentBase
     public DecryptedCredential Credential { get; set; } = null!;
 
     [Parameter]
+    public EventCallback<DecryptedCredential> OnView { get; set; }
+
+    [Parameter]
     public EventCallback<DecryptedCredential> OnEdit { get; set; }
 
     [Parameter]
     public EventCallback<DecryptedCredential> OnDelete { get; set; }
+
+    private async Task HandleRowClick()
+    {
+        if (OnView.HasDelegate)
+        {
+            await OnView.InvokeAsync(Credential);
+        }
+        else
+        {
+            await OnEdit.InvokeAsync(Credential);
+        }
+    }
 
     protected static string GetCredentialTypeIcon(CredentialType type) => type switch
     {

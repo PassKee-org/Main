@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using PassKee.Business.Common.Mvc.Attribute.Validation;
 using PassKee.Business.Common.Utils;
+using PassKee.Business.Common.Utils.Validators;
 using Xunit;
 
-namespace PassKee.Tests.Unit.Business.Common.Utils;
+namespace PassKee.Tests.Unit.Business.Common.Utils.Validators;
 
 public class PasswordValidatorTest
 {

@@ -3,7 +3,7 @@
 <div class="w-full @Class">
     @if (!string.IsNullOrWhiteSpace(Label))
     {
-        <label class="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700">
+        <label for="@_inputId" class="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700">
             @Label
             @if (Required)
             {
@@ -21,6 +21,7 @@
         }
 
         <input
+            id="@_inputId"
             type="@ResolvedType"
             name="@Name"
             value="@Value"
@@ -36,13 +37,18 @@
 
         @if (Type == "password")
         {
-            <button
-                type="button"
-                tabindex="-1"
-                class="p-2 mr-1.5 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
-                @onclick="TogglePasswordVisibility">
-                <i class="fa-regular @(_isPasswordVisible ? "fa-eye-slash" : "fa-eye") text-sm"></i>
-            </button>
+            <AppButton Color="@ComponentColor.Default"
+                       Variant="@ButtonVariant.Light"
+                       Size="@ComponentSize.Small"
+                       IconOnly="true"
+                       Class="mr-1.5 !text-slate-400 hover:!text-slate-600"
+                       aria-label="@(_isPasswordVisible ? "Hide password" : "Show password")"
+                       aria-controls="@_inputId"
+                       aria-pressed="@(_isPasswordVisible ? "true" : "false")"
+                       Title="@(_isPasswordVisible ? "Hide password" : "Show password")"
+                       OnClick="TogglePasswordVisibility">
+                <i class="fa-regular @(_isPasswordVisible ? "fa-eye-slash" : "fa-eye") text-sm" aria-hidden="true"></i>
+            </AppButton>
         }
     </div>
 

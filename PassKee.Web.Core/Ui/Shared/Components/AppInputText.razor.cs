@@ -22,6 +22,7 @@ public partial class AppInputText : ComponentBase
     [Parameter] public string Class { get; set; } = string.Empty;
 
     private bool _isPasswordVisible;
+    private readonly string _inputId = $"input-{System.Guid.NewGuid():N}";
     private readonly string _errorId = $"input-error-{System.Guid.NewGuid():N}";
 
     private bool HasError => !string.IsNullOrWhiteSpace(ErrorMessage);

@@ -27,6 +27,9 @@ public partial class AppDropdown : ComponentBase
     public bool IsInline { get; set; }
 
     [Parameter]
+    public bool IsDropUp { get; set; }
+
+    [Parameter]
     public string WidthClass { get; set; } = "min-w-[180px]";
 
     [Parameter]
@@ -34,7 +37,9 @@ public partial class AppDropdown : ComponentBase
 
     public bool IsOpen { get; private set; }
 
-    protected string PositionClass => IsInline ? "relative mt-1.5" : $"absolute {AlignmentClass} top-full mt-1.5";
+    protected string PositionClass => IsInline
+        ? "relative mt-1.5"
+        : $"absolute {AlignmentClass} {(IsDropUp ? "bottom-full mb-1.5" : "top-full mt-1.5")}";
 
     protected string AlignmentClass => Alignment switch
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace PassKee.Business.Common.Utils;
+namespace PassKee.Business.Common.Utils.Validators;
 
 public record PasswordValidationResult(bool IsValid, string? ErrorMessage = null);
 

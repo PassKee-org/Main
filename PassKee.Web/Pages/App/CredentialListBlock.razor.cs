@@ -64,7 +64,11 @@ public partial class CredentialListBlock : BaseReactiveComponent
             parameters.Add("Cvv", card.Cvv);
         }
 
-        var result = await ModalService.ShowAsync<EditCredentialModal>(parameters);
+        var result = await ModalService.ShowAsync<EditCredentialModal>(parameters, new PassKee.Web.Core.Services.UI.Modal.AppModalOptions
+        {
+            Size = PassKee.Web.Core.Services.UI.Modal.AppModalSize.Large,
+            ModalClass = "overflow-hidden !border-gray-200/80 !shadow-2xl"
+        });
         if (result.IsSuccess && result.Data != null)
         {
             var form = (CredentialModalResult)result.Data;
