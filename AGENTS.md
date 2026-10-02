@@ -116,6 +116,7 @@ Common cryptographic workflows live in `PassKee.Business.Common/Utils/CryptoUtil
 - Use `[Inject]` attributes in code-behind rather than `@inject` directives in `.razor` markup.
 - Naming conventions: route-level components use the `Page` suffix, reusable UI fragments use the `Block` suffix, and layout components use the `Layout` suffix (for example, `VaultPage.razor`, `VaultWelcomeBlock.razor`, `MainLayout.razor`). Keep the Razor filename and partial class name aligned.
 - When a page or component grows beyond roughly 200 lines, split cohesive UI sections into block components with their own markup and code-behind where logic is needed.
+- Place child components in a `Parts/` subdirectory of the parent component's directory. Keep their `.razor` and `.razor.cs` files together, align namespaces with the directory structure, and import the `Parts` namespace in the parent where needed.
 - For Blazor component invocations with multiple parameters, put each attribute on a separate line for readable diffs.
 
 ### 2. API Communication

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using PassKee.Web.Components;
 using PassKee.Web.Models.Vaults;
-using PassKee.Web.Pages.App.Modals;
+using PassKee.Web.Shared.Modals;
 using PassKee.Web.Store.Vaults;
 
 namespace PassKee.Web.Pages.App;

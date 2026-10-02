@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using Fluxor;
 using Microsoft.AspNetCore.Components;
 using PassKee.Web.Components;
-using PassKee.Web.Pages.App.Modals;
+using PassKee.Web.Shared.Modals;
 using PassKee.Web.Store.Vaults;
 
 namespace PassKee.Web.Pages.App;
