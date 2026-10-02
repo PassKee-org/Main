@@ -10,6 +10,7 @@ public partial class CredentialFieldMenuBlock : ComponentBase
     [Parameter] public bool AllowSections { get; set; }
     [Parameter] public bool IconOnly { get; set; }
     [Parameter] public bool IsDropUp { get; set; }
+    [Parameter] public bool UseFixedPosition { get; set; } = true;
     [Parameter] public PassKee.Web.Core.Ui.Shared.Components.Dropdown.DropdownAlignment Alignment { get; set; } = PassKee.Web.Core.Ui.Shared.Components.Dropdown.DropdownAlignment.Left;
     [Parameter] public EventCallback<CredentialFieldType> OnAddField { get; set; }
     [Parameter] public EventCallback OnAddSection { get; set; }

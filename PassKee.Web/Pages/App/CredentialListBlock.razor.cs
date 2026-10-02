@@ -67,7 +67,7 @@ public partial class CredentialListBlock : BaseReactiveComponent
         var result = await ModalService.ShowAsync<EditCredentialModal>(parameters, new PassKee.Web.Core.Services.UI.Modal.AppModalOptions
         {
             Size = PassKee.Web.Core.Services.UI.Modal.AppModalSize.Large,
-            ModalClass = "overflow-hidden !border-gray-200/80 !shadow-2xl"
+            ModalClass = "!border-gray-200/80 !shadow-2xl"
         });
         if (result.IsSuccess && result.Data != null)
         {
