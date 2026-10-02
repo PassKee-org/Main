@@ -22,6 +22,11 @@ public partial class EditCredentialModal : ComponentBase
 
     private List<CredentialField> _additionalFields = [];
     private List<CredentialSection> _sections = [];
+    private bool _isSaveAttempted;
+
+    private string? TitleErrorMessage => _isSaveAttempted && string.IsNullOrWhiteSpace(Title)
+        ? "Title is required."
+        : null;
 
     protected override void OnInitialized()
     {
@@ -85,6 +90,7 @@ public partial class EditCredentialModal : ComponentBase
 
     private void Save()
     {
+        _isSaveAttempted = true;
         if (string.IsNullOrWhiteSpace(Title)) return;
         
         var result = new CredentialModalResult
