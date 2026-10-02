@@ -2,7 +2,7 @@ using System;
 using Microsoft.AspNetCore.Components;
 using PassKee.Api.Shared.Models.Vaults.Payloads;
 
-namespace PassKee.Web.Pages.App.Modals.Parts;
+namespace PassKee.Web.Shared.Modals.Parts;
 
 public partial class CredentialFieldMenuBlock : ComponentBase
 {

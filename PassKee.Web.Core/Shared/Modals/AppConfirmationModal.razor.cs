@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components;
 using PassKee.Web.Core.Services.UI.Modal;
 using PassKee.Web.Core.Ui.Shared.Components.Enums;
 
-namespace PassKee.Web.Core.Ui.Shared.Components.Modal;
+namespace PassKee.Web.Core.Shared.Modals;
 
 public partial class AppConfirmationModal : ComponentBase
 {

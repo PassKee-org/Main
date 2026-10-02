@@ -6,7 +6,7 @@ using PassKee.Api.Shared.Models.Vaults.Payloads;
 using PassKee.Business.Common.Constants;
 using PassKee.Web.Core.Services.UI.Modal;
 
-namespace PassKee.Web.Pages.App.Modals;
+namespace PassKee.Web.Shared.Modals;
 
 public partial class EditCredentialModal : ComponentBase
 {

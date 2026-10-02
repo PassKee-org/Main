@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Components;
-using PassKee.Web.Core.Ui.Shared.Components.Modal;
+using PassKee.Web.Core.Shared.Modals;
 
 namespace PassKee.Web.Core.Services.UI.Modal;
 
