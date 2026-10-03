@@ -25,4 +25,7 @@ public interface IVaultClientService
     Task<CredentialDto?> CreateCredentialAsync(Guid vaultId, Guid? directoryId, CredentialType type, BaseCredentialPayload payload, byte[] vaultKey);
     Task<CredentialDto?> UpdateCredentialAsync(Guid credentialId, Guid? directoryId, CredentialType type, BaseCredentialPayload payload, byte[] vaultKey);
     Task<bool> DeleteCredentialAsync(Guid credentialId);
+    Task<PassKee.Api.Shared.Models.Storage.StoredFileDto?> UploadFileAsync(Guid vaultId, byte[] rawFileBytes, string originalFileName, byte[] vaultKey);
+    Task<byte[]?> DownloadFileAsync(Guid fileId, byte[] vaultKey);
+    Task<bool> DeleteFileAsync(Guid fileId);
 }

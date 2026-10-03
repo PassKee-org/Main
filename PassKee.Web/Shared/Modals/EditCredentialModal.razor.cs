@@ -1,3 +1,4 @@
+using PassKee.Api.Shared.Models.Storage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,6 +42,9 @@ public partial class EditCredentialModal : ComponentBase
     [Parameter] public string? ExpirationDate { get; set; }
     [Parameter] public string? Cvv { get; set; }
 
+    // File fields
+    [Parameter] public StoredFileDto? File { get; set; }
+
     private bool _isEditing;
     private bool _isExisting;
     private bool _isSaving;
@@ -61,6 +65,7 @@ public partial class EditCredentialModal : ComponentBase
     private string? _initialCardholderName;
     private string? _initialExpirationDate;
     private string? _initialCvv;
+    private StoredFileDto? _initialFile;
     private List<CredentialField> _initialAdditionalFields = [];
     private List<CredentialSection> _initialSections = [];
 
@@ -93,6 +98,7 @@ public partial class EditCredentialModal : ComponentBase
         _initialCardholderName = CardholderName;
         _initialExpirationDate = ExpirationDate;
         _initialCvv = Cvv;
+        _initialFile = File;
         _initialAdditionalFields = AdditionalFields.Select(CloneField).ToList();
         _initialSections = Sections.Select(CloneSection).ToList();
     }
@@ -101,7 +107,8 @@ public partial class EditCredentialModal : ComponentBase
     {
         Type = field.Type,
         Label = field.Label,
-        Value = field.Value
+        Value = field.Value,
+        File = field.File
     };
 
     private static CredentialSection CloneSection(CredentialSection section) => new()
@@ -135,6 +142,7 @@ public partial class EditCredentialModal : ComponentBase
         CardholderName = _initialCardholderName;
         ExpirationDate = _initialExpirationDate;
         Cvv = _initialCvv;
+        File = _initialFile;
         _additionalFields = _initialAdditionalFields.Select(CloneField).ToList();
         _sections = _initialSections.Select(CloneSection).ToList();
         _isSaveAttempted = false;
@@ -188,6 +196,7 @@ public partial class EditCredentialModal : ComponentBase
         CredentialType.Password => "fa-solid fa-key",
         CredentialType.Card => "fa-solid fa-credit-card",
         CredentialType.SecureNote => "fa-solid fa-note-sticky",
+        CredentialType.File => "fa-solid fa-file",
         _ => "fa-solid fa-shield-halved"
     };
 
@@ -197,6 +206,7 @@ public partial class EditCredentialModal : ComponentBase
         CredentialType.Password => "Password",
         CredentialType.Card => "Card",
         CredentialType.SecureNote => "Secure Note",
+        CredentialType.File => "File",
         _ => "Item"
     };
 
@@ -233,6 +243,12 @@ public partial class EditCredentialModal : ComponentBase
         _isSaveAttempted = true;
         if (string.IsNullOrWhiteSpace(Title)) return;
 
+        if (VaultsState.Value.PendingFileUploads > 0)
+        {
+            ToastService.ShowWarning("Wait for the file upload to finish.");
+            return;
+        }
+
         var activeVaultId = VaultsState.Value.ActiveVaultId;
         if (!activeVaultId.HasValue)
         {
@@ -259,7 +275,8 @@ public partial class EditCredentialModal : ComponentBase
             CardNumber = CardNumber,
             CardholderName = CardholderName,
             ExpirationDate = ExpirationDate,
-            Cvv = Cvv
+            Cvv = Cvv,
+            File = File
         };
 
         var payload = BuildCredentialPayload(result);
@@ -320,6 +337,7 @@ public partial class EditCredentialModal : ComponentBase
             CredentialType.Login => new LoginCredentialPayload { Title = form.Title, Notes = form.Notes, Username = form.Username, Password = form.Password, Website = form.Website },
             CredentialType.Password => new PasswordCredentialPayload { Title = form.Title, Notes = form.Notes, Username = form.Username, Password = form.Password },
             CredentialType.Card => new CardCredentialPayload { Title = form.Title, Notes = form.Notes, CardNumber = form.CardNumber, CardholderName = form.CardholderName, ExpirationDate = form.ExpirationDate, Cvv = form.Cvv },
+            CredentialType.File => new FileCredentialPayload { Title = form.Title, Notes = form.Notes, File = form.File },
             _ => new SecureNoteCredentialPayload { Title = form.Title, Notes = form.Notes }
         };
 
@@ -343,4 +361,5 @@ public class CredentialModalResult
     public string? CardholderName { get; set; }
     public string? ExpirationDate { get; set; }
     public string? Cvv { get; set; }
+    public StoredFileDto? File { get; set; }
 }

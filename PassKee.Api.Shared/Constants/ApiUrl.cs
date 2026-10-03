@@ -17,5 +17,8 @@ public class ApiUrl
     public static string VaultDirectory(Guid directoryId) => $"api/vaults/directories/{directoryId}";
     public const string VaultCredentials = "api/vaults/credentials";
     public static string VaultCredential(Guid credentialId) => $"api/vaults/credentials/{credentialId}";
+
+    public const string StorageUpload = "api/storage/upload";
+    public static string StorageFile(Guid fileId) => $"api/storage/file/{fileId}";
 }
 

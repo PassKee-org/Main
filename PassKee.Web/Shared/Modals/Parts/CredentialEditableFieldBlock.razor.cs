@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using PassKee.Api.Shared.Models.Storage;
 using PassKee.Api.Shared.Models.Vaults.Payloads;
 using PassKee.Web.Core.Services.UI.Modal;
 
@@ -34,5 +35,11 @@ public partial class CredentialEditableFieldBlock : ComponentBase
             await OnFieldChanged.InvokeAsync();
             await InvokeAsync(StateHasChanged);
         }
+    }
+
+    private async Task OnFileChangedAsync(StoredFileDto? file)
+    {
+        Field.File = file;
+        await OnFieldChanged.InvokeAsync();
     }
 }
