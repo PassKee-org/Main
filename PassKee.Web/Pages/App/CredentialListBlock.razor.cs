@@ -65,6 +65,10 @@ public partial class CredentialListBlock : BaseReactiveComponent
             parameters.Add("ExpirationDate", card.ExpirationDate);
             parameters.Add("Cvv", card.Cvv);
         }
+        else if (cred?.Payload is FileCredentialPayload filePayload)
+        {
+            parameters.Add("File", filePayload.File);
+        }
 
         await ModalService.ShowAsync<EditCredentialModal>(parameters, new PassKee.Web.Core.Services.UI.Modal.AppModalOptions
         {

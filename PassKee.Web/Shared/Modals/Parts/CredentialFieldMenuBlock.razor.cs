@@ -34,6 +34,7 @@ public partial class CredentialFieldMenuBlock : ComponentBase
         CredentialFieldType.Password => "fa-solid fa-key",
         CredentialFieldType.Phone => "fa-solid fa-phone",
         CredentialFieldType.SecurityQuestion => "fa-solid fa-circle-question",
+        CredentialFieldType.File => "fa-solid fa-file",
         _ => "fa-solid fa-font"
     };
 }

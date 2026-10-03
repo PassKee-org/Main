@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using PassKee.Api.Shared.Models.Storage;
 using PassKee.Api.Shared.Models.Vaults;
 using PassKee.Api.Shared.Models.Vaults.Payloads;
 using PassKee.Business.Common.Constants;
@@ -148,11 +149,43 @@ public class VaultCryptoServiceTests
         Assert.Equal(payload.Notes, note.Notes);
     }
 
+    [Fact]
+    public void Should_Encrypt_And_Decrypt_FileCredentialPayload()
+    {
+        var vaultKey = CryptoUtils.GenerateRandomBytes(32);
+        var payload = new FileCredentialPayload
+        {
+            Title = "Passport Scan",
+            Notes = "Stored securely in cloud",
+            File = new StoredFileDto
+            {
+                Id = Guid.NewGuid(),
+                VaultId = Guid.NewGuid(),
+                Size = 1024 * 100,
+                FileName = "passport.pdf"
+            }
+        };
+
+        var encrypted = _service.EncryptCredentialPayload(payload, vaultKey);
+        var decrypted = _service.DecryptCredentialPayload(encrypted, CredentialType.File, vaultKey);
+
+        Assert.IsType<FileCredentialPayload>(decrypted);
+        var fileCred = (FileCredentialPayload)decrypted;
+        Assert.Equal(payload.Title, fileCred.Title);
+        Assert.Equal(payload.Notes, fileCred.Notes);
+        Assert.NotNull(fileCred.File);
+        Assert.Equal(payload.File.Id, fileCred.File.Id);
+        Assert.Equal(payload.File.VaultId, fileCred.File.VaultId);
+        Assert.Equal(payload.File.Size, fileCred.File.Size);
+        Assert.Equal(payload.File.FileName, fileCred.File.FileName);
+    }
+
     [Theory]
     [InlineData(CredentialType.Login)]
     [InlineData(CredentialType.Password)]
     [InlineData(CredentialType.Card)]
     [InlineData(CredentialType.SecureNote)]
+    [InlineData(CredentialType.File)]
     public void Should_Preserve_Additional_Info_In_Encrypted_Payload(CredentialType type)
     {
         BaseCredentialPayload payload = type switch
@@ -160,6 +193,7 @@ public class VaultCryptoServiceTests
             CredentialType.Login => new LoginCredentialPayload(),
             CredentialType.Password => new PasswordCredentialPayload(),
             CredentialType.Card => new CardCredentialPayload(),
+            CredentialType.File => new FileCredentialPayload(),
             _ => new SecureNoteCredentialPayload()
         };
         foreach (var fieldType in Enum.GetValues<CredentialFieldType>())
@@ -199,6 +233,7 @@ public class VaultCryptoServiceTests
     [InlineData(CredentialType.Password)]
     [InlineData(CredentialType.Card)]
     [InlineData(CredentialType.SecureNote)]
+    [InlineData(CredentialType.File)]
     public void Should_Decrypt_Legacy_Payload_Without_Additional_Info(CredentialType type)
     {
         var vaultKey = CryptoUtils.GenerateRandomBytes(32);
@@ -231,5 +266,42 @@ public class VaultCryptoServiceTests
 
         Assert.ThrowsAny<Exception>(() =>
             CryptoUtils.DecryptSecretKeyFromSession(encryptedSecretKey, masterPassword, CryptoUtils.GenerateRandomBytes(32)));
+    }
+
+    [Fact]
+    public void Should_Encrypt_And_Decrypt_File()
+    {
+        var vaultKey = CryptoUtils.GenerateRandomBytes(32);
+        var file = CryptoUtils.GenerateRandomBytes(4096);
+
+        var encrypted = _service.EncryptFile(file, vaultKey);
+
+        Assert.NotEqual(file, encrypted);
+        Assert.Equal(file.Length + FileStorageConstants.EncryptionOverhead, encrypted.Length);
+        Assert.Equal(file, _service.DecryptFile(encrypted, vaultKey));
+    }
+
+    [Fact]
+    public void Should_Not_Decrypt_File_With_Wrong_Key_Or_Tampered_Data()
+    {
+        var vaultKey = CryptoUtils.GenerateRandomBytes(32);
+        var encrypted = _service.EncryptFile(CryptoUtils.GenerateRandomBytes(128), vaultKey);
+
+        Assert.ThrowsAny<Exception>(() => _service.DecryptFile(encrypted, CryptoUtils.GenerateRandomBytes(32)));
+
+        encrypted[^1] ^= 0xFF;
+        Assert.ThrowsAny<Exception>(() => _service.DecryptFile(encrypted, vaultKey));
+    }
+
+    [Fact]
+    public void Should_Encrypt_Empty_And_Maximum_Size_Files_Within_Server_Limit()
+    {
+        var vaultKey = CryptoUtils.GenerateRandomBytes(32);
+
+        var empty = _service.EncryptFile([], vaultKey);
+        Assert.Empty(_service.DecryptFile(empty, vaultKey));
+
+        var max = _service.EncryptFile(new byte[FileStorageConstants.MaxFileSize], vaultKey);
+        Assert.Equal(FileStorageConstants.MaxEncryptedFileSize, max.Length);
     }
 }

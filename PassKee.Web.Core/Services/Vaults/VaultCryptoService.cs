@@ -83,6 +83,7 @@ public class VaultCryptoService : IVaultCryptoService
             CredentialType.Password => JsonHelper.DeserializeObject<PasswordCredentialPayload>(json) ?? new PasswordCredentialPayload(),
             CredentialType.SecureNote => JsonHelper.DeserializeObject<SecureNoteCredentialPayload>(json) ?? new SecureNoteCredentialPayload(),
             CredentialType.Card => JsonHelper.DeserializeObject<CardCredentialPayload>(json) ?? new CardCredentialPayload(),
+            CredentialType.File => JsonHelper.DeserializeObject<FileCredentialPayload>(json) ?? new FileCredentialPayload(),
             _ => new LoginCredentialPayload { Title = "Unknown Type" }
         };
     }
@@ -100,5 +101,21 @@ public class VaultCryptoService : IVaultCryptoService
         }
 
         return list;
+    }
+
+    public byte[] EncryptFile(byte[] fileData, byte[] vaultKey)
+    {
+        ArgumentNullException.ThrowIfNull(fileData);
+        ArgumentNullException.ThrowIfNull(vaultKey);
+
+        return CryptoUtils.AesGcmEncrypt(vaultKey, fileData);
+    }
+
+    public byte[] DecryptFile(byte[] encryptedData, byte[] vaultKey)
+    {
+        ArgumentNullException.ThrowIfNull(encryptedData);
+        ArgumentNullException.ThrowIfNull(vaultKey);
+
+        return CryptoUtils.AesGcmDecrypt(vaultKey, encryptedData);
     }
 }

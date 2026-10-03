@@ -14,5 +14,8 @@ public enum CredentialType
     Card = 3,
 
     [Description("Password")]
-    Password = 4
+    Password = 4,
+
+    [Description("File")]
+    File = 5
 }

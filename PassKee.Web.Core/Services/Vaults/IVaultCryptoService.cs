@@ -16,4 +16,6 @@ public interface IVaultCryptoService
     byte[] EncryptCredentialPayload(BaseCredentialPayload payload, byte[] vaultKey);
     BaseCredentialPayload DecryptCredentialPayload(byte[] encryptedBody, CredentialType type, byte[] vaultKey);
     List<DecryptedCredential> DecryptCredentials(IEnumerable<CredentialDto> credentials, byte[] vaultKey);
+    byte[] EncryptFile(byte[] fileData, byte[] vaultKey);
+    byte[] DecryptFile(byte[] encryptedData, byte[] vaultKey);
 }

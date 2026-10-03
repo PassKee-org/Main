@@ -123,4 +123,23 @@ public class VaultClientService : IVaultClientService
     {
         return _apiService.DeleteCredentialAsync(credentialId);
     }
+
+    public async Task<PassKee.Api.Shared.Models.Storage.StoredFileDto?> UploadFileAsync(Guid vaultId, byte[] rawFileBytes, string originalFileName, byte[] vaultKey)
+    {
+        var encryptedBytes = _vaultCrypto.EncryptFile(rawFileBytes, vaultKey);
+        return await _apiService.UploadVaultFileAsync(vaultId, encryptedBytes, originalFileName);
+    }
+
+    public async Task<byte[]?> DownloadFileAsync(Guid fileId, byte[] vaultKey)
+    {
+        var encryptedBytes = await _apiService.DownloadFileAsync(fileId);
+        if (encryptedBytes == null) return null;
+
+        return _vaultCrypto.DecryptFile(encryptedBytes, vaultKey);
+    }
+
+    public Task<bool> DeleteFileAsync(Guid fileId)
+    {
+        return _apiService.DeleteFileAsync(fileId);
+    }
 }

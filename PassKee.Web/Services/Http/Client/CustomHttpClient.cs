@@ -73,5 +73,29 @@ public class CustomHttpClient
             return default;
         }
     }
-}
 
+    public async Task<TResponse?> PostMultipartAsync<TResponse>(string requestUri, HttpContent content)
+    {
+        var fullUri = string.IsNullOrEmpty(_apiUrl) ? requestUri : $"{_apiUrl}/{requestUri.TrimStart('/')}";
+        var request = new HttpRequestMessage(HttpMethod.Post, fullUri) { Content = content };
+        request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
+
+        var response = await _httpClient.SendAsync(request);
+        var responseString = await HandleHttpResponse(response);
+        return Deserialize<TResponse>(responseString);
+    }
+
+    public async Task<byte[]?> GetByteArrayAsync(string requestUri)
+    {
+        var fullUri = string.IsNullOrEmpty(_apiUrl) ? requestUri : $"{_apiUrl}/{requestUri.TrimStart('/')}";
+        var request = new HttpRequestMessage(HttpMethod.Get, fullUri);
+        request.SetBrowserRequestCredentials(BrowserRequestCredentials.Include);
+
+        var response = await _httpClient.SendAsync(request);
+        if (response.IsSuccessStatusCode)
+        {
+            return await response.Content.ReadAsByteArrayAsync();
+        }
+        return null;
+    }
+}

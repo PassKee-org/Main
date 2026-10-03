@@ -1,3 +1,4 @@
+using System;
 using Fluxor;
 using System.Linq;
 
@@ -16,6 +17,14 @@ public static class VaultsReducers
     [ReducerMethod]
     public static VaultsState ReduceLoadVaultsFailureAction(VaultsState state, LoadVaultsFailureAction action)
         => state with { IsLoading = false };
+
+    [ReducerMethod]
+    public static VaultsState ReduceUploadVaultFileAction(VaultsState state, UploadVaultFileAction action)
+        => state with { PendingFileUploads = state.PendingFileUploads + 1 };
+
+    [ReducerMethod]
+    public static VaultsState ReduceUploadVaultFileFinishedAction(VaultsState state, UploadVaultFileFinishedAction action)
+        => state with { PendingFileUploads = Math.Max(0, state.PendingFileUploads - 1) };
 
     [ReducerMethod]
     public static VaultsState ReduceSelectVaultAction(VaultsState state, SelectVaultAction action)

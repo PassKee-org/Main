@@ -14,5 +14,6 @@ public static class ContainerBuilderExtensions
         );
         builder.RegisterType<FakeReCaptchaService>().As<IReCaptchaService>().InstancePerDependency();
         builder.RegisterType<SmtpClientServiceMock>().As<ISmtpClientService>().InstancePerLifetimeScope();
+        builder.RegisterType<PassKee.Business.Testing.Services.GarageClientMock>().As<PassKee.Business.Services.Storage.Client.IFileStorageGarageClient>().SingleInstance();
     }
 }

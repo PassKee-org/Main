@@ -37,6 +37,7 @@ public partial class CredentialItemBlock : ComponentBase
         CredentialType.Password => "fa-solid fa-key",
         CredentialType.Card => "fa-solid fa-credit-card",
         CredentialType.SecureNote => "fa-solid fa-note-sticky",
+        CredentialType.File => "fa-solid fa-file",
         _ => "fa-solid fa-shield-halved"
     };
 
@@ -46,6 +47,7 @@ public partial class CredentialItemBlock : ComponentBase
         CredentialType.Password => "Password",
         CredentialType.Card => "Card",
         CredentialType.SecureNote => "Secure Note",
+        CredentialType.File => "File",
         _ => "Item"
     };
 }

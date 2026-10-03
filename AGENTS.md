@@ -179,10 +179,16 @@ The test suite consists of:
 ### Testing Guidelines:
 - **No Boilerplate in Tests**: Common setup routines and crypto helpers belong in `CryptoUtils` or `PassKee.Business.Testing`.
 - Verify database modifications by querying the database in assertions.
-- Run the full test suite before committing:
+- Run the full test suite before completing any task:
   ```bash
   dotnet test PassKee.sln
   ```
+
+---
+
+## Git & Version Control Rules
+
+- **No Autonomous Commits**: Agents must **NEVER** run `git commit` or `git push` autonomously. Do not create commits or push changes unless the user explicitly instructs you to do so in their prompt. Always leave code modifications in the working tree for the user to inspect and commit.
 
 ---
 
@@ -191,4 +197,6 @@ The test suite consists of:
 1. **Language**: Write all code comments, docstrings, commit messages, and documentation exclusively in **English**.
 2. **No Redundant Comments**: Do not write superficial action comments (e.g., `// Added: Invalid` or `// Set name`). Comments should explain *why*, not restate *what*.
 3. **C# Modern Features**: Use file-scoped namespaces, nullable reference types, records for immutable DTOs, and primary constructors where appropriate.
+4. **Git Discipline**: Never commit automatically; wait for explicit user confirmation.
+
 

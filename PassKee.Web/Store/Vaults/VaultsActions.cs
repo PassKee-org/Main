@@ -43,3 +43,11 @@ public record CreateCredentialAction(Guid RequestId, CredentialType Type, PassKe
 public record UpdateCredentialAction(Guid RequestId, Guid CredentialId, Guid? DirectoryId, CredentialType Type, PassKee.Api.Shared.Models.Vaults.Payloads.BaseCredentialPayload Payload, TaskCompletionSource<CredentialSaveResult> Completion);
 public record DeleteCredentialAction(Guid VaultId, Guid CredentialId);
 
+// File upload (independent of credential save: an uploaded file is attached to a credential only when the credential is saved)
+public record FileUploadResult(Guid RequestId, PassKee.Api.Shared.Models.Storage.StoredFileDto? File, string? ErrorMessage)
+{
+    public bool IsSuccess => File != null;
+}
+
+public record UploadVaultFileAction(Guid RequestId, Microsoft.AspNetCore.Components.Forms.IBrowserFile BrowserFile, TaskCompletionSource<FileUploadResult> Completion);
+public record UploadVaultFileFinishedAction(Guid RequestId);
