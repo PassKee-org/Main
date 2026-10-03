@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using Fluxor;
-using PassKee.Web.Core.Services.UI.Toast;
 using PassKee.Web.Services.Vaults;
 
 namespace PassKee.Web.Store.Vaults.Effects;
@@ -9,13 +8,11 @@ namespace PassKee.Web.Store.Vaults.Effects;
 public class CreateCredentialEffect : Effect<CreateCredentialAction>
 {
     private readonly IVaultClientService _vaultService;
-    private readonly IToastService _toastService;
     private readonly IState<VaultsState> _vaultsState;
 
-    public CreateCredentialEffect(IVaultClientService vaultService, IToastService toastService, IState<VaultsState> vaultsState)
+    public CreateCredentialEffect(IVaultClientService vaultService, IState<VaultsState> vaultsState)
     {
         _vaultService = vaultService;
-        _toastService = toastService;
         _vaultsState = vaultsState;
     }
 
@@ -23,23 +20,28 @@ public class CreateCredentialEffect : Effect<CreateCredentialAction>
     {
         try
         {
-            var vaultKey = _vaultsState.Value.ActiveVaultKey;
-            if (vaultKey == null)
+            var vaultState = _vaultsState.Value;
+            var vaultKey = vaultState.ActiveVaultKey;
+            var vaultId = vaultState.ActiveVaultId;
+            if (vaultKey == null || !vaultId.HasValue)
             {
-                _toastService.ShowError("Vault is locked or not selected.");
+                action.Completion.TrySetResult(new CredentialSaveResult(action.RequestId, vaultId, null, null, "Vault is locked or not selected."));
                 return;
             }
 
-            var created = await _vaultService.CreateCredentialAsync(action.VaultId, action.DirectoryId, action.Type, action.Payload, vaultKey);
-            if (created != null)
+            var created = await _vaultService.CreateCredentialAsync(vaultId.Value, vaultState.SelectedDirectoryId, action.Type, action.Payload, vaultKey);
+            if (created == null)
             {
-                _toastService.ShowSuccess("Credential created");
-                dispatcher.Dispatch(new LoadVaultDetailsAction(action.VaultId));
+                action.Completion.TrySetResult(new CredentialSaveResult(action.RequestId, vaultId, null, null, "Error creating credential"));
+                return;
             }
+
+            dispatcher.Dispatch(new LoadVaultDetailsAction(vaultId.Value));
+            action.Completion.TrySetResult(new CredentialSaveResult(action.RequestId, vaultId, created.Id, created.DirectoryId, null));
         }
         catch
         {
-            _toastService.ShowError("Error creating credential");
+            action.Completion.TrySetResult(new CredentialSaveResult(action.RequestId, null, null, null, "Error creating credential"));
         }
     }
 }

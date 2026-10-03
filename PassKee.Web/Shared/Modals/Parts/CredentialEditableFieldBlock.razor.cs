@@ -11,6 +11,7 @@ public partial class CredentialEditableFieldBlock : ComponentBase
 
     [Parameter, EditorRequired] public CredentialField Field { get; set; } = null!;
     [Parameter] public EventCallback OnRemove { get; set; }
+    [Parameter] public EventCallback OnFieldChanged { get; set; }
 
     private bool _isPasswordVisible;
 
@@ -30,7 +31,8 @@ public partial class CredentialEditableFieldBlock : ComponentBase
         if (result.IsSuccess && result.Data is string newPassword && !string.IsNullOrWhiteSpace(newPassword))
         {
             Field.Value = newPassword;
-            StateHasChanged();
+            await OnFieldChanged.InvokeAsync();
+            await InvokeAsync(StateHasChanged);
         }
     }
 }

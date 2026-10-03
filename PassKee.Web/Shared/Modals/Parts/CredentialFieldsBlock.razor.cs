@@ -7,4 +7,5 @@ namespace PassKee.Web.Shared.Modals.Parts;
 public partial class CredentialFieldsBlock : ComponentBase
 {
     [Parameter] public List<CredentialField> Fields { get; set; } = [];
+    [Parameter] public EventCallback OnFieldChanged { get; set; }
 }

@@ -2,10 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Fluxor;
 using Microsoft.AspNetCore.Components;
 using PassKee.Api.Shared.Models.Vaults.Payloads;
 using PassKee.Business.Common.Constants;
 using PassKee.Web.Core.Services.UI.Modal;
+using PassKee.Web.Core.Services.UI.Toast;
+using PassKee.Web.Store.Vaults;
 
 namespace PassKee.Web.Shared.Modals;
 
@@ -13,7 +16,12 @@ public partial class EditCredentialModal : ComponentBase
 {
     [CascadingParameter] public AppModalInstance ModalInstance { get; set; } = null!;
     [Inject] public IAppModalDialogService ModalService { get; set; } = null!;
+    [Inject] private IDispatcher Dispatcher { get; set; } = null!;
+    [Inject] private IState<VaultsState> VaultsState { get; set; } = null!;
+    [Inject] private IToastService ToastService { get; set; } = null!;
 
+    [Parameter] public Guid? CredentialId { get; set; }
+    [Parameter] public Guid? DirectoryId { get; set; }
     [Parameter] public bool IsEdit { get; set; }
     [Parameter] public bool StartInEditMode { get; set; }
     [Parameter] public CredentialType Type { get; set; } = CredentialType.Login;
@@ -34,6 +42,11 @@ public partial class EditCredentialModal : ComponentBase
     [Parameter] public string? Cvv { get; set; }
 
     private bool _isEditing;
+    private bool _isExisting;
+    private bool _isSaving;
+    private Guid? _credentialVaultId;
+    private Guid? _credentialId;
+    private Guid? _directoryId;
     private List<CredentialField> _additionalFields = [];
     private List<CredentialSection> _sections = [];
     private bool _isSaveAttempted;
@@ -57,12 +70,20 @@ public partial class EditCredentialModal : ComponentBase
 
     protected override void OnInitialized()
     {
-        _isEditing = !IsEdit || StartInEditMode;
+        _credentialVaultId = VaultsState.Value.ActiveVaultId;
+        _credentialId = CredentialId;
+        _directoryId = DirectoryId;
+        _isExisting = IsEdit || CredentialId.HasValue;
+        _isEditing = !_isExisting || StartInEditMode;
 
         _additionalFields = AdditionalFields.Select(CloneField).ToList();
         _sections = Sections.Select(CloneSection).ToList();
 
-        // Capture snapshot
+        CaptureSnapshot();
+    }
+
+    private void CaptureSnapshot()
+    {
         _initialTitle = Title;
         _initialNotes = Notes;
         _initialUsername = Username;
@@ -96,7 +117,9 @@ public partial class EditCredentialModal : ComponentBase
 
     private void CancelEdit()
     {
-        if (!IsEdit)
+        if (_isSaving) return;
+
+        if (!_isExisting)
         {
             Cancel();
             return;
@@ -146,6 +169,11 @@ public partial class EditCredentialModal : ComponentBase
         _sections.Remove(section);
     }
 
+    private void HandleCredentialFieldChanged()
+    {
+        StateHasChanged();
+    }
+
     private void OnTypeChanged(CredentialType? newType)
     {
         if (newType.HasValue)
@@ -189,13 +217,34 @@ public partial class EditCredentialModal : ComponentBase
 
     private void Cancel()
     {
+        if (_isSaving) return;
+
         ModalService.Close(ModalInstance, AppModalResult.Cancel());
     }
 
-    private void Save()
+    private Task Save() => SaveAsync(closeAfterSave: false);
+
+    private Task SaveAndClose() => SaveAsync(closeAfterSave: true);
+
+    private async Task SaveAsync(bool closeAfterSave)
     {
+        if (_isSaving) return;
+
         _isSaveAttempted = true;
         if (string.IsNullOrWhiteSpace(Title)) return;
+
+        var activeVaultId = VaultsState.Value.ActiveVaultId;
+        if (!activeVaultId.HasValue)
+        {
+            ToastService.ShowError("Vault is locked or not selected.");
+            return;
+        }
+
+        if (_credentialId.HasValue && _credentialVaultId != activeVaultId)
+        {
+            ToastService.ShowError("The active vault changed. Close and reopen this credential before saving.");
+            return;
+        }
 
         var result = new CredentialModalResult
         {
@@ -213,7 +262,70 @@ public partial class EditCredentialModal : ComponentBase
             Cvv = Cvv
         };
 
-        ModalService.Close(ModalInstance, AppModalResult.Ok(result));
+        var payload = BuildCredentialPayload(result);
+        var requestId = Guid.NewGuid();
+        var isCreate = !_credentialId.HasValue;
+        var completion = new TaskCompletionSource<CredentialSaveResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+        _isSaving = true;
+
+        CredentialSaveResult saveResult;
+        try
+        {
+            if (isCreate)
+            {
+                Dispatcher.Dispatch(new CreateCredentialAction(requestId, result.Type, payload, completion));
+            }
+            else
+            {
+                Dispatcher.Dispatch(new UpdateCredentialAction(requestId, _credentialId!.Value, _directoryId, result.Type, payload, completion));
+            }
+
+            saveResult = await completion.Task;
+        }
+        catch
+        {
+            ToastService.ShowError(isCreate ? "Error creating credential" : "Error updating credential");
+            return;
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+
+        if (!saveResult.IsSuccess || saveResult.RequestId != requestId)
+        {
+            ToastService.ShowError(saveResult.ErrorMessage ?? "Error saving credential");
+            return;
+        }
+
+        _credentialId = saveResult.CredentialId;
+        _credentialVaultId = saveResult.VaultId;
+        _directoryId = saveResult.DirectoryId;
+        _isExisting = true;
+        _isEditing = false;
+        _isSaveAttempted = false;
+        CaptureSnapshot();
+        ToastService.ShowSuccess(isCreate ? "Credential created" : "Credential updated");
+
+        if (closeAfterSave)
+        {
+            ModalService.Close(ModalInstance, AppModalResult.Ok());
+        }
+    }
+
+    private static BaseCredentialPayload BuildCredentialPayload(CredentialModalResult form)
+    {
+        BaseCredentialPayload payload = form.Type switch
+        {
+            CredentialType.Login => new LoginCredentialPayload { Title = form.Title, Notes = form.Notes, Username = form.Username, Password = form.Password, Website = form.Website },
+            CredentialType.Password => new PasswordCredentialPayload { Title = form.Title, Notes = form.Notes, Username = form.Username, Password = form.Password },
+            CredentialType.Card => new CardCredentialPayload { Title = form.Title, Notes = form.Notes, CardNumber = form.CardNumber, CardholderName = form.CardholderName, ExpirationDate = form.ExpirationDate, Cvv = form.Cvv },
+            _ => new SecureNoteCredentialPayload { Title = form.Title, Notes = form.Notes }
+        };
+
+        payload.AdditionalFields = form.AdditionalFields;
+        payload.Sections = form.Sections;
+        return payload;
     }
 }
 

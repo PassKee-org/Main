@@ -12,6 +12,7 @@ public partial class CredentialSectionBlock : ComponentBase
     [Parameter, EditorRequired] public CredentialSection Section { get; set; } = null!;
     [Parameter] public bool IsEditing { get; set; }
     [Parameter] public EventCallback OnRemove { get; set; }
+    [Parameter] public EventCallback OnFieldChanged { get; set; }
 
     private void AddField(CredentialFieldType type)
     {

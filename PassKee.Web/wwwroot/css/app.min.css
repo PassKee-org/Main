@@ -912,9 +912,6 @@
   .animate-spin {
     animation: var(--animate-spin);
   }
-  .cursor-grab {
-    cursor: grab;
-  }
   .cursor-not-allowed {
     cursor: not-allowed;
   }
@@ -2022,9 +2019,6 @@
   .text-emerald-900 {
     color: var(--color-emerald-900);
   }
-  .text-gray-300 {
-    color: var(--color-gray-300);
-  }
   .text-gray-400 {
     color: var(--color-gray-400);
   }
@@ -2408,13 +2402,6 @@
     &:is(:where(.group):hover *) {
       @media (hover: hover) {
         color: var(--color-blue-600);
-      }
-    }
-  }
-  .group-hover\:text-gray-400 {
-    &:is(:where(.group):hover *) {
-      @media (hover: hover) {
-        color: var(--color-gray-400);
       }
     }
   }
