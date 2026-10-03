@@ -34,9 +34,18 @@ node('build-node') {
         }
         
         runStage(Stage.SET_VARS) {
-            // withCredentials([string(credentialsId: "passkee_testing_clickup_secret_key", variable: 'AUTH_SECRET')]) {
-            //     containerEnvVars.put('Integration__ClickUp__SecurityKey', AUTH_SECRET)
-            // }
+            withCredentials([
+                usernamePassword(credentialsId: "passkee_testing_garage_credentials", usernameVariable: 'USER_NAME', passwordVariable: 'PASSWORD')
+            ]) {
+                containerEnvVars.put('Garage__AccessKey', USER_NAME)
+                containerEnvVars.put('Garage__SecretKey', PASSWORD)
+            }
+            withCredentials([string(credentialsId: "passkee_garage_url", variable: 'AUTH_SECRET')]) {
+                containerEnvVars.put('Garage__Url', AUTH_SECRET)
+            }
+            withCredentials([string(credentialsId: "passkee_testing_garage_bucket_name", variable: 'AUTH_SECRET')]) {
+                containerEnvVars.put('Garage__BucketName', AUTH_SECRET)
+            }
         }
 
         def testImage = docker.build('passkee-test-image', '--file=./devops/test/Dockerfile .')

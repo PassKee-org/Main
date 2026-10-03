@@ -185,7 +185,20 @@ node('build-node') {
         }
         withCredentials([string(credentialsId: "passkee_${environmentKey}_user_jwt", variable: 'AUTH_SECRET')]) {
             envVariables.put('App__Auth__SymmetricSecurityKey', AUTH_SECRET)
-        }                
+        }
+
+        withCredentials([
+            usernamePassword(credentialsId: "passkee_${environmentKey}_garage_credentials", usernameVariable: 'USER_NAME', passwordVariable: 'PASSWORD')
+        ]) {
+            containerEnvVars.put('Garage__AccessKey', USER_NAME)
+            containerEnvVars.put('Garage__SecretKey', PASSWORD)
+        }
+        withCredentials([string(credentialsId: "passkee_garage_url", variable: 'AUTH_SECRET')]) {
+            containerEnvVars.put('Garage__Url', AUTH_SECRET)
+        }
+        withCredentials([string(credentialsId: "passkee_${environmentKey}_garage_bucket_name", variable: 'AUTH_SECRET')]) {
+            containerEnvVars.put('Garage__BucketName', AUTH_SECRET)
+        }
     }
 
     parallel(
