@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -12,8 +13,8 @@ using PassKee.Api.Shared.Models.Storage;
 using PassKee.Api.Shared.Models.Storage.Requests;
 using PassKee.Api.Shared.Models.Vaults;
 using PassKee.Business.Common.Constants;
+using PassKee.Business.Common.Exceptions.Api;
 using PassKee.Business.Services.Storage.Client;
-using PassKee.Business.Testing.Services;
 using PassKee.Orm.Entities.Storage;
 using PassKee.Tests.Integration.Api.Core;
 using Xunit;
@@ -24,12 +25,11 @@ public class StorageControllerTests : BaseTest
 {
     private static readonly string UploadUrl = ApiUrl.StorageUpload;
 
-    private readonly GarageClientMock _garage;
+    private readonly IFileStorageGarageClient _garage;
 
     public StorageControllerTests(ApiCustomWebApplicationFactory factory) : base(factory)
     {
-        _garage = (GarageClientMock)ServiceProvider.GetRequiredService<IFileStorageGarageClient>();
-        _garage.Files.Clear();
+        _garage = ServiceProvider.GetRequiredService<IFileStorageGarageClient>();
     }
 
     [Fact]
@@ -51,7 +51,13 @@ public class StorageControllerTests : BaseTest
         Assert.Equal(content.Length, dbFile.Size);
         Assert.StartsWith($"vault/{vaultId}/", dbFile.CloudFilePath);
         Assert.EndsWith(".bin", dbFile.CloudFilePath);
-        Assert.Equal(content, _garage.Files[dbFile.CloudFilePath]);
+
+        using (var s3Stream = await _garage.GetAsStreamAsync(dbFile.CloudFilePath))
+        using (var ms = new MemoryStream())
+        {
+            await s3Stream.CopyToAsync(ms);
+            Assert.Equal(content, ms.ToArray());
+        }
 
         var getRes = await GetRequestAsync(ApiUrl.StorageFile(storedFile.Id), jwtToken);
         Assert.Equal(HttpStatusCode.OK, getRes.StatusCode);
@@ -60,7 +66,7 @@ public class StorageControllerTests : BaseTest
         var deleteRes = await DeleteRequestAsync(ApiUrl.StorageFile(storedFile.Id), jwtToken);
         Assert.Equal(HttpStatusCode.OK, deleteRes.StatusCode);
         Assert.Null(await GetVaultFileFromDbAsync(storedFile.Id));
-        Assert.Empty(_garage.Files);
+        await Assert.ThrowsAsync<RecordNotFoundException>(() => _garage.GetAsStreamAsync(dbFile.CloudFilePath));
     }
 
     [Fact]
@@ -74,7 +80,7 @@ public class StorageControllerTests : BaseTest
         var response = await anonymousClient.SendAsync(CreateUploadRequest(null, vaultId, new byte[] { 1 }));
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
-        Assert.Empty(_garage.Files);
+        Assert.Empty(await DbSessionProvider.CurrentSession.Query<FileStorageEntity>().ToListAsync());
     }
 
     [Fact]
@@ -94,8 +100,15 @@ public class StorageControllerTests : BaseTest
         var deleteRes = await DeleteRequestAsync(ApiUrl.StorageFile(storedFile.Id), strangerToken);
         await AssertNoAccessAsync(deleteRes);
 
-        Assert.NotNull(await GetVaultFileFromDbAsync(storedFile.Id));
-        Assert.Single(_garage.Files);
+        var ownerFile = await GetVaultFileFromDbAsync(storedFile.Id);
+        Assert.NotNull(ownerFile);
+        using (var s3Stream = await _garage.GetAsStreamAsync(ownerFile.CloudFilePath))
+        {
+            Assert.NotNull(s3Stream);
+        }
+
+        // Clean up
+        await DeleteRequestAsync(ApiUrl.StorageFile(storedFile.Id), ownerToken);
     }
 
     [Fact]
@@ -134,7 +147,6 @@ public class StorageControllerTests : BaseTest
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Contains("IncorrectFileException", await response.Content.ReadAsStringAsync());
-        Assert.Empty(_garage.Files);
         Assert.Empty(await DbSessionProvider.CurrentSession.Query<FileStorageEntity>().ToListAsync());
     }
 
@@ -147,6 +159,10 @@ public class StorageControllerTests : BaseTest
         var response = await UploadAsync(jwtToken, vaultId, new byte[FileStorageConstants.MaxEncryptedFileSize]);
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var storedFile = (await response.Content.ReadFromJsonAsync<StoredFileDto>())!;
+
+        // Clean up large file from Garage
+        await DeleteRequestAsync(ApiUrl.StorageFile(storedFile.Id), jwtToken);
     }
 
     [Fact]
@@ -158,7 +174,7 @@ public class StorageControllerTests : BaseTest
         var response = await UploadAsync(jwtToken, vaultId, []);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Empty(_garage.Files);
+        Assert.Empty(await DbSessionProvider.CurrentSession.Query<FileStorageEntity>().ToListAsync());
     }
 
     [Fact]
@@ -171,7 +187,7 @@ public class StorageControllerTests : BaseTest
         var response = await HttpClient.SendAsync(request);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Empty(_garage.Files);
+        Assert.Empty(await DbSessionProvider.CurrentSession.Query<FileStorageEntity>().ToListAsync());
     }
 
     private async Task<Guid> CreateVaultAsync(string jwtToken)

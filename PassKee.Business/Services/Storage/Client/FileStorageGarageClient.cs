@@ -7,6 +7,8 @@ using Amazon.S3.Model;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
+using PassKee.Business.Common.Exceptions.Api;
+
 namespace PassKee.Business.Services.Storage.Client;
 
 public class FileStorageGarageClient : IFileStorageGarageClient
@@ -62,20 +64,34 @@ public class FileStorageGarageClient : IFileStorageGarageClient
 
     public async Task<Stream> GetAsStreamAsync(string filePath, CancellationToken cancellationToken = default)
     {
-        var response = await _s3Client.GetObjectAsync(_bucketName, filePath, cancellationToken);
-        if (response == null)
+        try
         {
-            throw new Exception($"S3 File not found: {filePath}");
-        }
+            var response = await _s3Client.GetObjectAsync(_bucketName, filePath, cancellationToken);
+            if (response == null)
+            {
+                throw new RecordNotFoundException($"S3 File not found: {filePath}");
+            }
 
-        var fileStream = new MemoryStream();
-        await response.ResponseStream.CopyToAsync(fileStream, cancellationToken);
-        fileStream.Position = 0;
-        return fileStream;
+            var fileStream = new MemoryStream();
+            await response.ResponseStream.CopyToAsync(fileStream, cancellationToken);
+            fileStream.Position = 0;
+            return fileStream;
+        }
+        catch (AmazonS3Exception ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            throw new RecordNotFoundException($"S3 File not found: {filePath}");
+        }
     }
 
     public async Task DeleteAsync(string filePath, CancellationToken cancellationToken = default)
     {
-        await _s3Client.DeleteObjectAsync(_bucketName, filePath, cancellationToken);
+        try
+        {
+            await _s3Client.DeleteObjectAsync(_bucketName, filePath, cancellationToken);
+        }
+        catch (AmazonS3Exception ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            // S3 deletion is idempotent
+        }
     }
 }
