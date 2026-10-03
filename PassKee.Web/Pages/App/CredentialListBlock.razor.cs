@@ -33,7 +33,7 @@ public partial class CredentialListBlock : BaseReactiveComponent
     private async Task OpenCredentialModal(DecryptedCredential? cred)
     {
         if (!VaultsState.Value.ActiveVaultId.HasValue) return;
-        var vaultId = VaultsState.Value.ActiveVaultId.Value;
+        var directoryId = cred == null ? VaultsState.Value.SelectedDirectoryId : cred.DirectoryId;
 
         var parameters = new Dictionary<string, object?>
         {
@@ -42,7 +42,9 @@ public partial class CredentialListBlock : BaseReactiveComponent
             { "Title", cred?.Payload?.Title ?? string.Empty },
             { "Notes", cred?.Payload?.Notes ?? string.Empty },
             { "AdditionalFields", cred?.Payload?.AdditionalFields ?? [] },
-            { "Sections", cred?.Payload?.Sections ?? [] }
+            { "Sections", cred?.Payload?.Sections ?? [] },
+            { "CredentialId", (Guid?)cred?.Id },
+            { "DirectoryId", directoryId }
         };
 
         if (cred?.Payload is LoginCredentialPayload login)
@@ -64,32 +66,11 @@ public partial class CredentialListBlock : BaseReactiveComponent
             parameters.Add("Cvv", card.Cvv);
         }
 
-        var result = await ModalService.ShowAsync<EditCredentialModal>(parameters);
-        if (result.IsSuccess && result.Data != null)
+        await ModalService.ShowAsync<EditCredentialModal>(parameters, new PassKee.Web.Core.Services.UI.Modal.AppModalOptions
         {
-            var form = (CredentialModalResult)result.Data;
-            BaseCredentialPayload payload;
-            if (form.Type == CredentialType.Login)
-                payload = new LoginCredentialPayload { Title = form.Title, Notes = form.Notes, Username = form.Username, Password = form.Password, Website = form.Website };
-            else if (form.Type == CredentialType.Password)
-                payload = new PasswordCredentialPayload { Title = form.Title, Notes = form.Notes, Username = form.Username, Password = form.Password };
-            else if (form.Type == CredentialType.Card)
-                payload = new CardCredentialPayload { Title = form.Title, Notes = form.Notes, CardNumber = form.CardNumber, CardholderName = form.CardholderName, ExpirationDate = form.ExpirationDate, Cvv = form.Cvv };
-            else
-                payload = new SecureNoteCredentialPayload { Title = form.Title, Notes = form.Notes };
-
-            payload.AdditionalFields = form.AdditionalFields;
-            payload.Sections = form.Sections;
-
-            if (cred == null)
-            {
-                Dispatcher.Dispatch(new CreateCredentialAction(vaultId, VaultsState.Value.SelectedDirectoryId, form.Type, payload));
-            }
-            else
-            {
-                Dispatcher.Dispatch(new UpdateCredentialAction(vaultId, cred.Id, cred.DirectoryId, form.Type, payload));
-            }
-        }
+            Size = PassKee.Web.Core.Services.UI.Modal.AppModalSize.Large,
+            ModalClass = "!border-gray-200/80 !shadow-2xl"
+        });
     }
 
     private async Task DeleteCredential(DecryptedCredential cred)

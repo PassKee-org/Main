@@ -8,6 +8,33 @@ namespace PassKee.Tests.Unit.Web.Core.Ui.Shared.Components;
 
 public class AppInputTextTest
 {
+    [Fact]
+    public async Task Password_HasAssociatedLabelAndAccessibleVisibilityControl()
+    {
+        using var services = new ServiceCollection().AddLogging().BuildServiceProvider();
+        await using var renderer = new HtmlRenderer(services, services.GetRequiredService<ILoggerFactory>());
+        var parameters = ParameterView.FromDictionary(new Dictionary<string, object?>
+        {
+            [nameof(AppInputText.Label)] = "Password",
+            [nameof(AppInputText.Type)] = "password"
+        });
+
+        var markup = await renderer.Dispatcher.InvokeAsync(async () =>
+        {
+            var component = await renderer.RenderComponentAsync<AppInputText>(parameters);
+            return component.ToHtmlString();
+        });
+
+        var inputId = System.Text.RegularExpressions.Regex.Match(markup, "<input[^>]*id=\"([^\"]+)\"").Groups[1].Value;
+        Assert.NotEmpty(inputId);
+        Assert.Contains($"for=\"{inputId}\"", markup);
+        Assert.Contains($"aria-controls=\"{inputId}\"", markup);
+        Assert.Contains("type=\"password\"", markup);
+        Assert.Contains("aria-label=\"Show password\"", markup);
+        Assert.Contains("aria-pressed=\"false\"", markup);
+        Assert.DoesNotContain("tabindex=\"-1\"", markup);
+    }
+
     [Theory]
     [InlineData(null, false, true)]
     [InlineData("", false, true)]

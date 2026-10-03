@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using Fluxor;
-using PassKee.Web.Core.Services.UI.Toast;
 using PassKee.Web.Services.Vaults;
 
 namespace PassKee.Web.Store.Vaults.Effects;
@@ -9,13 +8,11 @@ namespace PassKee.Web.Store.Vaults.Effects;
 public class UpdateCredentialEffect : Effect<UpdateCredentialAction>
 {
     private readonly IVaultClientService _vaultService;
-    private readonly IToastService _toastService;
     private readonly IState<VaultsState> _vaultsState;
 
-    public UpdateCredentialEffect(IVaultClientService vaultService, IToastService toastService, IState<VaultsState> vaultsState)
+    public UpdateCredentialEffect(IVaultClientService vaultService, IState<VaultsState> vaultsState)
     {
         _vaultService = vaultService;
-        _toastService = toastService;
         _vaultsState = vaultsState;
     }
 
@@ -23,23 +20,28 @@ public class UpdateCredentialEffect : Effect<UpdateCredentialAction>
     {
         try
         {
-            var vaultKey = _vaultsState.Value.ActiveVaultKey;
-            if (vaultKey == null)
+            var vaultState = _vaultsState.Value;
+            var vaultKey = vaultState.ActiveVaultKey;
+            var vaultId = vaultState.ActiveVaultId;
+            if (vaultKey == null || !vaultId.HasValue)
             {
-                _toastService.ShowError("Vault is locked or not selected.");
+                action.Completion.TrySetResult(new CredentialSaveResult(action.RequestId, vaultId, null, null, "Vault is locked or not selected."));
                 return;
             }
 
             var updated = await _vaultService.UpdateCredentialAsync(action.CredentialId, action.DirectoryId, action.Type, action.Payload, vaultKey);
-            if (updated != null)
+            if (updated == null)
             {
-                _toastService.ShowSuccess("Credential updated");
-                dispatcher.Dispatch(new LoadVaultDetailsAction(action.VaultId));
+                action.Completion.TrySetResult(new CredentialSaveResult(action.RequestId, vaultId, null, null, "Error updating credential"));
+                return;
             }
+
+            dispatcher.Dispatch(new LoadVaultDetailsAction(vaultId.Value));
+            action.Completion.TrySetResult(new CredentialSaveResult(action.RequestId, vaultId, updated.Id, updated.DirectoryId, null));
         }
         catch
         {
-            _toastService.ShowError("Error updating credential");
+            action.Completion.TrySetResult(new CredentialSaveResult(action.RequestId, null, null, null, "Error updating credential"));
         }
     }
 }

@@ -34,7 +34,12 @@ public record UpdateDirectoryAction(Guid VaultId, Guid DirectoryId, Guid? Parent
 public record DeleteDirectoryAction(Guid VaultId, Guid DirectoryId);
 
 // Credential CRUD
-public record CreateCredentialAction(Guid VaultId, Guid? DirectoryId, CredentialType Type, PassKee.Api.Shared.Models.Vaults.Payloads.BaseCredentialPayload Payload);
-public record UpdateCredentialAction(Guid VaultId, Guid CredentialId, Guid? DirectoryId, CredentialType Type, PassKee.Api.Shared.Models.Vaults.Payloads.BaseCredentialPayload Payload);
+public record CredentialSaveResult(Guid RequestId, Guid? VaultId, Guid? CredentialId, Guid? DirectoryId, string? ErrorMessage)
+{
+    public bool IsSuccess => CredentialId.HasValue;
+}
+
+public record CreateCredentialAction(Guid RequestId, CredentialType Type, PassKee.Api.Shared.Models.Vaults.Payloads.BaseCredentialPayload Payload, TaskCompletionSource<CredentialSaveResult> Completion);
+public record UpdateCredentialAction(Guid RequestId, Guid CredentialId, Guid? DirectoryId, CredentialType Type, PassKee.Api.Shared.Models.Vaults.Payloads.BaseCredentialPayload Payload, TaskCompletionSource<CredentialSaveResult> Completion);
 public record DeleteCredentialAction(Guid VaultId, Guid CredentialId);
 
