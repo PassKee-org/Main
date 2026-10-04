@@ -13,6 +13,9 @@ public interface IVaultCryptoService
     byte[] EncryptDirectoryName(string name, byte[] vaultKey);
     string DecryptDirectoryName(byte[] encryptedName, byte[] vaultKey);
     List<DecryptedDirectory> DecryptDirectories(IEnumerable<DirectoryDto> directories, byte[] vaultKey);
+    byte[] EncryptTagName(string name, byte[] vaultKey);
+    string DecryptTagName(byte[] encryptedName, byte[] vaultKey);
+    List<DecryptedTag> DecryptTags(IEnumerable<TagDto> tags, byte[] vaultKey);
     byte[] EncryptCredentialPayload(BaseCredentialPayload payload, byte[] vaultKey);
     BaseCredentialPayload DecryptCredentialPayload(byte[] encryptedBody, CredentialType type, byte[] vaultKey);
     List<DecryptedCredential> DecryptCredentials(IEnumerable<CredentialDto> credentials, byte[] vaultKey);

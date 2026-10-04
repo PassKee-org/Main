@@ -64,6 +64,60 @@ public class VaultCryptoServiceTests
     }
 
     [Fact]
+    public void Should_Encrypt_And_Decrypt_Tag_Name()
+    {
+        var vaultKey = CryptoUtils.GenerateRandomBytes(32);
+        var tagName = "Production";
+
+        var encrypted = _service.EncryptTagName(tagName, vaultKey);
+        Assert.NotNull(encrypted);
+        Assert.NotEqual(tagName, System.Text.Encoding.UTF8.GetString(encrypted));
+
+        var decrypted = _service.DecryptTagName(encrypted, vaultKey);
+        Assert.Equal(tagName, decrypted);
+    }
+
+    [Fact]
+    public void Should_Decrypt_Tags_List()
+    {
+        var vaultKey = CryptoUtils.GenerateRandomBytes(32);
+        var vaultId = Guid.NewGuid();
+
+        var tags = new List<TagDto>
+        {
+            new() { Id = Guid.NewGuid(), VaultId = vaultId, EncryptedName = _service.EncryptTagName("Database", vaultKey) },
+            new() { Id = Guid.NewGuid(), VaultId = vaultId, EncryptedName = _service.EncryptTagName("Frontend", vaultKey) }
+        };
+
+        var decrypted = _service.DecryptTags(tags, vaultKey);
+        Assert.Equal(2, decrypted.Count);
+        Assert.Equal("Database", decrypted[0].Name);
+        Assert.Equal("Frontend", decrypted[1].Name);
+    }
+
+    [Fact]
+    public void Should_Preserve_TagIds_In_Encrypted_Credential_Payload()
+    {
+        var vaultKey = CryptoUtils.GenerateRandomBytes(32);
+        var tagId1 = Guid.NewGuid();
+        var tagId2 = Guid.NewGuid();
+
+        var payload = new LoginCredentialPayload
+        {
+            Title = "AWS Console",
+            Username = "admin",
+            TagIds = [tagId1, tagId2]
+        };
+
+        var encrypted = _service.EncryptCredentialPayload(payload, vaultKey);
+        var decrypted = _service.DecryptCredentialPayload(encrypted, CredentialType.Login, vaultKey);
+
+        Assert.Equal(2, decrypted.TagIds.Count);
+        Assert.Contains(tagId1, decrypted.TagIds);
+        Assert.Contains(tagId2, decrypted.TagIds);
+    }
+
+    [Fact]
     public void Should_Encrypt_And_Decrypt_LoginCredentialPayload()
     {
         var vaultKey = CryptoUtils.GenerateRandomBytes(32);

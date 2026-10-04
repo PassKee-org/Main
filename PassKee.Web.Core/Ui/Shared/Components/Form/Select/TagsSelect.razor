@@ -1,0 +1,156 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components
+@using PassKee.Web.Core.Ui.Shared.Components.Enums
+
+<div class="relative select-container @(FullWidth ? "w-full" : "w-auto") @Class">
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <label class="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+            @Label
+        </label>
+    }
+
+    @if (_isOpen)
+    {
+        <div class="fixed inset-0 z-40 bg-transparent"
+             @onclick="Close"
+             @onclick:stopPropagation="true">
+        </div>
+    }
+
+    <div class="min-h-10 px-3 py-1.5 w-full border rounded-xl transition-all duration-150 flex items-center justify-between bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 cursor-pointer select-none @BorderAndRingClasses @(Disabled ? "bg-slate-50 dark:bg-slate-900/50 text-slate-400 cursor-not-allowed" : "")"
+         tabindex="@(Disabled ? -1 : 0)"
+         @onclick="ToggleOpen"
+         @onclick:stopPropagation="true">
+        <div class="flex flex-1 flex-wrap items-center gap-1.5 min-w-0">
+            @if (_selectedTags.Any())
+            {
+                @foreach (var tag in _selectedTags)
+                {
+                    <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600">
+                        <i class="fa-solid fa-tag text-[10px] text-slate-400"></i>
+                        <span class="truncate max-w-[8rem]">@tag.Name</span>
+                        @if (!Disabled)
+                        {
+                            <button type="button"
+                                    class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5 cursor-pointer leading-none"
+                                    @onclick="() => RemoveTagAsync(tag.Id)"
+                                    @onclick:stopPropagation="true"
+                                    title="Remove">
+                                <i class="fa-solid fa-xmark text-[10px]"></i>
+                            </button>
+                        }
+                    </span>
+                }
+            }
+            else
+            {
+                <span class="text-slate-400 text-sm">
+                    @Placeholder
+                </span>
+            }
+        </div>
+
+        <div class="flex items-center gap-1.5 shrink-0 ml-2">
+            @if (!Disabled && _selectedTags.Any())
+            {
+                <button type="button"
+                        class="p-0.5 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                        @onclick="ClearAsync"
+                        @onclick:stopPropagation="true"
+                        title="Clear all">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+            }
+            <i class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform duration-200 @(_isOpen ? "rotate-180 text-blue-600" : "")"></i>
+        </div>
+    </div>
+
+    @if (_isOpen)
+    {
+        <div class="absolute left-0 top-full mt-1.5 z-50 min-w-full w-max max-w-xs md:max-w-md rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 shadow-xl shadow-slate-900/10 dark:shadow-black/40 overflow-hidden"
+             @onclick:stopPropagation="true">
+
+            <div class="relative flex items-center mb-1.5">
+                <i class="fa-solid fa-magnifying-glass absolute left-2.5 text-xs text-slate-400"></i>
+                <input type="text"
+                       class="w-full pl-7 pr-2.5 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-blue-500 text-slate-800 dark:text-slate-100"
+                       placeholder="Search tags..."
+                       value="@_searchText"
+                       @oninput="OnSearchInput" />
+            </div>
+
+            <div class="overflow-y-auto max-h-48 space-y-0.5 overscroll-contain">
+                @if (FilteredTags.Any())
+                {
+                    @foreach (var tag in FilteredTags)
+                    {
+                        var isSelected = _selectedIds.Contains(tag.Id);
+                        <div class="w-full px-2.5 py-1.5 rounded-lg text-xs md:text-sm flex items-center justify-between gap-2 transition-colors cursor-pointer select-none @(isSelected ? "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-medium" : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60")"
+                             @onclick="() => ToggleTagAsync(tag.Id)">
+                            <div class="flex items-center gap-2 truncate min-w-0">
+                                <div class="h-4 w-4 rounded border flex items-center justify-center shrink-0 transition-colors @(isSelected ? "bg-blue-600 border-blue-600 text-white" : "border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700")">
+                                    @if (isSelected)
+                                    {
+                                        <i class="fa-solid fa-check text-[10px]"></i>
+                                    }
+                                </div>
+                                <i class="fa-solid fa-tag text-xs text-slate-400 shrink-0"></i>
+                                <span class="truncate" title="@tag.Name">@tag.Name</span>
+                            </div>
+                        </div>
+                    }
+                }
+                else if (!CanCreateFromSearch && string.IsNullOrWhiteSpace(_newTagName))
+                {
+                    <div class="px-3 py-2 text-xs text-slate-400 text-center">
+                        No tags found
+                    </div>
+                }
+
+                @if (CanCreateFromSearch)
+                {
+                    <button type="button"
+                            class="w-full px-2.5 py-1.5 rounded-lg text-left text-xs md:text-sm flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 cursor-pointer select-none transition-colors font-medium border-t border-slate-100 dark:border-slate-700/60 mt-1"
+                            disabled="@_isCreating"
+                            @onclick="CreateTagFromSearchAsync">
+                        @if (_isCreating)
+                        {
+                            <i class="fa-solid fa-spinner fa-spin text-xs"></i>
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-plus text-xs"></i>
+                        }
+                        <span class="truncate">Create tag "<b class="font-semibold">@_searchText.Trim()</b>"</span>
+                    </button>
+                }
+            </div>
+
+            @if (OnCreateTag != null)
+            {
+                <div class="mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/60 flex items-center gap-1.5">
+                    <input type="text"
+                           class="flex-1 px-2.5 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-500"
+                           placeholder="New tag..."
+                           value="@_newTagName"
+                           @oninput="OnNewTagInput"
+                           @onkeydown="OnNewTagKeyDown" />
+                    <button type="button"
+                            class="px-2.5 py-1 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shrink-0 disabled:opacity-50 transition-colors flex items-center gap-1 cursor-pointer"
+                            disabled="@(string.IsNullOrWhiteSpace(_newTagName) || _isCreating)"
+                            @onclick="CreateNewTagAsync">
+                        @if (_isCreating)
+                        {
+                            <i class="fa-solid fa-spinner fa-spin text-xs"></i>
+                        }
+                        else
+                        {
+                            <i class="fa-solid fa-plus text-[10px]"></i>
+                            <span>Add</span>
+                        }
+                    </button>
+                </div>
+            }
+        </div>
+    }
+</div>

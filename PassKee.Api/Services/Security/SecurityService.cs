@@ -82,7 +82,23 @@ public class SecurityService : ISecurityService
             return await HasAccessToCredential(accessLevel, userId, credentialEntity);
         }
 
+        if (entity is TagEntity tagEntity)
+        {
+            return await HasAccessToTag(accessLevel, userId, tagEntity);
+        }
+
         throw new NotImplementedException($"Security checking not implemented for {entity.GetType().Name}");
+    }
+
+    private async Task<bool> HasAccessToTag(AccessLevel accessLevel, Guid userId, TagEntity tag)
+    {
+        if (tag.DeletedAt != null)
+        {
+            return false;
+        }
+
+        var vault = await _sessionProvider.CurrentSession.GetAsync<VaultEntity>(tag.VaultId);
+        return vault != null && HasAccessToVault(accessLevel, userId, vault);
     }
 
     private static bool HasAccessToVault(AccessLevel accessLevel, Guid userId, VaultEntity vault)

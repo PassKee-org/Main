@@ -8,4 +8,5 @@ public class VaultDetailsResponse : IResponse
     public VaultDto Vault { get; set; } = null!;
     public List<DirectoryDto> Directories { get; set; } = new List<DirectoryDto>();
     public List<CredentialDto> Credentials { get; set; } = new List<CredentialDto>();
+    public List<TagDto> Tags { get; set; } = new List<TagDto>();
 }

@@ -6,4 +6,5 @@ public abstract class BaseCredentialPayload
     public string? Notes { get; set; }
     public List<CredentialField> AdditionalFields { get; set; } = [];
     public List<CredentialSection> Sections { get; set; } = [];
+    public List<Guid> TagIds { get; set; } = [];
 }
