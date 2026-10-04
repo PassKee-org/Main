@@ -5,6 +5,7 @@ using PassKee.Api.Shared.Models.Vaults;
 using PassKee.Api.Shared.Models.Vaults.Payloads;
 using PassKee.Business.Common.Constants;
 using PassKee.Web.Core.Services.Vaults;
+using PassKee.Web.Models.Vaults;
 using PassKee.Web.Services.Http;
 using PassKee.Business.Common.Utils;
 
@@ -56,8 +57,9 @@ public class VaultClientService : IVaultClientService
         var vaultKey = _vaultCrypto.DecryptVaultKey(response.Vault.EncryptedVaultKey, userPrivateKey);
         var decryptedDirectories = _vaultCrypto.DecryptDirectories(response.Directories, vaultKey);
         var decryptedCredentials = _vaultCrypto.DecryptCredentials(response.Credentials, vaultKey);
+        var decryptedTags = _vaultCrypto.DecryptTags(response.Tags, vaultKey);
 
-        return new VaultDetailsResult(vaultKey, decryptedDirectories, decryptedCredentials);
+        return new VaultDetailsResult(vaultKey, decryptedDirectories, decryptedCredentials, decryptedTags);
     }
 
     public async Task<DirectoryDto?> CreateDirectoryAsync(Guid vaultId, Guid? parentId, string name, byte[] vaultKey)
@@ -122,6 +124,36 @@ public class VaultClientService : IVaultClientService
     public Task<bool> DeleteCredentialAsync(Guid credentialId)
     {
         return _apiService.DeleteCredentialAsync(credentialId);
+    }
+
+    public async Task<DecryptedTag?> CreateTagAsync(Guid vaultId, string name, byte[] vaultKey)
+    {
+        var encryptedName = _vaultCrypto.EncryptTagName(name, vaultKey);
+        var request = new CreateTagRequest
+        {
+            VaultId = vaultId,
+            EncryptedName = encryptedName
+        };
+
+        var dto = await _apiService.CreateTagAsync(request);
+        if (dto == null) return null;
+
+        return new DecryptedTag(dto.Id, dto.VaultId, name);
+    }
+
+    public async Task<DecryptedTag?> UpdateTagAsync(Guid tagId, string name, byte[] vaultKey)
+    {
+        var encryptedName = _vaultCrypto.EncryptTagName(name, vaultKey);
+        var request = new UpdateTagRequest
+        {
+            TagId = tagId,
+            EncryptedName = encryptedName
+        };
+
+        var dto = await _apiService.UpdateTagAsync(tagId, request);
+        if (dto == null) return null;
+
+        return new DecryptedTag(dto.Id, dto.VaultId, name);
     }
 
     public async Task<PassKee.Api.Shared.Models.Storage.StoredFileDto?> UploadFileAsync(Guid vaultId, byte[] rawFileBytes, string originalFileName, byte[] vaultKey)

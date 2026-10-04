@@ -15,6 +15,7 @@ public class GetVaultDetailsRequestHandler : IAsyncRequestHandler<GetVaultDetail
     private readonly IVaultDao _vaultDao;
     private readonly IDirectoryDao _directoryDao;
     private readonly ICredentialDao _credentialDao;
+    private readonly ITagDao _tagDao;
     private readonly ISecurityService _securityService;
     private readonly IApiRequestService _apiRequestService;
     private readonly IMapper _mapper;
@@ -23,6 +24,7 @@ public class GetVaultDetailsRequestHandler : IAsyncRequestHandler<GetVaultDetail
         IVaultDao vaultDao,
         IDirectoryDao directoryDao,
         ICredentialDao credentialDao,
+        ITagDao tagDao,
         ISecurityService securityService,
         IApiRequestService apiRequestService,
         IMapper mapper)
@@ -30,6 +32,7 @@ public class GetVaultDetailsRequestHandler : IAsyncRequestHandler<GetVaultDetail
         _vaultDao = vaultDao;
         _directoryDao = directoryDao;
         _credentialDao = credentialDao;
+        _tagDao = tagDao;
         _securityService = securityService;
         _apiRequestService = apiRequestService;
         _mapper = mapper;
@@ -44,12 +47,14 @@ public class GetVaultDetailsRequestHandler : IAsyncRequestHandler<GetVaultDetail
 
         var directories = await _directoryDao.GetByVaultId(request.VaultId);
         var credentials = await _credentialDao.GetByVaultId(request.VaultId);
+        var tags = await _tagDao.GetByVaultId(request.VaultId);
 
         return new VaultDetailsResponse
         {
             Vault = _mapper.Map<VaultDto>(vault),
             Directories = _mapper.Map<List<DirectoryDto>>(directories),
-            Credentials = _mapper.Map<List<CredentialDto>>(credentials)
+            Credentials = _mapper.Map<List<CredentialDto>>(credentials),
+            Tags = _mapper.Map<List<TagDto>>(tags)
         };
     }
 }

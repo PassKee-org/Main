@@ -23,6 +23,7 @@ public class DbCleanUpService : IDbCleanUpService
             "queues",
             "credentials",
             "directories",
+            "tags",
             "vault_file_storage",
             "file_storage",
             "vaults",

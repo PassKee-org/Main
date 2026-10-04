@@ -60,6 +60,38 @@ public class VaultCryptoService : IVaultCryptoService
         return list;
     }
 
+    public byte[] EncryptTagName(string name, byte[] vaultKey)
+    {
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(vaultKey);
+
+        return CryptoUtils.AesGcmEncrypt(vaultKey, Encoding.UTF8.GetBytes(name));
+    }
+
+    public string DecryptTagName(byte[] encryptedName, byte[] vaultKey)
+    {
+        ArgumentNullException.ThrowIfNull(encryptedName);
+        ArgumentNullException.ThrowIfNull(vaultKey);
+
+        var decryptedBytes = CryptoUtils.AesGcmDecrypt(vaultKey, encryptedName);
+        return Encoding.UTF8.GetString(decryptedBytes);
+    }
+
+    public List<DecryptedTag> DecryptTags(IEnumerable<TagDto> tags, byte[] vaultKey)
+    {
+        ArgumentNullException.ThrowIfNull(tags);
+        ArgumentNullException.ThrowIfNull(vaultKey);
+
+        var list = new List<DecryptedTag>();
+        foreach (var tag in tags)
+        {
+            var name = DecryptTagName(tag.EncryptedName, vaultKey);
+            list.Add(new DecryptedTag(tag.Id, tag.VaultId, name));
+        }
+
+        return list;
+    }
+
     public byte[] EncryptCredentialPayload(BaseCredentialPayload payload, byte[] vaultKey)
     {
         ArgumentNullException.ThrowIfNull(payload);

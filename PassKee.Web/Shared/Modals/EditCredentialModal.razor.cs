@@ -9,6 +9,7 @@ using PassKee.Api.Shared.Models.Vaults.Payloads;
 using PassKee.Business.Common.Constants;
 using PassKee.Web.Core.Services.UI.Modal;
 using PassKee.Web.Core.Services.UI.Toast;
+using PassKee.Web.Models.Vaults;
 using PassKee.Web.Store.Vaults;
 
 namespace PassKee.Web.Shared.Modals;
@@ -28,6 +29,7 @@ public partial class EditCredentialModal : ComponentBase
     [Parameter] public CredentialType Type { get; set; } = CredentialType.Login;
     [Parameter] public string Title { get; set; } = string.Empty;
     [Parameter] public string? Notes { get; set; }
+    [Parameter] public List<Guid> TagIds { get; set; } = [];
     [Parameter] public List<CredentialField> AdditionalFields { get; set; } = [];
     [Parameter] public List<CredentialSection> Sections { get; set; } = [];
 
@@ -51,6 +53,7 @@ public partial class EditCredentialModal : ComponentBase
     private Guid? _credentialVaultId;
     private Guid? _credentialId;
     private Guid? _directoryId;
+    private List<Guid> _tagIds = [];
     private List<CredentialField> _additionalFields = [];
     private List<CredentialSection> _sections = [];
     private bool _isSaveAttempted;
@@ -58,6 +61,7 @@ public partial class EditCredentialModal : ComponentBase
     // Snapshot state for reverting when canceling an edit of existing credential
     private string _initialTitle = string.Empty;
     private string? _initialNotes;
+    private List<Guid> _initialTagIds = [];
     private string? _initialUsername;
     private string? _initialPassword;
     private string? _initialWebsite;
@@ -81,6 +85,7 @@ public partial class EditCredentialModal : ComponentBase
         _isExisting = IsEdit || CredentialId.HasValue;
         _isEditing = !_isExisting || StartInEditMode;
 
+        _tagIds = TagIds.ToList();
         _additionalFields = AdditionalFields.Select(CloneField).ToList();
         _sections = Sections.Select(CloneSection).ToList();
 
@@ -91,6 +96,7 @@ public partial class EditCredentialModal : ComponentBase
     {
         _initialTitle = Title;
         _initialNotes = Notes;
+        _initialTagIds = _tagIds.ToList();
         _initialUsername = Username;
         _initialPassword = Password;
         _initialWebsite = Website;
@@ -135,6 +141,7 @@ public partial class EditCredentialModal : ComponentBase
         // Revert to initial snapshot
         Title = _initialTitle;
         Notes = _initialNotes;
+        _tagIds = _initialTagIds.ToList();
         Username = _initialUsername;
         Password = _initialPassword;
         Website = _initialWebsite;
@@ -225,6 +232,28 @@ public partial class EditCredentialModal : ComponentBase
         }
     }
 
+    private IEnumerable<DecryptedTag> SelectedTags =>
+        VaultsState.Value.Tags.Where(t => _tagIds.Contains(t.Id));
+
+    private void OnTagsChanged(IEnumerable<Guid> ids)
+    {
+        _tagIds = ids.ToList();
+    }
+
+    private async Task<DecryptedTag?> CreateTagAsync(string name)
+    {
+        var activeVaultId = VaultsState.Value.ActiveVaultId;
+        if (!activeVaultId.HasValue)
+        {
+            ToastService.ShowError("Vault is locked or not selected.");
+            return null;
+        }
+
+        var completion = new TaskCompletionSource<DecryptedTag?>(TaskCreationOptions.RunContinuationsAsynchronously);
+        Dispatcher.Dispatch(new CreateTagAction(activeVaultId.Value, name, completion));
+        return await completion.Task;
+    }
+
     private void Cancel()
     {
         if (_isSaving) return;
@@ -267,6 +296,7 @@ public partial class EditCredentialModal : ComponentBase
             Type = Type,
             Title = Title,
             Notes = Notes,
+            TagIds = _tagIds.ToList(),
             AdditionalFields = _additionalFields,
             Sections = _sections,
             Username = Username,
@@ -341,6 +371,7 @@ public partial class EditCredentialModal : ComponentBase
             _ => new SecureNoteCredentialPayload { Title = form.Title, Notes = form.Notes }
         };
 
+        payload.TagIds = form.TagIds;
         payload.AdditionalFields = form.AdditionalFields;
         payload.Sections = form.Sections;
         return payload;
@@ -352,6 +383,7 @@ public class CredentialModalResult
     public CredentialType Type { get; set; }
     public string Title { get; set; } = string.Empty;
     public string? Notes { get; set; }
+    public List<Guid> TagIds { get; set; } = [];
     public List<CredentialField> AdditionalFields { get; set; } = [];
     public List<CredentialSection> Sections { get; set; } = [];
     public string? Username { get; set; }

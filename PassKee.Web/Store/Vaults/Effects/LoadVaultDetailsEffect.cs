@@ -28,7 +28,7 @@ public class LoadVaultDetailsEffect : Effect<LoadVaultDetailsAction>
             }
 
             var result = await _vaultService.GetVaultDetailsAsync(action.VaultId, userPrivateKey);
-            dispatcher.Dispatch(new LoadVaultDetailsSuccessAction(action.VaultId, result.ActiveVaultKey, result.Directories, result.Credentials));
+            dispatcher.Dispatch(new LoadVaultDetailsSuccessAction(action.VaultId, result.ActiveVaultKey, result.Directories, result.Credentials, result.Tags));
         }
         catch
         {

@@ -49,7 +49,24 @@ public static class VaultsReducers
             ActiveVaultId = action.VaultId,
             ActiveVaultKey = action.ActiveVaultKey,
             Directories = action.Directories, 
-            Credentials = action.Credentials 
+            Credentials = action.Credentials,
+            Tags = action.Tags
+        };
+
+    [ReducerMethod]
+    public static VaultsState ReduceCreateTagSuccessAction(VaultsState state, CreateTagSuccessAction action)
+        => state with
+        {
+            Tags = state.Tags.Any(t => t.Id == action.Tag.Id)
+                ? state.Tags
+                : state.Tags.Append(action.Tag).ToList()
+        };
+
+    [ReducerMethod]
+    public static VaultsState ReduceUpdateTagSuccessAction(VaultsState state, UpdateTagSuccessAction action)
+        => state with
+        {
+            Tags = state.Tags.Select(t => t.Id == action.Tag.Id ? action.Tag : t).ToList()
         };
 
     [ReducerMethod]

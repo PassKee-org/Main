@@ -11,7 +11,8 @@ namespace PassKee.Web.Services.Vaults;
 public record VaultDetailsResult(
     byte[] ActiveVaultKey,
     List<DecryptedDirectory> Directories,
-    List<DecryptedCredential> Credentials
+    List<DecryptedCredential> Credentials,
+    List<DecryptedTag> Tags
 );
 
 public interface IVaultClientService
@@ -25,6 +26,8 @@ public interface IVaultClientService
     Task<CredentialDto?> CreateCredentialAsync(Guid vaultId, Guid? directoryId, CredentialType type, BaseCredentialPayload payload, byte[] vaultKey);
     Task<CredentialDto?> UpdateCredentialAsync(Guid credentialId, Guid? directoryId, CredentialType type, BaseCredentialPayload payload, byte[] vaultKey);
     Task<bool> DeleteCredentialAsync(Guid credentialId);
+    Task<DecryptedTag?> CreateTagAsync(Guid vaultId, string name, byte[] vaultKey);
+    Task<DecryptedTag?> UpdateTagAsync(Guid tagId, string name, byte[] vaultKey);
     Task<PassKee.Api.Shared.Models.Storage.StoredFileDto?> UploadFileAsync(Guid vaultId, byte[] rawFileBytes, string originalFileName, byte[] vaultKey);
     Task<byte[]?> DownloadFileAsync(Guid fileId, byte[] vaultKey);
     Task<bool> DeleteFileAsync(Guid fileId);

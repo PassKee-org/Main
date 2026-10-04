@@ -1,0 +1,14 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components
+
+@if (ResolvedNames.Any())
+{
+    <div class="flex flex-wrap items-center gap-1.5 @Class">
+        @foreach (var name in ResolvedNames)
+        {
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 dark:bg-slate-700/70 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-slate-600">
+                <i class="fa-solid fa-tag text-[9px] text-slate-400"></i>
+                <span class="truncate max-w-[8rem]" title="@name">@name</span>
+            </span>
+        }
+    </div>
+}

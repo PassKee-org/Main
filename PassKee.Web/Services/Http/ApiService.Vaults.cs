@@ -60,4 +60,16 @@ public partial class ApiService
         var res = await DeleteAsync<ActionResponse>(ApiUrl.VaultCredential(credentialId));
         return res?.Success ?? false;
     }
+
+    public async Task<TagDto?> CreateTagAsync(CreateTagRequest request)
+    {
+        var res = await PostAsync<TagResponse>(ApiUrl.VaultTags, request);
+        return res?.Tag;
+    }
+
+    public async Task<TagDto?> UpdateTagAsync(Guid tagId, UpdateTagRequest request)
+    {
+        var res = await PutAsync<TagResponse>(ApiUrl.VaultTag(tagId), request);
+        return res?.Tag;
+    }
 }

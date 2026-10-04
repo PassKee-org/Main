@@ -1,12 +1,19 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Fluxor;
 using Microsoft.AspNetCore.Components;
 using PassKee.Business.Common.Constants;
 using PassKee.Web.Models.Vaults;
+using PassKee.Web.Store.Vaults;
 
 namespace PassKee.Web.Pages.App;
 
 public partial class CredentialItemBlock : ComponentBase
 {
+    [Inject]
+    private IState<VaultsState> VaultsState { get; set; } = null!;
+
     [Parameter]
     public DecryptedCredential Credential { get; set; } = null!;
 
@@ -50,4 +57,9 @@ public partial class CredentialItemBlock : ComponentBase
         CredentialType.File => "File",
         _ => "Item"
     };
+
+    protected IEnumerable<DecryptedTag> CredentialTags =>
+        Credential.Payload?.TagIds != null && Credential.Payload.TagIds.Count > 0
+            ? VaultsState.Value.Tags.Where(t => Credential.Payload.TagIds.Contains(t.Id))
+            : Enumerable.Empty<DecryptedTag>();
 }

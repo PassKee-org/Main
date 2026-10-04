@@ -11,5 +11,6 @@ public class VaultProfile : Profile
         CreateMap<VaultEntity, VaultDto>();
         CreateMap<DirectoryEntity, DirectoryDto>();
         CreateMap<CredentialEntity, CredentialDto>();
+        CreateMap<TagEntity, TagDto>();
     }
 }

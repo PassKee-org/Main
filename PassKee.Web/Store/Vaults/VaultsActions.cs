@@ -17,9 +17,16 @@ public record LoadVaultDetailsSuccessAction(
     Guid VaultId,
     byte[] ActiveVaultKey,
     List<DecryptedDirectory> Directories, 
-    List<DecryptedCredential> Credentials
+    List<DecryptedCredential> Credentials,
+    List<DecryptedTag> Tags
 );
 public record LoadVaultDetailsFailureAction;
+
+// Tag Actions
+public record CreateTagAction(Guid VaultId, string Name, TaskCompletionSource<DecryptedTag?>? Completion = null);
+public record CreateTagSuccessAction(DecryptedTag Tag);
+public record UpdateTagAction(Guid TagId, string Name, TaskCompletionSource<DecryptedTag?>? Completion = null);
+public record UpdateTagSuccessAction(DecryptedTag Tag);
 
 // Vault Management
 public record CreateVaultAction(string Name, string Description);
