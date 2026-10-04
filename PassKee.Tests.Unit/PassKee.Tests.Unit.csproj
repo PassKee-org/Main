@@ -28,6 +28,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\PassKee.Web\PassKee.Web.csproj" />
         <ProjectReference Include="..\PassKee.Business.Common\PassKee.Business.Common.csproj" />
         <ProjectReference Include="..\PassKee.Business.Extensions\PassKee.Business.Extensions.csproj" />
         <ProjectReference Include="..\PassKee.Web.Core\PassKee.Web.Core.csproj" />
@@ -38,6 +39,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <None Update="Fixtures\*.kdbx" CopyToOutputDirectory="PreserveNewest" />
         <None Update="appsettings.Testing.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>

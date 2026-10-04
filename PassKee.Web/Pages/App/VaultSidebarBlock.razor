@@ -21,6 +21,15 @@
                     <i class="fa-solid fa-plus text-xs"></i>
                 </AppButton>
             </div>
+            <AppButton Color="@ComponentColor.Primary"
+                       Variant="@ButtonVariant.Light"
+                       Size="@ComponentSize.Small"
+                       OnClick="@OpenImportModal"
+                       Title="Import from KeePass"
+                       Disabled="@(!VaultsState.Value.ActiveVaultId.HasValue || VaultsState.Value.ActiveVaultKey == null || VaultsState.Value.IsLoading || ImportState.Value.IsRunning)"
+                       Class="mb-3 w-full">
+                <i class="fa-solid fa-file-import mr-2" aria-hidden="true"></i>Import
+            </AppButton>
             <AppSelect TValue="Guid?"
                        Value="@VaultsState.Value.ActiveVaultId"
                        ValueChanged="@OnSelectVault"

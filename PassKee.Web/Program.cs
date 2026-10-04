@@ -51,6 +51,9 @@ builder.Services.AddScoped<PassKee.Web.Services.Storage.ISessionLockStorageServi
 builder.Services.AddScoped<PassKee.Web.Services.Auth.IAuthClientService, PassKee.Web.Services.Auth.AuthClientService>();
 builder.Services.AddScoped<PassKee.Web.Core.Services.Vaults.IVaultCryptoService, PassKee.Web.Core.Services.Vaults.VaultCryptoService>();
 builder.Services.AddScoped<PassKee.Web.Services.Vaults.IVaultClientService, PassKee.Web.Services.Vaults.VaultClientService>();
+builder.Services.AddScoped<PassKee.Web.Services.Import.IKdbxImportReader, PassKee.Web.Services.Import.KeePassImportReader>();
+builder.Services.AddScoped<PassKee.Web.Services.Import.IVaultImportService, PassKee.Web.Services.Import.VaultImportService>();
+builder.Services.AddScoped<PassKee.Web.Services.Import.VaultImportSession>();
 
 // UI Services
 builder.Services.AddScoped<PassKee.Web.Core.Services.UI.Toast.IToastService, PassKee.Web.Core.Services.UI.Toast.ToastService>();

@@ -108,7 +108,7 @@ public class JwtRefreshMiddleware
                                     context,
                                     HttpCookieKeyEnum.JwtToken,
                                     refreshedJwt,
-                                    DateTimeOffset.UtcNow.AddDays(30)
+                                    new DateTimeOffset(DateTime.SpecifyKind(accessTokenEntity.ExpirationTime, DateTimeKind.Utc))
                                 );
                                 httpHeadersService.Append(HttpHeaderKeyEnum.JwtToken, refreshedJwt);
                             }

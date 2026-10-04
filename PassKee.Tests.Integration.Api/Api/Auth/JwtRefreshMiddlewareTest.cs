@@ -1,9 +1,11 @@
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Net.Http.Headers;
 using NHibernate.Linq;
 using PassKee.Api.Shared.Constants;
 using PassKee.Api.Shared.Dto.RequestsAndResponses.Auth;
@@ -31,8 +33,10 @@ public class JwtRefreshMiddlewareTest : BaseTest
         _accessTokenDao = ServiceProvider.GetRequiredService<IUserAccessTokenDao>();
     }
 
-    [Fact]
-    public async Task ShouldRefreshJwtTokenFromCookiesWhenExpiringSoon()
+    [Theory]
+    [InlineData(10)]
+    [InlineData(-600)]
+    public async Task ShouldRefreshJwtTokenFromCookiesWhenExpiringOrExpired(int expirationSeconds)
     {
         var email = $"refresh_expiring_{Guid.NewGuid():N}@example.com";
         var regData = CryptoUtils.PrepareClientRegistration("Password#2026");
@@ -62,12 +66,12 @@ public class JwtRefreshMiddlewareTest : BaseTest
         var accessToken = await DbSessionProvider.CurrentSession.Query<UserAccessTokenEntity>()
             .SingleAsync(item => item.Token == accessTokenCookie);
 
-        // Create an expiring JWT token (e.g. expiring in 10 seconds)
-        var expirationTime = DateTime.UtcNow.AddSeconds(10);
+        var expirationTime = DateTime.UtcNow.AddSeconds(expirationSeconds);
         var expiringJwtToken = _jwtService.BuildJwt(
             accessToken.User.Id,
             accessToken.Id,
-            expirationTime
+            expirationTime,
+            notBeforeTime: expirationTime.AddMinutes(-1)
         );
 
         await DbSessionProvider.CurrentSession.SaveAsync(new UserJwtTokenEntity
@@ -97,6 +101,11 @@ public class JwtRefreshMiddlewareTest : BaseTest
         Assert.NotEqual(expiringJwtToken, refreshedJwtToken);
         Assert.True(_jwtService.IsValidJwt(refreshedJwtToken));
         Assert.Equal(accessToken.User.Id, _jwtService.GetUserId(refreshedJwtToken));
+        var refreshedCookie = SetCookieHeaderValue.ParseList(response.Headers.GetValues("Set-Cookie").ToList())
+            .Single(cookie => cookie.Name.ToString() == jwtCookieName);
+        var sessionExpires = new DateTimeOffset(DateTime.SpecifyKind(accessToken.ExpirationTime, DateTimeKind.Utc));
+        Assert.NotNull(refreshedCookie.Expires);
+        Assert.InRange((refreshedCookie.Expires.Value - sessionExpires).Duration(), TimeSpan.Zero, TimeSpan.FromSeconds(1));
     }
 
     [Fact]
@@ -127,6 +136,12 @@ public class JwtRefreshMiddlewareTest : BaseTest
         Assert.NotNull(jwtCookie);
         Assert.NotNull(accessTokenCookie);
 
+        var responseCookies = SetCookieHeaderValue.ParseList(regResponse.Headers.GetValues("Set-Cookie").ToList());
+        var jwtCookieExpiry = responseCookies.Single(cookie => cookie.Name.ToString() == PrepareCookieName(HttpCookieKeyEnum.JwtToken)).Expires;
+        var accessCookieExpiry = responseCookies.Single(cookie => cookie.Name.ToString() == PrepareCookieName(HttpCookieKeyEnum.AccessToken)).Expires;
+        Assert.NotNull(jwtCookieExpiry);
+        Assert.Equal(accessCookieExpiry, jwtCookieExpiry);
+
         var request = new HttpRequestMessage(HttpMethod.Get, ApiUrl.AuthCheck);
         var jwtCookieName = PrepareCookieName(HttpCookieKeyEnum.JwtToken);
         var accessTokenCookieName = PrepareCookieName(HttpCookieKeyEnum.AccessToken);
@@ -142,8 +157,10 @@ public class JwtRefreshMiddlewareTest : BaseTest
         Assert.Null(response.GetSetCookieValue(HttpCookieKeyEnum.JwtToken.GetKey()));
     }
 
-    [Fact]
-    public async Task ShouldRejectWhenAccessTokenIsExpiredInDb()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ShouldRejectWhenAccessTokenIsExpiredInDb(bool expiredJwt)
     {
         var email = $"expired_token_{Guid.NewGuid():N}@example.com";
         var regData = CryptoUtils.PrepareClientRegistration("Password#2026");
@@ -175,6 +192,13 @@ public class JwtRefreshMiddlewareTest : BaseTest
             .SingleAsync(item => item.Token == accessTokenCookie);
         accessToken.ExpirationTime = DateTime.UtcNow.AddMinutes(-10);
         await DbSessionProvider.CurrentSession.SaveOrUpdateAsync(accessToken);
+        var jwtToSend = expiredJwt
+            ? _jwtService.BuildJwt(
+                _jwtService.GetUserId(jwtCookie),
+                accessToken.Id,
+                expirationTime: DateTime.UtcNow.AddMinutes(-10),
+                notBeforeTime: DateTime.UtcNow.AddMinutes(-20))
+            : jwtCookie;
         await FlushDbChanges(isClearSession: true);
 
         var request = new HttpRequestMessage(HttpMethod.Get, ApiUrl.AuthCheck);
@@ -182,12 +206,13 @@ public class JwtRefreshMiddlewareTest : BaseTest
         var accessTokenCookieName = PrepareCookieName(HttpCookieKeyEnum.AccessToken);
         request.Headers.Add(
             "Cookie",
-            $"{jwtCookieName}={jwtCookie}; " +
+            $"{jwtCookieName}={jwtToSend}; " +
             $"{accessTokenCookieName}={accessTokenCookie}"
         );
 
         var response = await HttpClient.SendAsync(request);
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        Assert.Null(response.GetSetCookieValue(HttpCookieKeyEnum.JwtToken.GetKey()));
     }
 }
 

@@ -9,7 +9,6 @@ public class HttpCookiesService: IHttpCookiesService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly string[] _cookieDomains;
-    private readonly int _jwtTokenLifeTime;
     private readonly int _accessTokenLifeTime;
     private readonly string _cookieKeyPostfix;
 
@@ -20,18 +19,16 @@ public class HttpCookiesService: IHttpCookiesService
     {
         _httpContextAccessor = httpContextAccessor;
         _cookieDomains = configuration.GetSection("App:Auth:CookieDomains").Get<string[]>() ?? [];
-        _jwtTokenLifeTime = configuration.GetValue<int>("App:Auth:JwtLifetime", 60);
         _cookieKeyPostfix = configuration.GetValue<string>("App:Auth:CookieKeyPostfix") ?? string.Empty;
         _accessTokenLifeTime = configuration.GetValue<int>("App:Auth:AccessTokenLifetime", 60);
     }
     
     public void AppendAuthCookies(string accessToken, string jwtToken)
     {
-        var jwtTimeSpan = DateTimeOffset.UtcNow.AddMinutes(_jwtTokenLifeTime);
         var accessTokenTimeSpan = DateTimeOffset.UtcNow.AddMinutes(_accessTokenLifeTime);
         
         Append(HttpCookieKeyEnum.AccessToken, accessToken, accessTokenTimeSpan);
-        Append(HttpCookieKeyEnum.JwtToken, jwtToken, jwtTimeSpan);
+        Append(HttpCookieKeyEnum.JwtToken, jwtToken, accessTokenTimeSpan);
     }
     
     public void CleanUpAuthCookies()

@@ -15,6 +15,21 @@ namespace PassKee.Web.Pages.App;
 public partial class VaultSidebarBlock : BaseReactiveComponent
 {
     [Inject] public IState<VaultsState> VaultsState { get; set; } = null!;
+    [Inject] public IState<PassKee.Web.Store.Import.ImportState> ImportState { get; set; } = null!;
+
+    private async Task OpenImportModal()
+    {
+        var state = VaultsState.Value;
+        if (!state.ActiveVaultId.HasValue || state.ActiveVaultKey == null || ImportState.Value.IsRunning) return;
+        await ModalService.ShowAsync<KdbxImportModal>(options: new PassKee.Web.Core.Services.UI.Modal.AppModalOptions
+        {
+            Size = PassKee.Web.Core.Services.UI.Modal.AppModalSize.Medium,
+            IsScrollable = true,
+            HasCloseButton = false,
+            IsCloseOnBackdropClick = false,
+            IsCloseOnEscapeKey = false
+        });
+    }
 
     [Parameter]
     public EventCallback OnItemNavigated { get; set; }
