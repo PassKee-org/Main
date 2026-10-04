@@ -36,6 +36,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Shared\ThirdParty\DgNet.Keepass\DgNet.Keepass.csproj" />
         <ProjectReference Include="..\PassKee.Web.Core\PassKee.Web.Core.csproj" />
         <ProjectReference Include="..\PassKee.Api.Shared\PassKee.Api.Shared.csproj" />
         <ProjectReference Include="..\PassKee.Business.Extensions\PassKee.Business.Extensions.csproj" />
@@ -84,3 +85,4 @@
     </Target>
 
 </Project>
+

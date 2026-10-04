@@ -1,0 +1,121 @@
+@using PassKee.Web.Core.Ui.Shared.Components
+@using PassKee.Web.Core.Ui.Shared.Components.Enums
+@using PassKee.Web.Core.Ui.Shared.Components.Storage
+@using PassKee.Web.Core.Ui.Shared.Components.Progress
+
+<div class="p-5 sm:p-6">
+    <h3 class="mb-5 break-words text-lg font-bold text-slate-900">Import into @VaultName</h3>
+    @if (IsRunning)
+    {
+        <div class="space-y-4" aria-live="polite">
+            <AppProgressBar Value="@ImportState.Value.Progress.Percent"
+                            Indeterminate="@(ImportState.Value.Progress.Total == 0)"
+                            Label="@ImportState.Value.Progress.Phase" />
+            @if (ImportState.Value.Progress.Total > 0)
+            {
+                <p class="text-sm text-slate-500">@ImportState.Value.Progress.Completed / @ImportState.Value.Progress.Total operations processed</p>
+            }
+            @if (_cancelling)
+            {
+                <p class="text-sm text-amber-700">Stopping after the current operation. Saved data will be retained.</p>
+            }
+        </div>
+    }
+    else if (Result != null)
+    {
+        <div class="space-y-4">
+            <p class="font-medium text-slate-900">@(Result.Cancelled ? "Import stopped" : Result.Issues.Count > 0 ? "Import completed with issues" : "Import completed")</p>
+            <dl class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                <dt>Complete entries</dt><dd class="text-right tabular-nums">@Result.Entries</dd>
+                <dt>Partial entries</dt><dd class="text-right tabular-nums">@Result.PartialEntries</dd>
+                <dt>Skipped entries</dt><dd class="text-right tabular-nums">@Result.SkippedEntries</dd>
+                <dt>Directories</dt><dd class="text-right tabular-nums">@Result.Directories</dd>
+                <dt>Attachments</dt><dd class="text-right tabular-nums">@Result.Files</dd>
+                <dt>New tags</dt><dd class="text-right tabular-nums">@Result.Tags</dd>
+            </dl>
+            @if (Result.Cancelled)
+            {
+                <p class="text-sm text-amber-700">Already saved data has been retained.</p>
+            }
+            @if (Result.Issues.Count > 0)
+            {
+                <ul class="max-h-56 space-y-3 overflow-y-auto border-t border-slate-200 pt-3 text-sm">
+                    @foreach (var issue in Result.Issues)
+                    {
+                        <li class="break-words"><span class="font-medium text-slate-800">@issue.Item</span><p class="text-amber-700">@issue.Message</p></li>
+                    }
+                </ul>
+            }
+        </div>
+    }
+    else if (_step == 1)
+    {
+        <div class="space-y-4">
+            <AppSelect TValue="string"
+                       Value="@_provider"
+                       ValueChanged="@SelectProvider"
+                       Items="@Providers"
+                       ItemText="@(provider => provider)"
+                       Placeholder="Select a provider"
+                       IsFullWidth="true" />
+            @if (_provider == "KeePass")
+            {
+                <div class="space-y-2 text-sm leading-6 text-slate-600">
+                    <p>Use your KeePass .kdbx database, or open KeePass and choose File &gt; Export &gt; KeePass KDBX (2.x).</p>
+                    <p>KDBX 3 and 4 are supported. CSV and XML exports are not supported. You will need the database password; key-file authentication is not supported.</p>
+                </div>
+            }
+        </div>
+    }
+    <div class="@(!IsRunning && Result == null && _step == 2 ? "space-y-4" : "hidden")">
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-700">Destination directory (optional)</label>
+                <AppSelect TValue="Guid?"
+                           Value="@_parentId"
+                           ValueChanged="@(value => _parentId = value)"
+                           Items="@DirectoryIds"
+                           ItemText="@DirectoryPath"
+                           IsDisabled="@IsRunning"
+                           IsFullWidth="true"
+                           Placeholder="Vault root" />
+            </div>
+            <AppFileDropzone File="@_file"
+                             FileChanged="@SelectFile"
+                             Accept=".kdbx"
+                             MaxFileSize="@DgNet.Keepass.ReadLimits.MaxFileBytes"
+                             Disabled="@IsRunning"
+                             Title="KeePass database"
+                             Subtitle="KDBX, up to 100 MB" />
+            <AppInputText Label="Database password"
+                          Type="password"
+                          Value="@_password"
+                          ValueChanged="@SetPassword"
+                          Disabled="@IsRunning"
+                          Autocomplete="off" />
+    </div>
+    @if (_error != null)
+    {
+        <p role="alert" class="mt-4 break-words text-sm text-rose-600">@_error</p>
+    }
+    <div class="mt-6 flex flex-wrap justify-end gap-3">
+        @if (IsRunning)
+        {
+            <AppButton OnClick="@CancelImport" Disabled="@_cancelling" Variant="ButtonVariant.Light">Stop import</AppButton>
+        }
+        else
+        {
+            <AppButton OnClick="@Close" Variant="ButtonVariant.Light">@(Result == null ? "Cancel" : "Close")</AppButton>
+            @if (Result == null && _step == 2)
+            {
+                <AppButton OnClick="@Back" Variant="ButtonVariant.Light">Back</AppButton>
+                <AppButton OnClick="@Start" Disabled="@(!CanStart)" Color="ComponentColor.Primary">
+                    <i class="fa-solid fa-file-import mr-2" aria-hidden="true"></i>Import
+                </AppButton>
+            }
+            else if (Result == null)
+            {
+                <AppButton OnClick="@Next" Disabled="@(_provider == null)" Color="ComponentColor.Primary">Next</AppButton>
+            }
+        }
+    </div>
+</div>

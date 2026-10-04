@@ -44,7 +44,7 @@ public static class VaultsReducers
 
     [ReducerMethod]
     public static VaultsState ReduceLoadVaultDetailsSuccessAction(VaultsState state, LoadVaultDetailsSuccessAction action)
-        => state with { 
+        => state.ActiveVaultId != action.VaultId ? state : state with {
             IsLoading = false, 
             ActiveVaultId = action.VaultId,
             ActiveVaultKey = action.ActiveVaultKey,
