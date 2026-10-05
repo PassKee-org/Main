@@ -79,7 +79,8 @@ public sealed class VaultImportService(IVaultClientService vaultClient, IKdbxImp
                 _tags.TryAdd(tag.Name.Trim(), tag.Id);
             var missingTags = root.AllEntries.SelectMany(entry => entry.Tags)
                 .Distinct(StringComparer.OrdinalIgnoreCase).Where(name => !_tags.ContainsKey(name)).ToList();
-            _total = root.WorkCount + missingTags.Count;
+            var totalWork = root.Entries.Sum(entry => 1 + entry.Attachments.Count) + root.Groups.Sum(group => group.WorkCount);
+            _total = totalWork + missingTags.Count;
             foreach (var name in missingTags)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -95,7 +96,10 @@ public sealed class VaultImportService(IVaultClientService vaultClient, IKdbxImp
                 }
                 Advance("Importing tags");
             }
-            await ImportGroupAsync(root, request.ParentDirectoryId, root.Name);
+            foreach (var entry in root.Entries)
+                await ImportEntryAsync(entry, request.ParentDirectoryId, $"{root.Name}/{entry.Payload.Title}");
+            foreach (var child in root.Groups)
+                await ImportGroupAsync(child, request.ParentDirectoryId, $"{root.Name}/{child.Name}");
         }
 
         private async Task ImportGroupAsync(ImportGroup group, Guid? parentId, string path)
@@ -123,7 +127,7 @@ public sealed class VaultImportService(IVaultClientService vaultClient, IKdbxImp
                 await ImportGroupAsync(child, directoryId, $"{path}/{child.Name}");
         }
 
-        private async Task ImportEntryAsync(ImportEntry entry, Guid directoryId, string path)
+        private async Task ImportEntryAsync(ImportEntry entry, Guid? directoryId, string path)
         {
             cancellationToken.ThrowIfCancellationRequested();
             var issueCount = Issues.Count;

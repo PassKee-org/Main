@@ -71,8 +71,7 @@
             <div>
                 <label class="mb-2 block text-sm font-medium text-slate-700">Destination directory (optional)</label>
                 <AppSelect TValue="Guid?"
-                           Value="@_parentId"
-                           ValueChanged="@(value => _parentId = value)"
+                           @bind-Value="_parentId"
                            Items="@DirectoryIds"
                            ItemText="@DirectoryPath"
                            IsDisabled="@IsRunning"

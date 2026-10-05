@@ -60,13 +60,17 @@ public class DirectoryDao : BaseDao, IDirectoryDao
             .Where(d => d.ParentDirectoryId.HasValue)
             .ToLookup(d => d.ParentDirectoryId!.Value);
 
+        var visited = new HashSet<Guid> { directory.Id };
         var dirsToDelete = new List<DirectoryEntity>();
         void CollectDescendants(Guid parentId)
         {
             foreach (var child in lookup[parentId])
             {
-                CollectDescendants(child.Id);
-                dirsToDelete.Add(child);
+                if (visited.Add(child.Id))
+                {
+                    CollectDescendants(child.Id);
+                    dirsToDelete.Add(child);
+                }
             }
         }
 
@@ -74,9 +78,10 @@ public class DirectoryDao : BaseDao, IDirectoryDao
         dirsToDelete.Add(directory);
 
         var dirIds = dirsToDelete.Select(d => d.Id).ToList();
+        var dirIdsNullable = dirIds.Cast<Guid?>().ToList();
 
         var credentialsToDelete = await Session.Query<CredentialEntity>()
-            .Where(c => c.VaultId == directory.VaultId && c.DirectoryId.HasValue && dirIds.Contains(c.DirectoryId.Value) && c.DeletedAt == null)
+            .Where(c => c.VaultId == directory.VaultId && dirIdsNullable.Contains(c.DirectoryId) && c.DeletedAt == null)
             .ToListAsync(cancellationToken);
 
         await DeleteAsync(credentialsToDelete, cancellationToken);
