@@ -34,6 +34,62 @@ public partial class VaultSidebarBlock : BaseReactiveComponent
     [Parameter]
     public EventCallback OnItemNavigated { get; set; }
 
+    private List<DecryptedDirectory>? _lastDirectoriesRef;
+    private Guid? _lastSelectedDirectoryId;
+    private Dictionary<Guid, DecryptedDirectory> _directoryMap = new();
+    private Dictionary<Guid, List<DecryptedDirectory>> _childrenMap = new();
+    private HashSet<Guid> _expandedAncestorIds = new();
+    private List<DecryptedDirectory> _rootDirectories = [];
+
+    private void EnsureDirectoryStructure()
+    {
+        var dirs = VaultsState.Value.Directories;
+        var selectedId = VaultsState.Value.SelectedDirectoryId;
+
+        if (!ReferenceEquals(_lastDirectoriesRef, dirs))
+        {
+            _lastDirectoriesRef = dirs;
+            _directoryMap = dirs.ToDictionary(d => d.Id, d => d);
+
+            var children = new Dictionary<Guid, List<DecryptedDirectory>>();
+            var roots = new List<DecryptedDirectory>();
+            foreach (var dir in dirs)
+            {
+                if (dir.ParentDirectoryId.HasValue)
+                {
+                    if (!children.TryGetValue(dir.ParentDirectoryId.Value, out var list))
+                    {
+                        list = [];
+                        children[dir.ParentDirectoryId.Value] = list;
+                    }
+                    list.Add(dir);
+                }
+                else
+                {
+                    roots.Add(dir);
+                }
+            }
+            _childrenMap = children;
+            _rootDirectories = roots;
+        }
+
+        if (_lastSelectedDirectoryId != selectedId)
+        {
+            _lastSelectedDirectoryId = selectedId;
+            var ancestors = new HashSet<Guid>();
+            var currentId = selectedId;
+            while (currentId.HasValue && _directoryMap.TryGetValue(currentId.Value, out var dir))
+            {
+                if (dir.ParentDirectoryId.HasValue)
+                {
+                    ancestors.Add(dir.ParentDirectoryId.Value);
+                }
+                currentId = dir.ParentDirectoryId;
+            }
+            _expandedAncestorIds = ancestors;
+        }
+    }
+
     private IEnumerable<Guid?> VaultIds => VaultsState.Value.Vaults.Select(vault => (Guid?)vault.Id);
 
     private string GetVaultName(Guid? vaultId) =>

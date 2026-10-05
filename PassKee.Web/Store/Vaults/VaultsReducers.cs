@@ -30,7 +30,7 @@ public static class VaultsReducers
 
     [ReducerMethod]
     public static VaultsState ReduceSelectVaultAction(VaultsState state, SelectVaultAction action)
-        => state with { ActiveVaultId = action.VaultId, SelectedDirectoryId = null };
+        => state with { ActiveVaultId = action.VaultId, SelectedDirectoryId = null, SearchQuery = string.Empty };
 
     [ReducerMethod]
     public static VaultsState ReduceSelectDirectoryAction(VaultsState state, SelectDirectoryAction action)
@@ -118,6 +118,14 @@ public static class VaultsReducers
     [ReducerMethod]
     public static VaultsState ReduceCreateVaultFailureAction(VaultsState state, CreateVaultFailureAction action)
         => state with { IsCreating = false };
+
+    [ReducerMethod]
+    public static VaultsState ReduceSetSearchQueryAction(VaultsState state, SetSearchQueryAction action)
+        => state with { SearchQuery = action.Query };
+
+    [ReducerMethod]
+    public static VaultsState ReduceClearSearchQueryAction(VaultsState state, ClearSearchQueryAction action)
+        => state with { SearchQuery = string.Empty };
 
     [ReducerMethod]
     public static VaultsState ReduceResetVaultsStateAction(VaultsState state, ResetVaultsStateAction action)

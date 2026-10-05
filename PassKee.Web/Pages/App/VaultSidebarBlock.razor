@@ -77,11 +77,14 @@
                         </div>
                     </div>
 
-                    @foreach (var dir in VaultsState.Value.Directories.Where(d => d.ParentDirectoryId == null))
+                    @{ EnsureDirectoryStructure(); }
+                    @foreach (var dir in _rootDirectories)
                     {
                         <DirectoryNode Directory="@dir" 
-                                       AllDirectories="@VaultsState.Value.Directories" 
+                                       ChildrenMap="@_childrenMap" 
+                                       DirectoryMap="@_directoryMap" 
                                        SelectedDirectoryId="@VaultsState.Value.SelectedDirectoryId"
+                                       ExpandedAncestorIds="@_expandedAncestorIds"
                                        OnSelect="@SelectDirectory"
                                        OnAddSubdirectory="@OpenCreateSubDirectoryModal"
                                        OnMove="@HandleDirectoryMove"

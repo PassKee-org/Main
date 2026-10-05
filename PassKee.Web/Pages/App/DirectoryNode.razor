@@ -47,8 +47,10 @@
             @foreach (var child in Children)
             {
                 <DirectoryNode Directory="child" 
-                               AllDirectories="AllDirectories" 
+                               ChildrenMap="ChildrenMap" 
+                               DirectoryMap="DirectoryMap"
                                SelectedDirectoryId="SelectedDirectoryId"
+                               ExpandedAncestorIds="ExpandedAncestorIds"
                                OnSelect="OnSelect"
                                OnAddSubdirectory="OnAddSubdirectory"
                                OnMove="OnMove"
