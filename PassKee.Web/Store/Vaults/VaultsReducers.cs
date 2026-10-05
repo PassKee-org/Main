@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using Fluxor;
 using System.Linq;
+using PassKee.Web.Models.Vaults;
 
 namespace PassKee.Web.Store.Vaults;
 
@@ -36,7 +38,28 @@ public static class VaultsReducers
 
     [ReducerMethod]
     public static VaultsState ReduceDeleteDirectoryAction(VaultsState state, DeleteDirectoryAction action)
-        => state.SelectedDirectoryId == action.DirectoryId ? state with { SelectedDirectoryId = null } : state;
+    {
+        if (state.SelectedDirectoryId == action.DirectoryId || IsDescendantDirectory(state.Directories, action.DirectoryId, state.SelectedDirectoryId))
+        {
+            return state with { SelectedDirectoryId = null };
+        }
+        return state;
+    }
+
+    private static bool IsDescendantDirectory(List<DecryptedDirectory> directories, Guid parentId, Guid? targetId)
+    {
+        if (!targetId.HasValue) return false;
+        var current = targetId;
+        var visited = new HashSet<Guid>();
+        while (current.HasValue && visited.Add(current.Value))
+        {
+            var dir = directories.FirstOrDefault(d => d.Id == current.Value);
+            if (dir == null) break;
+            if (dir.ParentDirectoryId == parentId) return true;
+            current = dir.ParentDirectoryId;
+        }
+        return false;
+    }
 
     [ReducerMethod]
     public static VaultsState ReduceLoadVaultDetailsAction(VaultsState state, LoadVaultDetailsAction action)
@@ -50,7 +73,10 @@ public static class VaultsReducers
             ActiveVaultKey = action.ActiveVaultKey,
             Directories = action.Directories, 
             Credentials = action.Credentials,
-            Tags = action.Tags
+            Tags = action.Tags,
+            SelectedDirectoryId = state.SelectedDirectoryId.HasValue && action.Directories.Any(d => d.Id == state.SelectedDirectoryId.Value)
+                ? state.SelectedDirectoryId
+                : null
         };
 
     [ReducerMethod]

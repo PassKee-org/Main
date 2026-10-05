@@ -14,20 +14,19 @@ public class VaultImportServiceTests
     {
         var vaultId = Guid.NewGuid();
         var parentId = Guid.NewGuid();
-        var rootId = Guid.NewGuid();
+        var childId = Guid.NewGuid();
         var tagId = Guid.NewGuid();
         var payload = new LoginCredentialPayload { Title = "Example", Password = "secret" };
         var root = new ImportGroup("Root", [], [new ImportGroup("Child", [new ImportEntry(payload, ["work"], [])], [])]);
         var reader = new Mock<IKdbxImportReader>();
         reader.Setup(service => service.ReadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(root);
         var client = new Mock<IVaultClientService>();
-        client.Setup(service => service.CreateDirectoryAsync(vaultId, parentId, "Root", It.IsAny<byte[]>())).ReturnsAsync(new DirectoryDto { Id = rootId });
-        client.Setup(service => service.CreateDirectoryAsync(vaultId, rootId, "Child", It.IsAny<byte[]>())).ReturnsAsync(new DirectoryDto { Id = Guid.NewGuid() });
-        client.Setup(service => service.CreateCredentialAsync(vaultId, It.IsAny<Guid?>(), It.IsAny<PassKee.Business.Common.Constants.CredentialType>(), payload, It.IsAny<byte[]>())).ReturnsAsync(new CredentialDto());
+        client.Setup(service => service.CreateDirectoryAsync(vaultId, parentId, "Child", It.IsAny<byte[]>())).ReturnsAsync(new DirectoryDto { Id = childId });
+        client.Setup(service => service.CreateCredentialAsync(vaultId, childId, It.IsAny<PassKee.Business.Common.Constants.CredentialType>(), payload, It.IsAny<byte[]>())).ReturnsAsync(new CredentialDto());
         var progress = new List<ImportProgress>();
         var result = await new VaultImportService(client.Object, reader.Object).ImportAsync(
             new VaultImportRequest(Stream.Null, "fixture", vaultId, parentId, new byte[32], [new DecryptedTag(tagId, vaultId, "Work")]), progress.Add);
-        Assert.Equal(2, result.Directories);
+        Assert.Equal(1, result.Directories);
         Assert.Equal(1, result.Entries);
         Assert.Equal([tagId], payload.TagIds);
         Assert.Equal(100, progress[^1].Percent);
@@ -149,11 +148,58 @@ public class VaultImportServiceTests
         var client = Client();
         client.Setup(service => service.CreateDirectoryAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<string>(), It.IsAny<byte[]>()))
             .ThrowsAsync(new HttpRequestException("unauthorized", null, System.Net.HttpStatusCode.Unauthorized));
-        var result = await Service(client, new ImportGroup("Root", [Entry()], [])).ImportAsync(Request(Guid.NewGuid()));
+        var result = await Service(client, new ImportGroup("Root", [], [new ImportGroup("Child", [Entry()], [])])).ImportAsync(Request(Guid.NewGuid()));
         Assert.True(result.Cancelled);
         Assert.False(result.HasWrites);
         Assert.Equal(1, result.SkippedEntries);
         Assert.NotEmpty(result.Issues);
+    }
+
+    [Fact]
+    public async Task ImportsRootEntriesDirectlyToVaultRoot()
+    {
+        var vaultId = Guid.NewGuid();
+        var client = Client();
+        Guid? capturedDirectoryId = Guid.NewGuid();
+        client.Setup(service => service.CreateCredentialAsync(vaultId, null, It.IsAny<PassKee.Business.Common.Constants.CredentialType>(), It.IsAny<BaseCredentialPayload>(), It.IsAny<byte[]>()))
+            .Callback<Guid, Guid?, PassKee.Business.Common.Constants.CredentialType, BaseCredentialPayload, byte[]>((vId, dId, type, p, key) => capturedDirectoryId = dId)
+            .ReturnsAsync(new CredentialDto());
+
+        var root = new ImportGroup("passwords", [Entry()], []);
+        var result = await Service(client, root).ImportAsync(new VaultImportRequest(Stream.Null, "fixture", vaultId, null, new byte[32], []));
+
+        Assert.Equal(0, result.Directories);
+        Assert.Equal(1, result.Entries);
+        Assert.Null(capturedDirectoryId);
+        client.Verify(service => service.CreateDirectoryAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<string>(), It.IsAny<byte[]>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ImportsRootEntriesAndGroupsToSelectedParentDirectory()
+    {
+        var vaultId = Guid.NewGuid();
+        var parentId = Guid.NewGuid();
+        var childDirId = Guid.NewGuid();
+        var client = Client();
+        Guid? capturedCredentialDirId = null;
+        Guid? capturedChildParentDirId = null;
+
+        client.Setup(service => service.CreateCredentialAsync(vaultId, parentId, It.IsAny<PassKee.Business.Common.Constants.CredentialType>(), It.IsAny<BaseCredentialPayload>(), It.IsAny<byte[]>()))
+            .Callback<Guid, Guid?, PassKee.Business.Common.Constants.CredentialType, BaseCredentialPayload, byte[]>((vId, dId, type, p, key) => capturedCredentialDirId = dId)
+            .ReturnsAsync(new CredentialDto());
+
+        client.Setup(service => service.CreateDirectoryAsync(vaultId, parentId, "Dev", It.IsAny<byte[]>()))
+            .Callback<Guid, Guid?, string, byte[]>((vId, pId, name, key) => capturedChildParentDirId = pId)
+            .ReturnsAsync(new DirectoryDto { Id = childDirId });
+
+        var root = new ImportGroup("passwords", [Entry()], [new ImportGroup("Dev", [], [])]);
+        var result = await Service(client, root).ImportAsync(new VaultImportRequest(Stream.Null, "fixture", vaultId, parentId, new byte[32], []));
+
+        Assert.Equal(1, result.Directories);
+        Assert.Equal(1, result.Entries);
+        Assert.Equal(parentId, capturedCredentialDirId);
+        Assert.Equal(parentId, capturedChildParentDirId);
+        client.Verify(service => service.CreateDirectoryAsync(vaultId, parentId, "passwords", It.IsAny<byte[]>()), Times.Never);
     }
 
     private static ImportEntry Entry() => new(new LoginCredentialPayload { Title = "Example" }, [], []);

@@ -142,6 +142,15 @@ public partial class AppSelect<TValue> : AppBaseSelect
 
             if (Value is null)
             {
+                if (ItemText != null)
+                {
+                    var text = ItemText(Value!);
+                    if (!string.IsNullOrWhiteSpace(text))
+                    {
+                        return text;
+                    }
+                }
+
                 return !string.IsNullOrWhiteSpace(Placeholder) ? Placeholder : "Select...";
             }
 
@@ -188,14 +197,9 @@ public partial class AppSelect<TValue> : AppBaseSelect
 
     public bool IsSelected(TValue? item)
     {
-        if (item is null)
-        {
-            return false;
-        }
-
         if (IsMultiple)
         {
-            return Values != null && Values.Contains(item);
+            return Values != null && item is not null && Values.Contains(item);
         }
 
         return EqualityComparer<TValue?>.Default.Equals(Value, item);
@@ -281,14 +285,14 @@ public partial class AppSelect<TValue> : AppBaseSelect
 
     public string GetItemDisplay(TValue? item)
     {
+        if (ItemText != null)
+        {
+            return ItemText(item!);
+        }
+
         if (item is null)
         {
             return string.Empty;
-        }
-
-        if (ItemText != null)
-        {
-            return ItemText(item);
         }
 
         return item.ToString() ?? string.Empty;
