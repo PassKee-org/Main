@@ -7,7 +7,7 @@ using PassKee.Business.Common.Constants;
 using PassKee.Web.Models.Vaults;
 using PassKee.Web.Store.Vaults;
 
-namespace PassKee.Web.Pages.App;
+namespace PassKee.Web.Pages.App.Parts;
 
 public partial class CredentialItemBlock : ComponentBase
 {
@@ -25,6 +25,23 @@ public partial class CredentialItemBlock : ComponentBase
 
     [Parameter]
     public EventCallback<DecryptedCredential> OnDelete { get; set; }
+
+    [Parameter]
+    public string? DirectoryPath { get; set; }
+
+    [Parameter]
+    public bool ShowDirectoryPath { get; set; }
+
+    [Parameter]
+    public EventCallback<Guid?> OnSelectDirectory { get; set; }
+
+    private async Task HandleDirectoryClick()
+    {
+        if (OnSelectDirectory.HasDelegate)
+        {
+            await OnSelectDirectory.InvokeAsync(Credential.DirectoryId);
+        }
+    }
 
     private async Task HandleRowClick()
     {

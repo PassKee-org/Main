@@ -58,3 +58,8 @@ public record FileUploadResult(Guid RequestId, PassKee.Api.Shared.Models.Storage
 
 public record UploadVaultFileAction(Guid RequestId, Microsoft.AspNetCore.Components.Forms.IBrowserFile BrowserFile, TaskCompletionSource<FileUploadResult> Completion);
 public record UploadVaultFileFinishedAction(Guid RequestId);
+
+// Search Actions
+public record SetSearchQueryAction(string Query);
+public record ClearSearchQueryAction;
+

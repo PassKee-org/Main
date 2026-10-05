@@ -26,6 +26,34 @@
                 </a>
             </nav>
         </div>
+        @if (VaultsState.Value.ActiveVaultId.HasValue && VaultsState.Value.Vaults.Any())
+        {
+            <div class="flex-1 max-w-md mx-2 sm:mx-6 min-w-0">
+                <div class="relative flex items-center w-full">
+                    <div class="absolute left-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass text-xs sm:text-sm"></i>
+                    </div>
+                    <input type="text"
+                           value="@_localSearchQuery"
+                           @oninput="HandleSearchInput"
+                           @onkeydown="HandleSearchKeyDown"
+                           disabled="@VaultsState.Value.IsLoading"
+                           placeholder="Search all items..."
+                           aria-label="Search all items"
+                           class="w-full bg-slate-100 hover:bg-slate-100/90 focus:bg-white border border-transparent focus:border-blue-500 rounded-xl pl-9 pr-8 py-1.5 sm:py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-3 focus:ring-blue-500/15 disabled:opacity-50 transition" />
+
+                    @if (!string.IsNullOrEmpty(_localSearchQuery))
+                    {
+                        <button type="button"
+                                @onclick="ClearSearch"
+                                class="absolute right-2.5 h-5 w-5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200/80 flex items-center justify-center transition text-xs"
+                                title="Clear search">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    }
+                </div>
+            </div>
+        }
         <div class="flex items-center gap-2 sm:gap-3">
             <AppButton Color="@ComponentColor.Default"
                        Variant="@ButtonVariant.Outlined"

@@ -22,4 +22,5 @@ public record VaultsState
     public Guid? SelectedDirectoryId { get; init; }
 
     public int PendingFileUploads { get; init; }
+    public string SearchQuery { get; init; } = string.Empty;
 }

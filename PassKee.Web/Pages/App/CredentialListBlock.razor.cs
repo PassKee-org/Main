@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Components;
 using PassKee.Api.Shared.Models.Vaults.Payloads;
 using PassKee.Business.Common.Constants;
 using PassKee.Web.Components;
+using PassKee.Web.Core.Services.Vaults;
 using PassKee.Web.Models.Vaults;
 using PassKee.Web.Shared.Modals;
 using PassKee.Web.Store.Vaults;
@@ -16,19 +17,161 @@ namespace PassKee.Web.Pages.App;
 public partial class CredentialListBlock : BaseReactiveComponent
 {
     [Inject] public IState<VaultsState> VaultsState { get; set; } = null!;
+    [Inject] private IVaultSearchService VaultSearchService { get; set; } = null!;
 
     [Parameter]
     public EventCallback OnToggleMobileDrawer { get; set; }
+
+    private Dictionary<Guid, string> _directoryPaths = new();
+    private Dictionary<Guid, string> _tagNames = new();
+    private Dictionary<Guid, List<DecryptedCredential>> _credentialsByDir = new();
+    private List<DecryptedDirectory>? _lastDirectoriesRef;
+    private List<DecryptedTag>? _lastTagsRef;
+    private List<DecryptedCredential>? _lastCredentialsRef;
+
+    private string? _cachedCredsQuery;
+    private Guid? _cachedSelectedDirId;
+    private List<DecryptedCredential>? _cachedCredentialsRef;
+    private ICollection<DecryptedCredential>? _cachedFilteredCredentials;
+
+    private string? _cachedDirsQuery;
+    private List<DecryptedDirectory>? _cachedDirsRef;
+    private IReadOnlyList<DecryptedDirectory>? _cachedFilteredDirectories;
+
+    private string SearchQuery => VaultsState.Value.SearchQuery;
+    private bool IsSearchActive => !string.IsNullOrWhiteSpace(SearchQuery);
 
     private string ActiveDirectoryName =>
         VaultsState.Value.SelectedDirectoryId.HasValue
             ? VaultsState.Value.Directories.FirstOrDefault(d => d.Id == VaultsState.Value.SelectedDirectoryId)?.Name ?? "Directory"
             : "All Items";
 
-    private IEnumerable<DecryptedCredential> Credentials =>
-        VaultsState.Value.SelectedDirectoryId.HasValue
-            ? VaultsState.Value.Credentials.Where(c => c.DirectoryId == VaultsState.Value.SelectedDirectoryId)
-            : VaultsState.Value.Credentials;
+    private ICollection<DecryptedCredential> FilteredCredentials
+    {
+        get
+        {
+            EnsureCaches();
+
+            var query = SearchQuery?.Trim() ?? string.Empty;
+            var selectedDirId = VaultsState.Value.SelectedDirectoryId;
+            var credentials = VaultsState.Value.Credentials;
+
+            if (ReferenceEquals(credentials, _cachedCredentialsRef) &&
+                query == _cachedCredsQuery &&
+                selectedDirId == _cachedSelectedDirId &&
+                _cachedFilteredCredentials != null)
+            {
+                return _cachedFilteredCredentials;
+            }
+
+            _cachedCredentialsRef = credentials;
+            _cachedCredsQuery = query;
+            _cachedSelectedDirId = selectedDirId;
+
+            if (!string.IsNullOrWhiteSpace(query))
+            {
+                _cachedFilteredCredentials = VaultSearchService.Filter(credentials, query, _tagNames);
+            }
+            else if (selectedDirId.HasValue)
+            {
+                _cachedFilteredCredentials = _credentialsByDir.TryGetValue(selectedDirId.Value, out var list)
+                    ? list
+                    : [];
+            }
+            else
+            {
+                _cachedFilteredCredentials = credentials;
+            }
+
+            return _cachedFilteredCredentials;
+        }
+    }
+
+    private IReadOnlyList<DecryptedDirectory> FilteredDirectories
+    {
+        get
+        {
+            if (!IsSearchActive)
+            {
+                return [];
+            }
+
+            EnsureCaches();
+
+            var query = SearchQuery?.Trim() ?? string.Empty;
+            var dirs = VaultsState.Value.Directories;
+
+            if (ReferenceEquals(dirs, _cachedDirsRef) &&
+                query == _cachedDirsQuery &&
+                _cachedFilteredDirectories != null)
+            {
+                return _cachedFilteredDirectories;
+            }
+
+            _cachedDirsRef = dirs;
+            _cachedDirsQuery = query;
+            _cachedFilteredDirectories = VaultSearchService.FilterDirectories(dirs, query, _directoryPaths);
+            return _cachedFilteredDirectories;
+        }
+    }
+
+    private int GetDirectoryItemCount(Guid dirId) =>
+        _credentialsByDir.TryGetValue(dirId, out var list) ? list.Count : 0;
+
+    private void EnsureCaches()
+    {
+        var state = VaultsState.Value;
+        if (!ReferenceEquals(_lastDirectoriesRef, state.Directories))
+        {
+            _lastDirectoriesRef = state.Directories;
+            _directoryPaths = VaultSearchService.BuildDirectoryPaths(state.Directories);
+        }
+
+        if (!ReferenceEquals(_lastTagsRef, state.Tags))
+        {
+            _lastTagsRef = state.Tags;
+            _tagNames = state.Tags.ToDictionary(t => t.Id, t => t.Name);
+        }
+
+        if (!ReferenceEquals(_lastCredentialsRef, state.Credentials))
+        {
+            _lastCredentialsRef = state.Credentials;
+            var byDir = new Dictionary<Guid, List<DecryptedCredential>>();
+            foreach (var cred in state.Credentials)
+            {
+                if (cred.DirectoryId.HasValue)
+                {
+                    if (!byDir.TryGetValue(cred.DirectoryId.Value, out var list))
+                    {
+                        list = [];
+                        byDir[cred.DirectoryId.Value] = list;
+                    }
+                    list.Add(cred);
+                }
+            }
+            _credentialsByDir = byDir;
+        }
+    }
+
+    private string GetDirectoryPath(Guid? directoryId)
+    {
+        if (directoryId.HasValue && _directoryPaths.TryGetValue(directoryId.Value, out var path))
+        {
+            return path;
+        }
+        return string.Empty;
+    }
+
+    private void HandleSelectDirectory(Guid? directoryId)
+    {
+        Dispatcher.Dispatch(new ClearSearchQueryAction());
+        Dispatcher.Dispatch(new SelectDirectoryAction(directoryId));
+    }
+
+    private void ClearSearch()
+    {
+        Dispatcher.Dispatch(new ClearSearchQueryAction());
+    }
 
     private async Task OpenCredentialModal(DecryptedCredential? cred)
     {
