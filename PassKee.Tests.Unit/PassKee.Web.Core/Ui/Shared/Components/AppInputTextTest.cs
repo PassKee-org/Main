@@ -29,10 +29,34 @@ public class AppInputTextTest
         Assert.NotEmpty(inputId);
         Assert.Contains($"for=\"{inputId}\"", markup);
         Assert.Contains($"aria-controls=\"{inputId}\"", markup);
-        Assert.Contains("type=\"password\"", markup);
+        Assert.Contains("type=\"text\"", markup);
+        Assert.Contains("-webkit-text-security: disc;", markup);
+        Assert.Contains("data-1p-ignore=\"true\"", markup);
         Assert.Contains("aria-label=\"Show password\"", markup);
         Assert.Contains("aria-pressed=\"false\"", markup);
         Assert.DoesNotContain("tabindex=\"-1\"", markup);
+    }
+
+    [Fact]
+    public async Task Password_WhenPreventPasswordManagerFalse_RendersNativePasswordType()
+    {
+        using var services = new ServiceCollection().AddLogging().BuildServiceProvider();
+        await using var renderer = new HtmlRenderer(services, services.GetRequiredService<ILoggerFactory>());
+        var parameters = ParameterView.FromDictionary(new Dictionary<string, object?>
+        {
+            [nameof(AppInputText.Label)] = "Password",
+            [nameof(AppInputText.Type)] = "password",
+            [nameof(AppInputText.PreventPasswordManager)] = false
+        });
+
+        var markup = await renderer.Dispatcher.InvokeAsync(async () =>
+        {
+            var component = await renderer.RenderComponentAsync<AppInputText>(parameters);
+            return component.ToHtmlString();
+        });
+
+        Assert.Contains("type=\"password\"", markup);
+        Assert.DoesNotContain("-webkit-text-security", markup);
     }
 
     [Theory]
