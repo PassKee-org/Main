@@ -16,6 +16,36 @@ public partial class CredentialEditableFieldBlock : ComponentBase
 
     private bool _isPasswordVisible;
 
+    private string ResolvedFieldType => Field.Type switch
+    {
+        CredentialFieldType.Password => "password",
+        CredentialFieldType.Date => "date",
+        CredentialFieldType.Url => "url",
+        CredentialFieldType.Email => "email",
+        CredentialFieldType.Phone => "tel",
+        _ => "text"
+    };
+
+    private string ResolvedFieldPlaceholder => Field.Type switch
+    {
+        CredentialFieldType.Address => "Address",
+        CredentialFieldType.Password => "Password",
+        CredentialFieldType.Date => "Date",
+        CredentialFieldType.Url => "https://",
+        CredentialFieldType.Email => "name@example.com",
+        CredentialFieldType.Phone => "+1...",
+        CredentialFieldType.SecurityQuestion => "Answer",
+        CredentialFieldType.OneTimePassword => "Secret key / otpauth URI",
+        _ => "Value"
+    };
+
+    private string ResolvedFieldInputClass => Field.Type switch
+    {
+        CredentialFieldType.Password => "text-sm font-normal font-mono text-gray-900 placeholder:text-gray-400",
+        CredentialFieldType.Address => "text-sm font-normal text-gray-900 placeholder:text-gray-400 resize-y",
+        _ => "text-sm font-normal text-gray-900 placeholder:text-gray-400"
+    };
+
     private void TogglePasswordVisibility()
     {
         _isPasswordVisible = !_isPasswordVisible;
