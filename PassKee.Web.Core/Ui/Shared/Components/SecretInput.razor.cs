@@ -88,6 +88,12 @@ public partial class SecretInput : ComponentBase
     public bool? Monospace { get; set; }
 
     [Parameter]
+    public bool PreventPasswordManager { get; set; }
+
+    [Parameter]
+    public string? Style { get; set; }
+
+    [Parameter]
     public RenderFragment? EndContent { get; set; }
 
     private bool _isMasked = true;
@@ -105,7 +111,35 @@ public partial class SecretInput : ComponentBase
         }
     }
 
-    private string ResolvedInputType => _isMasked ? "password" : "text";
+    private bool UsesTextSecurity =>
+        PreventPasswordManager || SecretType == SecretInputType.SecretKey;
+
+    private string ResolvedInputType =>
+        UsesTextSecurity
+            ? "text"
+            : (_isMasked ? "password" : "text");
+
+    private string? ResolvedStyle
+    {
+        get
+        {
+            var securityStyle = UsesTextSecurity && _isMasked
+                ? "-webkit-text-security: disc; text-security: disc;"
+                : null;
+
+            if (securityStyle != null && !string.IsNullOrWhiteSpace(Style))
+            {
+                return $"{securityStyle} {Style}";
+            }
+
+            return securityStyle ?? Style;
+        }
+    }
+
+    private string? ResolvedAutocomplete =>
+        !string.IsNullOrWhiteSpace(Autocomplete)
+            ? Autocomplete
+            : (UsesTextSecurity ? "off" : null);
 
     private string ResolvedIcon => Icon ?? (SecretType switch
     {

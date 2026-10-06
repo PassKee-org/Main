@@ -1,6 +1,6 @@
 @namespace PassKee.Web.Core.Ui.Shared.Components
 
-<div class="w-full @Class">
+<div class="@($"w-full {Class}".Trim())">
     @if (!string.IsNullOrWhiteSpace(Label))
     {
         <label for="@_inputId" class="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-slate-700">
@@ -12,7 +12,7 @@
         </label>
     }
 
-    <div class="relative flex items-center rounded-xl border transition @BorderAndBgClasses @(Disabled ? "opacity-60 cursor-not-allowed bg-slate-100" : "")">
+    <div class="@ContainerClasses">
         @if (!string.IsNullOrWhiteSpace(Icon))
         {
             <div class="flex items-center pl-3.5 pr-1 text-slate-400 shrink-0">
@@ -20,34 +20,63 @@
             </div>
         }
 
-        <input
-            id="@_inputId"
-            type="@ResolvedType"
-            name="@Name"
-            value="@Value"
-            @oninput="HandleInput"
-            placeholder="@Placeholder"
-            disabled="@Disabled"
-            readonly="@ReadOnly"
-            autocomplete="@Autocomplete"
-            aria-required="@Required"
-            aria-invalid="@HasError"
-            aria-describedby="@(HasVisibleError ? _errorId : null)"
-            class="w-full bg-transparent border-0 px-3.5 py-2.5 text-base sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 disabled:cursor-not-allowed @(!string.IsNullOrWhiteSpace(Icon) ? "!pl-1.5" : "")" />
+        @if (Multiline)
+        {
+            <textarea
+                id="@_inputId"
+                rows="@Rows"
+                name="@Name"
+                value="@Value"
+                @oninput="HandleInput"
+                placeholder="@Placeholder"
+                disabled="@Disabled"
+                readonly="@ReadOnly"
+                aria-label="@AriaLabel"
+                aria-required="@Required"
+                aria-invalid="@HasError"
+                aria-describedby="@(HasVisibleError ? _errorId : null)"
+                class="@ComputedInputClass"></textarea>
+        }
+        else
+        {
+            <input
+                id="@_inputId"
+                type="@ResolvedType"
+                style="@ResolvedStyle"
+                name="@Name"
+                value="@Value"
+                @oninput="HandleInput"
+                placeholder="@Placeholder"
+                disabled="@Disabled"
+                readonly="@ReadOnly"
+                autocomplete="@ResolvedAutocomplete"
+                autocorrect="@(IsPasswordMode && PreventPasswordManager ? "off" : null)"
+                autocapitalize="@(IsPasswordMode && PreventPasswordManager ? "off" : null)"
+                spellcheck="@(IsPasswordMode && PreventPasswordManager ? "false" : null)"
+                data-1p-ignore="@(IsPasswordMode && PreventPasswordManager ? "true" : null)"
+                data-lpignore="@(IsPasswordMode && PreventPasswordManager ? "true" : null)"
+                data-bwignore="@(IsPasswordMode && PreventPasswordManager ? "true" : null)"
+                data-form-type="@(IsPasswordMode && PreventPasswordManager ? "other" : null)"
+                aria-label="@AriaLabel"
+                aria-required="@Required"
+                aria-invalid="@HasError"
+                aria-describedby="@(HasVisibleError ? _errorId : null)"
+                class="@ComputedInputClass" />
+        }
 
-        @if (Type == "password")
+        @if (Type == "password" && ShowPasswordToggle)
         {
             <AppButton Color="@ComponentColor.Default"
                        Variant="@ButtonVariant.Light"
                        Size="@ComponentSize.Small"
                        IconOnly="true"
                        Class="mr-1.5 !text-slate-400 hover:!text-slate-600"
-                       aria-label="@(_isPasswordVisible ? "Hide password" : "Show password")"
+                       aria-label="@(EffectivePasswordVisible ? "Hide password" : "Show password")"
                        aria-controls="@_inputId"
-                       aria-pressed="@(_isPasswordVisible ? "true" : "false")"
-                       Title="@(_isPasswordVisible ? "Hide password" : "Show password")"
+                       aria-pressed="@(EffectivePasswordVisible ? "true" : "false")"
+                       Title="@(EffectivePasswordVisible ? "Hide password" : "Show password")"
                        OnClick="TogglePasswordVisibility">
-                <i class="fa-regular @(_isPasswordVisible ? "fa-eye-slash" : "fa-eye") text-sm" aria-hidden="true"></i>
+                <i class="fa-regular @(EffectivePasswordVisible ? "fa-eye-slash" : "fa-eye") text-sm" aria-hidden="true"></i>
             </AppButton>
         }
     </div>
