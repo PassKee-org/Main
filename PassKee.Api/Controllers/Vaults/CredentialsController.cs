@@ -34,6 +34,6 @@ public class CredentialsController : MainApiControllerBase
     [HttpDelete("{credentialId:guid}")]
     public Task<IActionResult> Delete([FromRoute] System.Guid credentialId)
         => this.RequestAsync()
-            .For<ActionResponse>()
+            .For<DeleteCredentialResponse>()
             .With(new DeleteCredentialRequest { CredentialId = credentialId });
 }

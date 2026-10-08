@@ -8,7 +8,7 @@ using PassKee.Orm.Dao.Vaults;
 
 namespace PassKee.Api.Controllers.Vaults.Actions;
 
-public class DeleteCredentialRequestHandler : IAsyncRequestHandler<DeleteCredentialRequest, ActionResponse>
+public class DeleteCredentialRequestHandler : IAsyncRequestHandler<DeleteCredentialRequest, DeleteCredentialResponse>
 {
     private readonly ICredentialDao _credentialDao;
     private readonly ISecurityService _securityService;
@@ -24,13 +24,17 @@ public class DeleteCredentialRequestHandler : IAsyncRequestHandler<DeleteCredent
         _apiRequestService = apiRequestService;
     }
 
-    public async Task<ActionResponse> ExecuteAsync(DeleteCredentialRequest request)
+    public async Task<DeleteCredentialResponse> ExecuteAsync(DeleteCredentialRequest request)
     {
         var userId = _apiRequestService.GetCurrentUserId();
         var cred = await _credentialDao.GetById(request.CredentialId);
         await _securityService.CheckAccess(AccessLevel.Write, userId, cred);
 
         await _credentialDao.DeleteAsync(cred!);
-        return new ActionResponse { Success = true };
+        return new DeleteCredentialResponse
+        {
+            Success = true,
+            CredentialId = request.CredentialId
+        };
     }
 }

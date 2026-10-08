@@ -2,6 +2,8 @@ using System;
 using System.Threading.Tasks;
 using Fluxor;
 using PassKee.Web.Core.Services.UI.Toast;
+using PassKee.Web.Core.Services.Vaults;
+using PassKee.Web.Models.Vaults;
 using PassKee.Web.Services.Vaults;
 
 namespace PassKee.Web.Store.Vaults.Effects;
@@ -9,12 +11,18 @@ namespace PassKee.Web.Store.Vaults.Effects;
 public class UpdateDirectoryEffect : Effect<UpdateDirectoryAction>
 {
     private readonly IVaultClientService _vaultService;
+    private readonly IVaultCryptoService _vaultCrypto;
     private readonly IToastService _toastService;
     private readonly IState<VaultsState> _vaultsState;
 
-    public UpdateDirectoryEffect(IVaultClientService vaultService, IToastService toastService, IState<VaultsState> vaultsState)
+    public UpdateDirectoryEffect(
+        IVaultClientService vaultService,
+        IVaultCryptoService vaultCrypto,
+        IToastService toastService,
+        IState<VaultsState> vaultsState)
     {
         _vaultService = vaultService;
+        _vaultCrypto = vaultCrypto;
         _toastService = toastService;
         _vaultsState = vaultsState;
     }
@@ -33,8 +41,10 @@ public class UpdateDirectoryEffect : Effect<UpdateDirectoryAction>
             var updated = await _vaultService.UpdateDirectoryAsync(action.DirectoryId, action.ParentId, action.Name, vaultKey);
             if (updated != null)
             {
+                var name = _vaultCrypto.DecryptDirectoryName(updated.EncryptedName, vaultKey);
+                var decryptedDir = new DecryptedDirectory(updated.Id, updated.VaultId, updated.ParentDirectoryId, name);
                 _toastService.ShowSuccess("Directory updated");
-                dispatcher.Dispatch(new LoadVaultDetailsAction(action.VaultId));
+                dispatcher.Dispatch(new UpdateDirectorySuccessAction(decryptedDir));
             }
         }
         catch

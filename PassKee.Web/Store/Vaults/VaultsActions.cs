@@ -37,8 +37,11 @@ public record ResetVaultsStateAction;
 // Directory CRUD
 public record SelectDirectoryAction(Guid? DirectoryId);
 public record CreateDirectoryAction(Guid VaultId, Guid? ParentId, string Name);
+public record CreateDirectorySuccessAction(DecryptedDirectory Directory);
 public record UpdateDirectoryAction(Guid VaultId, Guid DirectoryId, Guid? ParentId, string Name);
+public record UpdateDirectorySuccessAction(DecryptedDirectory Directory);
 public record DeleteDirectoryAction(Guid VaultId, Guid DirectoryId);
+public record DeleteDirectorySuccessAction(Guid VaultId, Guid DirectoryId, List<Guid>? DeletedDirectoryIds = null, List<Guid>? DeletedCredentialIds = null);
 
 // Credential CRUD
 public record CredentialSaveResult(Guid RequestId, Guid? VaultId, Guid? CredentialId, Guid? DirectoryId, string? ErrorMessage)
@@ -46,9 +49,12 @@ public record CredentialSaveResult(Guid RequestId, Guid? VaultId, Guid? Credenti
     public bool IsSuccess => CredentialId.HasValue;
 }
 
-public record CreateCredentialAction(Guid RequestId, CredentialType Type, PassKee.Api.Shared.Models.Vaults.Payloads.BaseCredentialPayload Payload, TaskCompletionSource<CredentialSaveResult> Completion);
+public record CreateCredentialAction(Guid RequestId, CredentialType Type, PassKee.Api.Shared.Models.Vaults.Payloads.BaseCredentialPayload Payload, TaskCompletionSource<CredentialSaveResult> Completion, Guid? DirectoryId = null);
+public record CreateCredentialSuccessAction(DecryptedCredential Credential);
 public record UpdateCredentialAction(Guid RequestId, Guid CredentialId, Guid? DirectoryId, CredentialType Type, PassKee.Api.Shared.Models.Vaults.Payloads.BaseCredentialPayload Payload, TaskCompletionSource<CredentialSaveResult> Completion);
+public record UpdateCredentialSuccessAction(DecryptedCredential Credential);
 public record DeleteCredentialAction(Guid VaultId, Guid CredentialId);
+public record DeleteCredentialSuccessAction(Guid VaultId, Guid CredentialId);
 
 // File upload (independent of credential save: an uploaded file is attached to a credential only when the credential is saved)
 public record FileUploadResult(Guid RequestId, PassKee.Api.Shared.Models.Storage.StoredFileDto? File, string? ErrorMessage)

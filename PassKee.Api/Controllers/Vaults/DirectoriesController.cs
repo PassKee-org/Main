@@ -34,6 +34,6 @@ public class DirectoriesController : MainApiControllerBase
     [HttpDelete("{directoryId:guid}")]
     public Task<IActionResult> Delete([FromRoute] System.Guid directoryId)
         => this.RequestAsync()
-            .For<ActionResponse>()
+            .For<DeleteDirectoryResponse>()
             .With(new DeleteDirectoryRequest { DirectoryId = directoryId });
 }

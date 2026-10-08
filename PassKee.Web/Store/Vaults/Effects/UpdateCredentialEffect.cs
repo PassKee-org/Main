@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
 using Fluxor;
+using PassKee.Web.Core.Services.Vaults;
+using PassKee.Web.Models.Vaults;
 using PassKee.Web.Services.Vaults;
 
 namespace PassKee.Web.Store.Vaults.Effects;
@@ -8,11 +10,16 @@ namespace PassKee.Web.Store.Vaults.Effects;
 public class UpdateCredentialEffect : Effect<UpdateCredentialAction>
 {
     private readonly IVaultClientService _vaultService;
+    private readonly IVaultCryptoService _vaultCrypto;
     private readonly IState<VaultsState> _vaultsState;
 
-    public UpdateCredentialEffect(IVaultClientService vaultService, IState<VaultsState> vaultsState)
+    public UpdateCredentialEffect(
+        IVaultClientService vaultService,
+        IVaultCryptoService vaultCrypto,
+        IState<VaultsState> vaultsState)
     {
         _vaultService = vaultService;
+        _vaultCrypto = vaultCrypto;
         _vaultsState = vaultsState;
     }
 
@@ -36,7 +43,10 @@ public class UpdateCredentialEffect : Effect<UpdateCredentialAction>
                 return;
             }
 
-            dispatcher.Dispatch(new LoadVaultDetailsAction(vaultId.Value));
+            var payload = _vaultCrypto.DecryptCredentialPayload(updated.EncryptedBody, updated.Type, vaultKey);
+            var decryptedCred = new DecryptedCredential(updated.Id, updated.VaultId, updated.DirectoryId, updated.Type, payload);
+
+            dispatcher.Dispatch(new UpdateCredentialSuccessAction(decryptedCred));
             action.Completion.TrySetResult(new CredentialSaveResult(action.RequestId, vaultId, updated.Id, updated.DirectoryId, null));
         }
         catch

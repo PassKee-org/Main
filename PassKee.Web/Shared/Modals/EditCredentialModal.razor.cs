@@ -386,7 +386,7 @@ public partial class EditCredentialModal : ComponentBase
         {
             if (isCreate)
             {
-                Dispatcher.Dispatch(new CreateCredentialAction(requestId, result.Type, payload, completion));
+                Dispatcher.Dispatch(new CreateCredentialAction(requestId, result.Type, payload, completion, _directoryId));
             }
             else
             {
