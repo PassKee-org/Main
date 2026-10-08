@@ -193,7 +193,67 @@ public partial class EditCredentialModal : ComponentBase
     {
         if (newType.HasValue)
         {
+            var oldType = Type;
             Type = newType.Value;
+
+            if (!_isExisting)
+            {
+                ApplyTemplateDefaults(Type, oldType);
+            }
+        }
+    }
+
+    private void ApplyTemplateDefaults(CredentialType newType, CredentialType oldType)
+    {
+        // If user switches type on a fresh new item, preload default structure
+        if (newType == CredentialType.Database)
+        {
+            _additionalFields =
+            [
+                new CredentialField { Type = CredentialFieldType.Text, Label = "Type" },
+                new CredentialField { Type = CredentialFieldType.Text, Label = "Server" },
+                new CredentialField { Type = CredentialFieldType.Text, Label = "Port" },
+                new CredentialField { Type = CredentialFieldType.Text, Label = "Database" },
+                new CredentialField { Type = CredentialFieldType.Text, Label = "Username" },
+                new CredentialField { Type = CredentialFieldType.Password, Label = "Password" },
+                new CredentialField { Type = CredentialFieldType.Text, Label = "SID" },
+                new CredentialField { Type = CredentialFieldType.Text, Label = "Alias" },
+                new CredentialField { Type = CredentialFieldType.Text, Label = "Connection options" }
+            ];
+            _sections = [];
+        }
+        else if (newType == CredentialType.Server)
+        {
+            _additionalFields = [];
+            _sections =
+            [
+                new CredentialSection
+                {
+                    Title = "Admin console",
+                    Fields =
+                    [
+                        new CredentialField { Type = CredentialFieldType.Url, Label = "Admin console URL" },
+                        new CredentialField { Type = CredentialFieldType.Text, Label = "Admin console username" },
+                        new CredentialField { Type = CredentialFieldType.Password, Label = "Console password" }
+                    ]
+                },
+                new CredentialSection
+                {
+                    Title = "Hosting provider",
+                    Fields =
+                    [
+                        new CredentialField { Type = CredentialFieldType.Text, Label = "Name" },
+                        new CredentialField { Type = CredentialFieldType.Url, Label = "Website" },
+                        new CredentialField { Type = CredentialFieldType.Url, Label = "Support URL" },
+                        new CredentialField { Type = CredentialFieldType.Phone, Label = "Support phone" }
+                    ]
+                }
+            ];
+        }
+        else if (oldType is CredentialType.Database or CredentialType.Server)
+        {
+            _additionalFields = [];
+            _sections = [];
         }
     }
 
@@ -204,6 +264,9 @@ public partial class EditCredentialModal : ComponentBase
         CredentialType.Card => "fa-solid fa-credit-card",
         CredentialType.SecureNote => "fa-solid fa-note-sticky",
         CredentialType.File => "fa-solid fa-file",
+        CredentialType.Database => "fa-solid fa-database",
+        CredentialType.SshKey => "fa-solid fa-terminal",
+        CredentialType.Server => "fa-solid fa-server",
         _ => "fa-solid fa-shield-halved"
     };
 
@@ -214,6 +277,9 @@ public partial class EditCredentialModal : ComponentBase
         CredentialType.Card => "Card",
         CredentialType.SecureNote => "Secure Note",
         CredentialType.File => "File",
+        CredentialType.Database => "Database",
+        CredentialType.SshKey => "SSH Key",
+        CredentialType.Server => "Server",
         _ => "Item"
     };
 
@@ -368,6 +434,9 @@ public partial class EditCredentialModal : ComponentBase
             CredentialType.Password => new PasswordCredentialPayload { Title = form.Title, Notes = form.Notes, Username = form.Username, Password = form.Password },
             CredentialType.Card => new CardCredentialPayload { Title = form.Title, Notes = form.Notes, CardNumber = form.CardNumber, CardholderName = form.CardholderName, ExpirationDate = form.ExpirationDate, Cvv = form.Cvv },
             CredentialType.File => new FileCredentialPayload { Title = form.Title, Notes = form.Notes, File = form.File },
+            CredentialType.Database => new DatabaseCredentialPayload { Title = form.Title, Notes = form.Notes },
+            CredentialType.SshKey => new SshKeyCredentialPayload { Title = form.Title, Notes = form.Notes, PrivateKeyFile = form.File },
+            CredentialType.Server => new ServerCredentialPayload { Title = form.Title, Notes = form.Notes, Url = form.Website, Username = form.Username, Password = form.Password },
             _ => new SecureNoteCredentialPayload { Title = form.Title, Notes = form.Notes }
         };
 
