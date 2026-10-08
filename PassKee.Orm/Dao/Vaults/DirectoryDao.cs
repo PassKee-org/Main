@@ -52,7 +52,7 @@ public class DirectoryDao : BaseDao, IDirectoryDao
         return directory;
     }
 
-    public async Task DeleteWithDescendantsAsync(DirectoryEntity directory, CancellationToken cancellationToken = default)
+    public async Task<(List<Guid> DeletedDirectoryIds, List<Guid> DeletedCredentialIds)> DeleteWithDescendantsAsync(DirectoryEntity directory, CancellationToken cancellationToken = default)
     {
         var allVaultDirs = await GetByVaultId(directory.VaultId, cancellationToken);
 
@@ -84,8 +84,12 @@ public class DirectoryDao : BaseDao, IDirectoryDao
             .Where(c => c.VaultId == directory.VaultId && dirIdsNullable.Contains(c.DirectoryId) && c.DeletedAt == null)
             .ToListAsync(cancellationToken);
 
+        var credIds = credentialsToDelete.Select(c => c.Id).ToList();
+
         await DeleteAsync(credentialsToDelete, cancellationToken);
         await DeleteAsync(dirsToDelete, cancellationToken);
+
+        return (dirIds, credIds);
     }
 }
 

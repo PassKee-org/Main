@@ -213,6 +213,16 @@ public partial class CredentialListBlock : BaseReactiveComponent
         {
             parameters.Add("File", filePayload.File);
         }
+        else if (cred?.Payload is SshKeyCredentialPayload sshKey)
+        {
+            parameters.Add("File", sshKey.PrivateKeyFile);
+        }
+        else if (cred?.Payload is ServerCredentialPayload server)
+        {
+            parameters.Add("Website", server.Url);
+            parameters.Add("Username", server.Username);
+            parameters.Add("Password", server.Password);
+        }
 
         await ModalService.ShowAsync<EditCredentialModal>(parameters, new PassKee.Web.Core.Services.UI.Modal.AppModalOptions
         {

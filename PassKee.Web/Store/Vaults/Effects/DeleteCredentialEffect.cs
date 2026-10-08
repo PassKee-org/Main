@@ -21,11 +21,11 @@ public class DeleteCredentialEffect : Effect<DeleteCredentialAction>
     {
         try
         {
-            var ok = await _vaultService.DeleteCredentialAsync(action.CredentialId);
-            if (ok)
+            var res = await _vaultService.DeleteCredentialAsync(action.CredentialId);
+            if (res != null && res.Success)
             {
                 _toastService.ShowSuccess("Credential deleted");
-                dispatcher.Dispatch(new LoadVaultDetailsAction(action.VaultId));
+                dispatcher.Dispatch(new DeleteCredentialSuccessAction(action.VaultId, action.CredentialId));
             }
         }
         catch

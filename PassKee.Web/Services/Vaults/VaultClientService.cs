@@ -88,7 +88,7 @@ public class VaultClientService : IVaultClientService
         return await _apiService.UpdateDirectoryAsync(directoryId, request);
     }
 
-    public Task<bool> DeleteDirectoryAsync(Guid directoryId)
+    public Task<DeleteDirectoryResponse?> DeleteDirectoryAsync(Guid directoryId)
     {
         return _apiService.DeleteDirectoryAsync(directoryId);
     }
@@ -121,7 +121,7 @@ public class VaultClientService : IVaultClientService
         return await _apiService.UpdateCredentialAsync(credentialId, request);
     }
 
-    public Task<bool> DeleteCredentialAsync(Guid credentialId)
+    public Task<DeleteCredentialResponse?> DeleteCredentialAsync(Guid credentialId)
     {
         return _apiService.DeleteCredentialAsync(credentialId);
     }

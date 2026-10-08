@@ -240,6 +240,9 @@ public class VaultCryptoServiceTests
     [InlineData(CredentialType.Card)]
     [InlineData(CredentialType.SecureNote)]
     [InlineData(CredentialType.File)]
+    [InlineData(CredentialType.Database)]
+    [InlineData(CredentialType.SshKey)]
+    [InlineData(CredentialType.Server)]
     public void Should_Preserve_Additional_Info_In_Encrypted_Payload(CredentialType type)
     {
         BaseCredentialPayload payload = type switch
@@ -248,6 +251,9 @@ public class VaultCryptoServiceTests
             CredentialType.Password => new PasswordCredentialPayload(),
             CredentialType.Card => new CardCredentialPayload(),
             CredentialType.File => new FileCredentialPayload(),
+            CredentialType.Database => new DatabaseCredentialPayload(),
+            CredentialType.SshKey => new SshKeyCredentialPayload(),
+            CredentialType.Server => new ServerCredentialPayload(),
             _ => new SecureNoteCredentialPayload()
         };
         foreach (var fieldType in Enum.GetValues<CredentialFieldType>())
@@ -288,6 +294,9 @@ public class VaultCryptoServiceTests
     [InlineData(CredentialType.Card)]
     [InlineData(CredentialType.SecureNote)]
     [InlineData(CredentialType.File)]
+    [InlineData(CredentialType.Database)]
+    [InlineData(CredentialType.SshKey)]
+    [InlineData(CredentialType.Server)]
     public void Should_Decrypt_Legacy_Payload_Without_Additional_Info(CredentialType type)
     {
         var vaultKey = CryptoUtils.GenerateRandomBytes(32);

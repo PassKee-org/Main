@@ -21,11 +21,16 @@ public class DeleteDirectoryEffect : Effect<DeleteDirectoryAction>
     {
         try
         {
-            var ok = await _vaultService.DeleteDirectoryAsync(action.DirectoryId);
-            if (ok)
+            var res = await _vaultService.DeleteDirectoryAsync(action.DirectoryId);
+            if (res != null && res.Success)
             {
                 _toastService.ShowSuccess("Directory deleted");
-                dispatcher.Dispatch(new LoadVaultDetailsAction(action.VaultId));
+                dispatcher.Dispatch(new DeleteDirectorySuccessAction(
+                    action.VaultId,
+                    action.DirectoryId,
+                    res.DeletedDirectoryIds,
+                    res.DeletedCredentialIds
+                ));
             }
         }
         catch

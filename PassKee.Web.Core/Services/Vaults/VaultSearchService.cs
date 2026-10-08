@@ -224,6 +224,25 @@ public class VaultSearchService : IVaultSearchService
                     return true;
                 }
             }
+            else if (cred.Payload is SshKeyCredentialPayload sshKey)
+            {
+                if (!string.IsNullOrWhiteSpace(sshKey.PrivateKeyFile?.FileName) && sshKey.PrivateKeyFile.FileName.Contains(token, comparison))
+                {
+                    return true;
+                }
+            }
+            else if (cred.Payload is ServerCredentialPayload server)
+            {
+                if (!string.IsNullOrWhiteSpace(server.Username) && server.Username.Contains(token, comparison))
+                {
+                    return true;
+                }
+
+                if (!string.IsNullOrWhiteSpace(server.Url) && server.Url.Contains(token, comparison))
+                {
+                    return true;
+                }
+            }
 
             if (cred.Payload.TagIds is { Count: > 0 })
             {

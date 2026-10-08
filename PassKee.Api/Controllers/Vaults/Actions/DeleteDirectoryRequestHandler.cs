@@ -8,7 +8,7 @@ using PassKee.Orm.Dao.Vaults;
 
 namespace PassKee.Api.Controllers.Vaults.Actions;
 
-public class DeleteDirectoryRequestHandler : IAsyncRequestHandler<DeleteDirectoryRequest, ActionResponse>
+public class DeleteDirectoryRequestHandler : IAsyncRequestHandler<DeleteDirectoryRequest, DeleteDirectoryResponse>
 {
     private readonly IDirectoryDao _directoryDao;
     private readonly ISecurityService _securityService;
@@ -24,13 +24,19 @@ public class DeleteDirectoryRequestHandler : IAsyncRequestHandler<DeleteDirector
         _apiRequestService = apiRequestService;
     }
 
-    public async Task<ActionResponse> ExecuteAsync(DeleteDirectoryRequest request)
+    public async Task<DeleteDirectoryResponse> ExecuteAsync(DeleteDirectoryRequest request)
     {
         var userId = _apiRequestService.GetCurrentUserId();
         var dir = await _directoryDao.GetById(request.DirectoryId);
         await _securityService.CheckAccess(AccessLevel.Write, userId, dir);
 
-        await _directoryDao.DeleteWithDescendantsAsync(dir!);
-        return new ActionResponse { Success = true };
+        var (deletedDirIds, deletedCredIds) = await _directoryDao.DeleteWithDescendantsAsync(dir!);
+        return new DeleteDirectoryResponse
+        {
+            Success = true,
+            DirectoryId = request.DirectoryId,
+            DeletedDirectoryIds = deletedDirIds,
+            DeletedCredentialIds = deletedCredIds
+        };
     }
 }

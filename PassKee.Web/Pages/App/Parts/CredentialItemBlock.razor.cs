@@ -62,6 +62,9 @@ public partial class CredentialItemBlock : ComponentBase
         CredentialType.Card => "fa-solid fa-credit-card",
         CredentialType.SecureNote => "fa-solid fa-note-sticky",
         CredentialType.File => "fa-solid fa-file",
+        CredentialType.Database => "fa-solid fa-database",
+        CredentialType.SshKey => "fa-solid fa-terminal",
+        CredentialType.Server => "fa-solid fa-server",
         _ => "fa-solid fa-shield-halved"
     };
 
@@ -72,6 +75,9 @@ public partial class CredentialItemBlock : ComponentBase
         CredentialType.Card => "Card",
         CredentialType.SecureNote => "Secure Note",
         CredentialType.File => "File",
+        CredentialType.Database => "Database",
+        CredentialType.SshKey => "SSH Key",
+        CredentialType.Server => "Server",
         _ => "Item"
     };
 

@@ -37,10 +37,9 @@ public partial class ApiService
         return res?.Directory;
     }
 
-    public async Task<bool> DeleteDirectoryAsync(Guid directoryId)
+    public async Task<DeleteDirectoryResponse?> DeleteDirectoryAsync(Guid directoryId)
     {
-        var res = await DeleteAsync<ActionResponse>(ApiUrl.VaultDirectory(directoryId));
-        return res?.Success ?? false;
+        return await DeleteAsync<DeleteDirectoryResponse>(ApiUrl.VaultDirectory(directoryId));
     }
 
     public async Task<CredentialDto?> CreateCredentialAsync(CreateCredentialRequest request)
@@ -55,10 +54,9 @@ public partial class ApiService
         return res?.Credential;
     }
 
-    public async Task<bool> DeleteCredentialAsync(Guid credentialId)
+    public async Task<DeleteCredentialResponse?> DeleteCredentialAsync(Guid credentialId)
     {
-        var res = await DeleteAsync<ActionResponse>(ApiUrl.VaultCredential(credentialId));
-        return res?.Success ?? false;
+        return await DeleteAsync<DeleteCredentialResponse>(ApiUrl.VaultCredential(credentialId));
     }
 
     public async Task<TagDto?> CreateTagAsync(CreateTagRequest request)

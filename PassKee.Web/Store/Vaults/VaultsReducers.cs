@@ -46,6 +46,89 @@ public static class VaultsReducers
         return state;
     }
 
+    [ReducerMethod]
+    public static VaultsState ReduceCreateDirectorySuccessAction(VaultsState state, CreateDirectorySuccessAction action)
+        => state with
+        {
+            Directories = state.Directories.Any(d => d.Id == action.Directory.Id)
+                ? state.Directories
+                : state.Directories.Append(action.Directory).ToList()
+        };
+
+    [ReducerMethod]
+    public static VaultsState ReduceUpdateDirectorySuccessAction(VaultsState state, UpdateDirectorySuccessAction action)
+        => state with
+        {
+            Directories = state.Directories.Any(d => d.Id == action.Directory.Id)
+                ? state.Directories.Select(d => d.Id == action.Directory.Id ? action.Directory : d).ToList()
+                : state.Directories.Append(action.Directory).ToList()
+        };
+
+    [ReducerMethod]
+    public static VaultsState ReduceDeleteDirectorySuccessAction(VaultsState state, DeleteDirectorySuccessAction action)
+    {
+        var deletedDirIds = new HashSet<Guid>(action.DeletedDirectoryIds ?? []);
+        deletedDirIds.Add(action.DirectoryId);
+        CollectAllDescendantIds(state.Directories, action.DirectoryId, deletedDirIds);
+
+        var deletedCredIds = new HashSet<Guid>(action.DeletedCredentialIds ?? []);
+
+        var remainingDirectories = state.Directories
+            .Where(d => !deletedDirIds.Contains(d.Id))
+            .ToList();
+
+        var remainingCredentials = state.Credentials
+            .Where(c => !deletedCredIds.Contains(c.Id) && !(c.DirectoryId.HasValue && deletedDirIds.Contains(c.DirectoryId.Value)))
+            .ToList();
+
+        var selectedDirectoryId = state.SelectedDirectoryId.HasValue && deletedDirIds.Contains(state.SelectedDirectoryId.Value)
+            ? null
+            : state.SelectedDirectoryId;
+
+        return state with
+        {
+            Directories = remainingDirectories,
+            Credentials = remainingCredentials,
+            SelectedDirectoryId = selectedDirectoryId
+        };
+    }
+
+    private static void CollectAllDescendantIds(List<DecryptedDirectory> directories, Guid parentId, HashSet<Guid> result)
+    {
+        foreach (var dir in directories)
+        {
+            if (dir.ParentDirectoryId == parentId && result.Add(dir.Id))
+            {
+                CollectAllDescendantIds(directories, dir.Id, result);
+            }
+        }
+    }
+
+    [ReducerMethod]
+    public static VaultsState ReduceCreateCredentialSuccessAction(VaultsState state, CreateCredentialSuccessAction action)
+        => state with
+        {
+            Credentials = state.Credentials.Any(c => c.Id == action.Credential.Id)
+                ? state.Credentials
+                : state.Credentials.Append(action.Credential).ToList()
+        };
+
+    [ReducerMethod]
+    public static VaultsState ReduceUpdateCredentialSuccessAction(VaultsState state, UpdateCredentialSuccessAction action)
+        => state with
+        {
+            Credentials = state.Credentials.Any(c => c.Id == action.Credential.Id)
+                ? state.Credentials.Select(c => c.Id == action.Credential.Id ? action.Credential : c).ToList()
+                : state.Credentials.Append(action.Credential).ToList()
+        };
+
+    [ReducerMethod]
+    public static VaultsState ReduceDeleteCredentialSuccessAction(VaultsState state, DeleteCredentialSuccessAction action)
+        => state with
+        {
+            Credentials = state.Credentials.Where(c => c.Id != action.CredentialId).ToList()
+        };
+
     private static bool IsDescendantDirectory(List<DecryptedDirectory> directories, Guid parentId, Guid? targetId)
     {
         if (!targetId.HasValue) return false;

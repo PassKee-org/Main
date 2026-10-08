@@ -116,6 +116,9 @@ public class VaultCryptoService : IVaultCryptoService
             CredentialType.SecureNote => JsonHelper.DeserializeObject<SecureNoteCredentialPayload>(json) ?? new SecureNoteCredentialPayload(),
             CredentialType.Card => JsonHelper.DeserializeObject<CardCredentialPayload>(json) ?? new CardCredentialPayload(),
             CredentialType.File => JsonHelper.DeserializeObject<FileCredentialPayload>(json) ?? new FileCredentialPayload(),
+            CredentialType.Database => JsonHelper.DeserializeObject<DatabaseCredentialPayload>(json) ?? new DatabaseCredentialPayload(),
+            CredentialType.SshKey => JsonHelper.DeserializeObject<SshKeyCredentialPayload>(json) ?? new SshKeyCredentialPayload(),
+            CredentialType.Server => JsonHelper.DeserializeObject<ServerCredentialPayload>(json) ?? new ServerCredentialPayload(),
             _ => new LoginCredentialPayload { Title = "Unknown Type" }
         };
     }

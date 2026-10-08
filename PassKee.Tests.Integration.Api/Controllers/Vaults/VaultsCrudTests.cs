@@ -81,10 +81,18 @@ public class VaultsCrudTests : BaseTest
         // 5. Delete Credential
         var deleteCredRes = await DeleteRequestAsync(ApiUrl.VaultCredential(credId), jwtToken);
         Assert.Equal(HttpStatusCode.OK, deleteCredRes.StatusCode);
+        var deleteCredDto = await deleteCredRes.Content.ReadFromJsonAsync<DeleteCredentialResponse>();
+        Assert.NotNull(deleteCredDto);
+        Assert.True(deleteCredDto.Success);
+        Assert.Equal(credId, deleteCredDto.CredentialId);
 
         // 6. Delete Directory
         var deleteDirRes = await DeleteRequestAsync(ApiUrl.VaultDirectory(dirId), jwtToken);
         Assert.Equal(HttpStatusCode.OK, deleteDirRes.StatusCode);
+        var deleteDirDto = await deleteDirRes.Content.ReadFromJsonAsync<DeleteDirectoryResponse>();
+        Assert.NotNull(deleteDirDto);
+        Assert.True(deleteDirDto.Success);
+        Assert.Contains(dirId, deleteDirDto.DeletedDirectoryIds);
     }
 
     [Fact]
@@ -192,6 +200,10 @@ public class VaultsCrudTests : BaseTest
         var deleteParentRes = await DeleteRequestAsync(ApiUrl.VaultDirectory(parentDir.Id), jwtToken);
         var deleteParentErr = await deleteParentRes.Content.ReadAsStringAsync();
         Assert.True(deleteParentRes.StatusCode == HttpStatusCode.OK, deleteParentErr);
+        var deleteParentDto = await deleteParentRes.Content.ReadFromJsonAsync<DeleteDirectoryResponse>();
+        Assert.NotNull(deleteParentDto);
+        Assert.Contains(parentDir.Id, deleteParentDto.DeletedDirectoryIds);
+        Assert.Contains(childDir3.Id, deleteParentDto.DeletedDirectoryIds);
 
         // 11. Verify vault details: all directories and credentials in the vault are gone
         var finalDetailsRes = await GetRequestAsync(ApiUrl.VaultDetails(vaultId), jwtToken);

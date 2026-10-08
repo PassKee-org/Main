@@ -17,5 +17,14 @@ public enum CredentialType
     Password = 4,
 
     [Description("File")]
-    File = 5
+    File = 5,
+
+    [Description("Database")]
+    Database = 6,
+
+    [Description("SSH Key")]
+    SshKey = 7,
+
+    [Description("Server")]
+    Server = 8
 }

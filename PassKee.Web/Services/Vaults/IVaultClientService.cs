@@ -22,10 +22,10 @@ public interface IVaultClientService
     Task<VaultDetailsResult> GetVaultDetailsAsync(Guid vaultId, byte[] userPrivateKey);
     Task<DirectoryDto?> CreateDirectoryAsync(Guid vaultId, Guid? parentId, string name, byte[] vaultKey);
     Task<DirectoryDto?> UpdateDirectoryAsync(Guid directoryId, Guid? parentId, string name, byte[] vaultKey);
-    Task<bool> DeleteDirectoryAsync(Guid directoryId);
+    Task<DeleteDirectoryResponse?> DeleteDirectoryAsync(Guid directoryId);
     Task<CredentialDto?> CreateCredentialAsync(Guid vaultId, Guid? directoryId, CredentialType type, BaseCredentialPayload payload, byte[] vaultKey);
     Task<CredentialDto?> UpdateCredentialAsync(Guid credentialId, Guid? directoryId, CredentialType type, BaseCredentialPayload payload, byte[] vaultKey);
-    Task<bool> DeleteCredentialAsync(Guid credentialId);
+    Task<DeleteCredentialResponse?> DeleteCredentialAsync(Guid credentialId);
     Task<DecryptedTag?> CreateTagAsync(Guid vaultId, string name, byte[] vaultKey);
     Task<DecryptedTag?> UpdateTagAsync(Guid tagId, string name, byte[] vaultKey);
     Task<PassKee.Api.Shared.Models.Storage.StoredFileDto?> UploadFileAsync(Guid vaultId, byte[] rawFileBytes, string originalFileName, byte[] vaultKey);
