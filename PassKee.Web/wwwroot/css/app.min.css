@@ -694,6 +694,9 @@
   .max-h-\[90vh\] {
     max-height: 90vh;
   }
+  .max-h-\[264px\] {
+    max-height: 264px;
+  }
   .max-h-\[calc\(100dvh-2rem\)\] {
     max-height: calc(100dvh - 2rem);
   }
@@ -705,6 +708,9 @@
   }
   .min-h-0 {
     min-height: calc(var(--spacing) * 0);
+  }
+  .min-h-7 {
+    min-height: calc(var(--spacing) * 7);
   }
   .min-h-8 {
     min-height: calc(var(--spacing) * 8);
@@ -729,6 +735,9 @@
   }
   .min-h-\[160px\] {
     min-height: 160px;
+  }
+  .min-h-\[176px\] {
+    min-height: 176px;
   }
   .min-h-\[400px\] {
     min-height: 400px;
@@ -879,6 +888,9 @@
   .max-w-\[85vw\] {
     max-width: 85vw;
   }
+  .max-w-\[160px\] {
+    max-width: 160px;
+  }
   .max-w-\[200px\] {
     max-width: 200px;
   }
@@ -1004,6 +1016,9 @@
   }
   .grid-cols-7 {
     grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+  .grid-cols-\[20px_minmax\(0\,1fr\)_16px\] {
+    grid-template-columns: 20px minmax(0,1fr) 16px;
   }
   .flex-col {
     flex-direction: column;
@@ -1139,6 +1154,11 @@
       border-top-style: var(--tw-border-style);
       border-top-width: calc(1px * var(--tw-divide-y-reverse));
       border-bottom-width: calc(1px * calc(1 - var(--tw-divide-y-reverse)));
+    }
+  }
+  .divide-slate-50 {
+    :where(& > :not(:last-child)) {
+      border-color: var(--color-slate-50);
     }
   }
   .divide-slate-100 {
@@ -1421,6 +1441,12 @@
   }
   .border-slate-200 {
     border-color: var(--color-slate-200);
+  }
+  .border-slate-200\/60 {
+    border-color: color-mix(in srgb, oklch(92.9% 0.013 255.508) 60%, transparent);
+    @supports (color: color-mix(in lab, red, red)) {
+      border-color: color-mix(in oklab, var(--color-slate-200) 60%, transparent);
+    }
   }
   .border-slate-200\/80 {
     border-color: color-mix(in srgb, oklch(92.9% 0.013 255.508) 80%, transparent);
@@ -2233,6 +2259,9 @@
   .uppercase {
     text-transform: uppercase;
   }
+  .italic {
+    font-style: italic;
+  }
   .tabular-nums {
     --tw-numeric-spacing: tabular-nums;
     font-variant-numeric: var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,);
@@ -2902,6 +2931,13 @@
       }
     }
   }
+  .hover\:bg-gray-100 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: var(--color-gray-100);
+      }
+    }
+  }
   .hover\:bg-rose-50 {
     &:hover {
       @media (hover: hover) {
@@ -3105,6 +3141,13 @@
     &:hover {
       @media (hover: hover) {
         color: var(--color-blue-700);
+      }
+    }
+  }
+  .hover\:text-gray-700 {
+    &:hover {
+      @media (hover: hover) {
+        color: var(--color-gray-700);
       }
     }
   }
@@ -3727,6 +3770,11 @@
   .sm\:py-10 {
     @media (width >= 40rem) {
       padding-block: calc(var(--spacing) * 10);
+    }
+  }
+  .sm\:pt-3 {
+    @media (width >= 40rem) {
+      padding-top: calc(var(--spacing) * 3);
     }
   }
   .sm\:pt-6 {

@@ -24,6 +24,12 @@ public partial class CredentialItemBlock : ComponentBase
     public EventCallback<DecryptedCredential> OnEdit { get; set; }
 
     [Parameter]
+    public EventCallback<DecryptedCredential> OnMove { get; set; }
+
+    [Parameter]
+    public EventCallback<DecryptedCredential> OnDuplicate { get; set; }
+
+    [Parameter]
     public EventCallback<DecryptedCredential> OnDelete { get; set; }
 
     [Parameter]
