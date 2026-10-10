@@ -9,6 +9,7 @@ public record DecryptedCredential(
     Guid VaultId,
     Guid? DirectoryId,
     CredentialType Type,
-    BaseCredentialPayload Payload
+    BaseCredentialPayload Payload,
+    DateTime? ArchivedAt = null
 );
 

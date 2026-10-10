@@ -30,11 +30,31 @@ public static class VaultsReducers
 
     [ReducerMethod]
     public static VaultsState ReduceSelectVaultAction(VaultsState state, SelectVaultAction action)
-        => state with { ActiveVaultId = action.VaultId, SelectedDirectoryId = null, SearchQuery = string.Empty };
+        => state with { ActiveVaultId = action.VaultId, SelectedDirectoryId = null, IsArchiveSelected = false, SearchQuery = string.Empty, ArchivedCredentials = [] };
 
     [ReducerMethod]
     public static VaultsState ReduceSelectDirectoryAction(VaultsState state, SelectDirectoryAction action)
-        => state with { SelectedDirectoryId = action.DirectoryId };
+        => state with { SelectedDirectoryId = action.DirectoryId, IsArchiveSelected = false };
+
+    [ReducerMethod]
+    public static VaultsState ReduceSelectArchiveAction(VaultsState state, SelectArchiveAction action)
+        => state with { IsArchiveSelected = true, SelectedDirectoryId = null, SearchQuery = string.Empty };
+
+    [ReducerMethod]
+    public static VaultsState ReduceLoadArchivedCredentialsAction(VaultsState state, LoadArchivedCredentialsAction action)
+        => state with { IsArchiveLoading = true };
+
+    [ReducerMethod]
+    public static VaultsState ReduceLoadArchivedCredentialsSuccessAction(VaultsState state, LoadArchivedCredentialsSuccessAction action)
+        => state.ActiveVaultId != action.VaultId ? state : state with
+        {
+            IsArchiveLoading = false,
+            ArchivedCredentials = action.Credentials
+        };
+
+    [ReducerMethod]
+    public static VaultsState ReduceLoadArchivedCredentialsFailureAction(VaultsState state, LoadArchivedCredentialsFailureAction action)
+        => state with { IsArchiveLoading = false };
 
     [ReducerMethod]
     public static VaultsState ReduceDeleteDirectoryAction(VaultsState state, DeleteDirectoryAction action)
@@ -119,15 +139,34 @@ public static class VaultsReducers
         {
             Credentials = state.Credentials.Any(c => c.Id == action.Credential.Id)
                 ? state.Credentials.Select(c => c.Id == action.Credential.Id ? action.Credential : c).ToList()
-                : state.Credentials.Append(action.Credential).ToList()
+                : state.Credentials,
+            ArchivedCredentials = state.ArchivedCredentials.Any(c => c.Id == action.Credential.Id)
+                ? state.ArchivedCredentials.Select(c => c.Id == action.Credential.Id ? action.Credential : c).ToList()
+                : state.ArchivedCredentials
         };
 
     [ReducerMethod]
     public static VaultsState ReduceDeleteCredentialSuccessAction(VaultsState state, DeleteCredentialSuccessAction action)
         => state with
         {
-            Credentials = state.Credentials.Where(c => c.Id != action.CredentialId).ToList()
+            Credentials = state.Credentials.Where(c => c.Id != action.CredentialId).ToList(),
+            ArchivedCredentials = state.ArchivedCredentials.Where(c => c.Id != action.CredentialId).ToList()
         };
+
+    [ReducerMethod]
+    public static VaultsState ReduceArchiveCredentialSuccessAction(VaultsState state, ArchiveCredentialSuccessAction action)
+    {
+        var archivedCred = action.Credential ?? state.Credentials.FirstOrDefault(c => c.Id == action.CredentialId);
+        var updatedArchived = archivedCred != null
+            ? state.ArchivedCredentials.Where(c => c.Id != action.CredentialId).Append(archivedCred with { ArchivedAt = archivedCred.ArchivedAt ?? DateTime.UtcNow }).ToList()
+            : state.ArchivedCredentials;
+
+        return state with
+        {
+            Credentials = state.Credentials.Where(c => c.Id != action.CredentialId).ToList(),
+            ArchivedCredentials = updatedArchived
+        };
+    }
 
     private static bool IsDescendantDirectory(List<DecryptedDirectory> directories, Guid parentId, Guid? targetId)
     {

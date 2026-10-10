@@ -26,6 +26,7 @@ public partial class EditCredentialModal : ComponentBase
     [Parameter] public Guid? CredentialId { get; set; }
     [Parameter] public Guid? DirectoryId { get; set; }
     [Parameter] public bool IsEdit { get; set; }
+    [Parameter] public bool IsArchived { get; set; }
     [Parameter] public bool StartInEditMode { get; set; }
     [Parameter] public CredentialType Type { get; set; } = CredentialType.Login;
     [Parameter] public string Title { get; set; } = string.Empty;
@@ -388,6 +389,18 @@ public partial class EditCredentialModal : ComponentBase
         finally
         {
             _isSaving = false;
+        }
+    }
+
+    private async Task ArchiveAsync()
+    {
+        if (!_credentialId.HasValue || !_credentialVaultId.HasValue) return;
+
+        var confirm = await ModalService.ShowConfirmationAsync($"Are you sure you want to archive '{Title}'?");
+        if (confirm)
+        {
+            Dispatcher.Dispatch(new ArchiveCredentialAction(_credentialVaultId.Value, _credentialId.Value));
+            ModalService.Close(ModalInstance, AppModalResult.Ok());
         }
     }
 

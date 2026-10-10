@@ -59,6 +59,18 @@ public partial class ApiService
         return await DeleteAsync<DeleteCredentialResponse>(ApiUrl.VaultCredential(credentialId));
     }
 
+    public async Task<CredentialDto?> ArchiveCredentialAsync(Guid credentialId)
+    {
+        var res = await PostAsync<CredentialResponse>(ApiUrl.VaultCredentialArchive(credentialId), new { });
+        return res?.Credential;
+    }
+
+    public async Task<List<CredentialDto>?> GetArchivedCredentialsAsync(Guid vaultId)
+    {
+        var res = await GetAsync<ArchivedCredentialsResponse>(ApiUrl.VaultArchivedCredentials(vaultId));
+        return res?.Credentials;
+    }
+
     public async Task<TagDto?> CreateTagAsync(CreateTagRequest request)
     {
         var res = await PostAsync<TagResponse>(ApiUrl.VaultTags, request);

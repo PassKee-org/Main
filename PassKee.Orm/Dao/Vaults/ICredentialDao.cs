@@ -15,5 +15,7 @@ public interface ICredentialDao : IBaseDao
     Task<IList<CredentialEntity>> GetByDirectoryIds(Guid vaultId, ICollection<Guid> directoryIds, CancellationToken cancellationToken = default);
     Task<CredentialEntity> CreateAsync(Guid vaultId, Guid? directoryId, CredentialType type, byte[] encryptedBody, CancellationToken cancellationToken = default);
     Task<CredentialEntity> UpdateAsync(CredentialEntity credential, Guid? directoryId, CredentialType type, byte[] encryptedBody, CancellationToken cancellationToken = default);
+    Task<IList<CredentialEntity>> GetArchivedByVaultId(Guid vaultId, CancellationToken cancellationToken = default);
+    Task<CredentialEntity> ArchiveAsync(CredentialEntity credential, CancellationToken cancellationToken = default);
 }
 

@@ -132,7 +132,7 @@ public class VaultCryptoService : IVaultCryptoService
         foreach (var cred in credentials)
         {
             var payload = DecryptCredentialPayload(cred.EncryptedBody, cred.Type, vaultKey);
-            list.Add(new DecryptedCredential(cred.Id, cred.VaultId, cred.DirectoryId, cred.Type, payload));
+            list.Add(new DecryptedCredential(cred.Id, cred.VaultId, cred.DirectoryId, cred.Type, payload, cred.ArchivedAt));
         }
 
         return list;

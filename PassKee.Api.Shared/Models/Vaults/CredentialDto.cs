@@ -10,4 +10,5 @@ public class CredentialDto
     public Guid? DirectoryId { get; set; }
     public CredentialType Type { get; set; }
     public byte[] EncryptedBody { get; set; } = null!;
+    public DateTime? ArchivedAt { get; set; }
 }

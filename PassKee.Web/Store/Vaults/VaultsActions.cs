@@ -55,6 +55,14 @@ public record UpdateCredentialAction(Guid RequestId, Guid CredentialId, Guid? Di
 public record UpdateCredentialSuccessAction(DecryptedCredential Credential);
 public record DeleteCredentialAction(Guid VaultId, Guid CredentialId);
 public record DeleteCredentialSuccessAction(Guid VaultId, Guid CredentialId);
+public record ArchiveCredentialAction(Guid VaultId, Guid CredentialId);
+public record ArchiveCredentialSuccessAction(Guid VaultId, Guid CredentialId, DecryptedCredential? Credential = null);
+
+// Archive Navigation & Loading
+public record SelectArchiveAction;
+public record LoadArchivedCredentialsAction(Guid VaultId);
+public record LoadArchivedCredentialsSuccessAction(Guid VaultId, List<DecryptedCredential> Credentials);
+public record LoadArchivedCredentialsFailureAction;
 
 // File upload (independent of credential save: an uploaded file is attached to a credential only when the credential is saved)
 public record FileUploadResult(Guid RequestId, PassKee.Api.Shared.Models.Storage.StoredFileDto? File, string? ErrorMessage)
