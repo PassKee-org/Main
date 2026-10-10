@@ -8,6 +8,7 @@ using PassKee.Api.Shared.Models.Vaults.Payloads;
 using PassKee.Business.Common.Constants;
 using PassKee.Web.Components;
 using PassKee.Web.Core.Services.Vaults;
+using PassKee.Web.Core.Utils;
 using PassKee.Web.Models.Vaults;
 using PassKee.Web.Shared.Modals;
 using PassKee.Web.Store.Vaults;
@@ -229,6 +230,51 @@ public partial class CredentialListBlock : BaseReactiveComponent
             Size = PassKee.Web.Core.Services.UI.Modal.AppModalSize.Large,
             ModalClass = "!border-gray-200/80 !shadow-2xl"
         });
+    }
+
+    private async Task OpenMoveModal(DecryptedCredential cred)
+    {
+        var parameters = new Dictionary<string, object?>
+        {
+            { "Credential", cred }
+        };
+
+        await ModalService.ShowAsync<MoveCredentialModal>(parameters, new PassKee.Web.Core.Services.UI.Modal.AppModalOptions
+        {
+            Size = PassKee.Web.Core.Services.UI.Modal.AppModalSize.Small
+        });
+    }
+
+    private async Task DuplicateCredential(DecryptedCredential cred)
+    {
+        var activeVaultId = VaultsState.Value.ActiveVaultId;
+        if (!activeVaultId.HasValue)
+        {
+            ToastService.ShowError("Vault is locked or not selected.");
+            return;
+        }
+
+        var clonedPayload = CredentialCloner.CloneWithCopyTitle(cred.Payload);
+        var requestId = Guid.NewGuid();
+        var completion = new TaskCompletionSource<CredentialSaveResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        try
+        {
+            Dispatcher.Dispatch(new CreateCredentialAction(requestId, cred.Type, clonedPayload, completion, cred.DirectoryId));
+            var result = await completion.Task;
+            if (result.IsSuccess)
+            {
+                ToastService.ShowSuccess($"\"{clonedPayload.Title}\" created");
+            }
+            else
+            {
+                ToastService.ShowError(result.ErrorMessage ?? "Error duplicating credential");
+            }
+        }
+        catch
+        {
+            ToastService.ShowError("Error duplicating credential");
+        }
     }
 
     private async Task DeleteCredential(DecryptedCredential cred)

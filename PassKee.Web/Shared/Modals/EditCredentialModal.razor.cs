@@ -9,6 +9,7 @@ using PassKee.Api.Shared.Models.Vaults.Payloads;
 using PassKee.Business.Common.Constants;
 using PassKee.Web.Core.Services.UI.Modal;
 using PassKee.Web.Core.Services.UI.Toast;
+using PassKee.Web.Core.Utils;
 using PassKee.Web.Models.Vaults;
 using PassKee.Web.Store.Vaults;
 
@@ -318,6 +319,84 @@ public partial class EditCredentialModal : ComponentBase
         var completion = new TaskCompletionSource<DecryptedTag?>(TaskCreationOptions.RunContinuationsAsynchronously);
         Dispatcher.Dispatch(new CreateTagAction(activeVaultId.Value, name, completion));
         return await completion.Task;
+    }
+
+    private async Task OpenMoveModalAsync()
+    {
+        if (!_credentialId.HasValue) return;
+
+        var cred = VaultsState.Value.Credentials.FirstOrDefault(c => c.Id == _credentialId.Value);
+        if (cred == null) return;
+
+        var parameters = new Dictionary<string, object?>
+        {
+            { "Credential", cred }
+        };
+
+        var result = await ModalService.ShowAsync<MoveCredentialModal>(parameters, new AppModalOptions
+        {
+            Size = AppModalSize.Small
+        });
+
+        if (result.IsSuccess)
+        {
+            _directoryId = result.Data as Guid?;
+            StateHasChanged();
+        }
+    }
+
+    private async Task DuplicateAsync()
+    {
+        if (_isSaving || !_credentialId.HasValue) return;
+
+        var cred = VaultsState.Value.Credentials.FirstOrDefault(c => c.Id == _credentialId.Value);
+        if (cred == null) return;
+
+        var activeVaultId = VaultsState.Value.ActiveVaultId;
+        if (!activeVaultId.HasValue)
+        {
+            ToastService.ShowError("Vault is locked or not selected.");
+            return;
+        }
+
+        var clonedPayload = CredentialCloner.CloneWithCopyTitle(cred.Payload);
+        var requestId = Guid.NewGuid();
+        var completion = new TaskCompletionSource<CredentialSaveResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        _isSaving = true;
+        try
+        {
+            Dispatcher.Dispatch(new CreateCredentialAction(requestId, cred.Type, clonedPayload, completion, cred.DirectoryId));
+            var result = await completion.Task;
+            if (result.IsSuccess)
+            {
+                ToastService.ShowSuccess($"\"{clonedPayload.Title}\" created");
+            }
+            else
+            {
+                ToastService.ShowError(result.ErrorMessage ?? "Error duplicating credential");
+            }
+        }
+        catch
+        {
+            ToastService.ShowError("Error duplicating credential");
+        }
+        finally
+        {
+            _isSaving = false;
+        }
+    }
+
+    private async Task DeleteAsync()
+    {
+        if (!_credentialId.HasValue || !_credentialVaultId.HasValue) return;
+
+        var confirm = await ModalService.ShowConfirmationAsync($"Are you sure you want to delete '{Title}'?");
+        if (confirm)
+        {
+            Dispatcher.Dispatch(new DeleteCredentialAction(_credentialVaultId.Value, _credentialId.Value));
+            ModalService.Close(ModalInstance, AppModalResult.Ok());
+        }
     }
 
     private void Cancel()
