@@ -49,6 +49,7 @@ builder.Services.AddScoped<ApiService>();
 // Storage, Crypto & Business Services
 builder.Services.AddScoped<PassKee.Web.Services.Storage.ISessionLockStorageService, PassKee.Web.Services.Storage.SessionLockStorageService>();
 builder.Services.AddScoped<PassKee.Web.Services.Auth.IAuthClientService, PassKee.Web.Services.Auth.AuthClientService>();
+builder.Services.AddScoped<PassKee.Web.Services.Auth.IInactivityLockService, PassKee.Web.Services.Auth.InactivityLockService>();
 builder.Services.AddScoped<PassKee.Web.Core.Services.Vaults.IVaultCryptoService, PassKee.Web.Core.Services.Vaults.VaultCryptoService>();
 builder.Services.AddScoped<PassKee.Web.Core.Services.Vaults.IVaultSearchService, PassKee.Web.Core.Services.Vaults.VaultSearchService>();
 builder.Services.AddScoped<PassKee.Web.Services.Vaults.IVaultClientService, PassKee.Web.Services.Vaults.VaultClientService>();
