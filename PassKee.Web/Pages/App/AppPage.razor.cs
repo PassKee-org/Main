@@ -1,5 +1,6 @@
 using Fluxor;
 using Microsoft.AspNetCore.Components;
+using PassKee.Web.Services.Auth;
 using PassKee.Web.Store.Vaults;
 
 namespace PassKee.Web.Pages.App;
@@ -7,6 +8,7 @@ namespace PassKee.Web.Pages.App;
 public partial class AppPage
 {
     [Inject] public IState<VaultsState> VaultsState { get; set; } = null!;
+    [Inject] public IInactivityLockService InactivityLockService { get; set; } = null!;
 
     protected bool IsMobileDrawerOpen { get; set; }
     protected void ToggleMobileDrawer() => IsMobileDrawerOpen = !IsMobileDrawerOpen;
@@ -20,6 +22,8 @@ public partial class AppPage
             NavigationManager.NavigateTo("/login");
             return;
         }
+
+        InactivityLockService.Initialize();
 
         if (!VaultsState.Value.Vaults.Any() && !VaultsState.Value.IsLoading)
         {
