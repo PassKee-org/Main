@@ -185,6 +185,7 @@ public partial class CredentialListBlock : BaseReactiveComponent
             { "Type", cred != null ? cred.Type : CredentialType.Login },
             { "Title", cred?.Payload?.Title ?? string.Empty },
             { "Notes", cred?.Payload?.Notes ?? string.Empty },
+            { "Icon", cred?.Payload?.Icon },
             { "TagIds", cred?.Payload?.TagIds?.ToList() ?? new List<Guid>() },
             { "AdditionalFields", cred?.Payload?.AdditionalFields ?? [] },
             { "Sections", cred?.Payload?.Sections ?? [] },

@@ -1,0 +1,140 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components.Emoji
+@using PassKee.Web.Core.Ui.Shared.Components
+@using PassKee.Web.Core.Ui.Shared.Components.Dropdown
+@using PassKee.Web.Core.Ui.Shared.Components.Enums
+
+<div class="relative inline-block text-left @Class"
+     @onkeydown="HandleKeyDown">
+    @if (Trigger != null)
+    {
+        <div class="inline-flex items-center cursor-pointer"
+             @onclick="TogglePicker"
+             @onclick:stopPropagation="true">
+            @Trigger
+        </div>
+    }
+    else
+    {
+        <AppButton Color="@ComponentColor.Default"
+                   Variant="@ButtonVariant.Light"
+                   Size="@ComponentSize.Small"
+                   OnClick="@TogglePicker"
+                   Disabled="@Disabled"
+                   Title="@Title"
+                   Class="text-slate-500 hover:text-blue-600">
+            <StartContent>
+                <span class="text-base leading-none">@(string.IsNullOrWhiteSpace(Value) ? "😊" : Value)</span>
+            </StartContent>
+        </AppButton>
+    }
+
+    @if (_isOpen)
+    {
+        <div class="fixed inset-0 z-40 bg-transparent"
+             @onclick="ClosePicker"
+             @onclick:stopPropagation="true">
+        </div>
+
+        <div class="absolute @AlignmentClass top-full mt-1.5 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-3 shadow-xl shadow-slate-900/10 dark:shadow-black/40 @PanelClass"
+             @onclick:stopPropagation="true">
+            <!-- Search & Custom input -->
+            <div class="relative mb-2">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400"></i>
+                <input type="text"
+                       class="w-full rounded-lg border border-slate-200 bg-slate-50 pl-8 pr-8 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                       placeholder="Search emoji or paste HTML code..."
+                       value="@_searchQuery"
+                       @oninput="HandleSearchInput" />
+                @if (!string.IsNullOrWhiteSpace(_searchQuery))
+                {
+                    <button type="button"
+                            class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs cursor-pointer"
+                            @onclick="ClearSearch">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                }
+            </div>
+
+            <!-- Custom symbol quick apply -->
+            @if (!string.IsNullOrWhiteSpace(CustomSymbolPreview))
+            {
+                <div class="mb-2 flex items-center justify-between rounded-lg bg-blue-50/70 border border-blue-200/70 px-2.5 py-1.5 text-xs">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="text-lg leading-none">@CustomSymbolPreview</span>
+                        <span class="text-slate-600 truncate">Use custom symbol</span>
+                    </div>
+                    <button type="button"
+                            class="rounded px-2 py-0.5 text-xs font-medium text-blue-600 bg-white border border-blue-200 hover:bg-blue-50 shadow-2xs cursor-pointer transition-colors"
+                            @onclick="() => SelectCustomSymbol(CustomSymbolPreview)">
+                        Apply
+                    </button>
+                </div>
+            }
+
+            <!-- Reset to default button -->
+            @if (ShowResetButton && !string.IsNullOrWhiteSpace(Value))
+            {
+                <div class="mb-2">
+                    <button type="button"
+                            class="w-full flex items-center justify-center gap-1.5 rounded-lg border border-dashed border-slate-300 py-1 text-xs text-slate-600 hover:border-rose-300 hover:bg-rose-50 hover:text-rose-600 cursor-pointer transition"
+                            @onclick="ResetEmoji">
+                        <i class="fa-solid fa-arrow-rotate-left text-[10px]"></i>
+                        Reset to default icon
+                    </button>
+                </div>
+            }
+
+            <!-- Category chips -->
+            <div class="mb-2.5 flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none text-[11px]">
+                @foreach (var cat in _categories)
+                {
+                    <button type="button"
+                            class="shrink-0 rounded-full px-2 py-0.5 font-medium transition cursor-pointer @(_selectedCategory == cat ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200")"
+                            @onclick="() => SetCategory(cat)">
+                        @cat
+                    </button>
+                }
+            </div>
+
+            <!-- Scrollable emoji list -->
+            <div class="max-h-64 overflow-y-auto overscroll-contain pr-1 scrollbar-thin space-y-3">
+                @if (GroupedEmojis.Any())
+                {
+                    @foreach (var group in GroupedEmojis)
+                    {
+                        <div>
+                            <h4 class="mb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400">@group.Key</h4>
+                            <div class="grid grid-cols-8 gap-1">
+                                @foreach (var emoji in group)
+                                {
+                                    <button type="button"
+                                            title="@($"{emoji.Name} ({emoji.HtmlCode})")"
+                                            class="flex h-8 w-8 items-center justify-center rounded-lg text-lg transition hover:bg-blue-50 hover:scale-110 active:scale-95 focus:bg-blue-50 focus:outline-none cursor-pointer @(IsSelected(emoji) ? "bg-blue-100 ring-2 ring-blue-500" : "")"
+                                            @onclick="() => SelectEmoji(emoji)">
+                                        @emoji.Symbol
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="py-6 text-center text-xs text-slate-400">
+                        No emojis found
+                    </div>
+                }
+            </div>
+
+            <!-- Footer hint -->
+            <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400">
+                <span>Select emoji or paste HTML code</span>
+                @if (!string.IsNullOrWhiteSpace(Value))
+                {
+                    <span class="text-slate-600">Current: <span class="text-sm">@Value</span></span>
+                }
+            </div>
+        </div>
+    }
+</div>
+
