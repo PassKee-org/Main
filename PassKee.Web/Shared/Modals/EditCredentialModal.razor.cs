@@ -30,6 +30,7 @@ public partial class EditCredentialModal : ComponentBase
     [Parameter] public CredentialType Type { get; set; } = CredentialType.Login;
     [Parameter] public string Title { get; set; } = string.Empty;
     [Parameter] public string? Notes { get; set; }
+    [Parameter] public string? Icon { get; set; }
     [Parameter] public List<Guid> TagIds { get; set; } = [];
     [Parameter] public List<CredentialField> AdditionalFields { get; set; } = [];
     [Parameter] public List<CredentialSection> Sections { get; set; } = [];
@@ -62,6 +63,7 @@ public partial class EditCredentialModal : ComponentBase
     // Snapshot state for reverting when canceling an edit of existing credential
     private string _initialTitle = string.Empty;
     private string? _initialNotes;
+    private string? _initialIcon;
     private List<Guid> _initialTagIds = [];
     private string? _initialUsername;
     private string? _initialPassword;
@@ -97,6 +99,7 @@ public partial class EditCredentialModal : ComponentBase
     {
         _initialTitle = Title;
         _initialNotes = Notes;
+        _initialIcon = Icon;
         _initialTagIds = _tagIds.ToList();
         _initialUsername = Username;
         _initialPassword = Password;
@@ -142,6 +145,7 @@ public partial class EditCredentialModal : ComponentBase
         // Revert to initial snapshot
         Title = _initialTitle;
         Notes = _initialNotes;
+        Icon = _initialIcon;
         _tagIds = _initialTagIds.ToList();
         Username = _initialUsername;
         Password = _initialPassword;
@@ -441,6 +445,7 @@ public partial class EditCredentialModal : ComponentBase
             Type = Type,
             Title = Title,
             Notes = Notes,
+            Icon = EmojiHelper.FormatEmoji(Icon),
             TagIds = _tagIds.ToList(),
             AdditionalFields = _additionalFields,
             Sections = _sections,
@@ -505,6 +510,18 @@ public partial class EditCredentialModal : ComponentBase
         }
     }
 
+    private void OnEmojiSelected(string? emoji)
+    {
+        Icon = EmojiHelper.FormatEmoji(emoji);
+        StateHasChanged();
+    }
+
+    private void ClearIcon()
+    {
+        Icon = null;
+        StateHasChanged();
+    }
+
     private static BaseCredentialPayload BuildCredentialPayload(CredentialModalResult form)
     {
         BaseCredentialPayload payload = form.Type switch
@@ -519,6 +536,7 @@ public partial class EditCredentialModal : ComponentBase
             _ => new SecureNoteCredentialPayload { Title = form.Title, Notes = form.Notes }
         };
 
+        payload.Icon = EmojiHelper.FormatEmoji(form.Icon);
         payload.TagIds = form.TagIds;
         payload.AdditionalFields = form.AdditionalFields;
         payload.Sections = form.Sections;
@@ -531,6 +549,7 @@ public class CredentialModalResult
     public CredentialType Type { get; set; }
     public string Title { get; set; } = string.Empty;
     public string? Notes { get; set; }
+    public string? Icon { get; set; }
     public List<Guid> TagIds { get; set; } = [];
     public List<CredentialField> AdditionalFields { get; set; } = [];
     public List<CredentialSection> Sections { get; set; } = [];

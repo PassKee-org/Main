@@ -81,4 +81,18 @@ public class CredentialClonerTests
         Assert.Single(clone.Sections);
         Assert.NotSame(original.Sections, clone.Sections);
     }
+
+    [Fact]
+    public void CloneWithCopyTitle_WhenIconIsSet_PreservesIcon()
+    {
+        var original = new LoginCredentialPayload
+        {
+            Title = "My Bank",
+            Icon = "🏦"
+        };
+
+        var clone = CredentialCloner.CloneWithCopyTitle(original);
+
+        Assert.Equal("🏦", clone.Icon);
+    }
 }
