@@ -27,14 +27,21 @@ public class CredentialDao : BaseDao, ICredentialDao
     public async Task<IList<CredentialEntity>> GetByVaultId(Guid vaultId, CancellationToken cancellationToken = default)
     {
         return await Session.Query<CredentialEntity>()
-            .Where(x => x.VaultId == vaultId && x.DeletedAt == null)
+            .Where(x => x.VaultId == vaultId && x.DeletedAt == null && x.ArchivedAt == null)
             .ToListAsync(cancellationToken);
     }
 
     public async Task<IList<CredentialEntity>> GetByDirectoryIds(Guid vaultId, ICollection<Guid> directoryIds, CancellationToken cancellationToken = default)
     {
         return await Session.Query<CredentialEntity>()
-            .Where(c => c.VaultId == vaultId && c.DirectoryId.HasValue && directoryIds.Contains(c.DirectoryId.Value) && c.DeletedAt == null)
+            .Where(c => c.VaultId == vaultId && c.DirectoryId.HasValue && directoryIds.Contains(c.DirectoryId.Value) && c.DeletedAt == null && c.ArchivedAt == null)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IList<CredentialEntity>> GetArchivedByVaultId(Guid vaultId, CancellationToken cancellationToken = default)
+    {
+        return await Session.Query<CredentialEntity>()
+            .Where(x => x.VaultId == vaultId && x.DeletedAt == null && x.ArchivedAt != null)
             .ToListAsync(cancellationToken);
     }
 
@@ -56,6 +63,15 @@ public class CredentialDao : BaseDao, ICredentialDao
         credential.DirectoryId = directoryId;
         credential.Type = type;
         credential.EncryptedBody = encryptedBody;
+        credential.UpdatedAt = DateTime.UtcNow;
+
+        await Session.UpdateAsync(credential, cancellationToken);
+        return credential;
+    }
+
+    public async Task<CredentialEntity> ArchiveAsync(CredentialEntity credential, CancellationToken cancellationToken = default)
+    {
+        credential.ArchivedAt = DateTime.UtcNow;
         credential.UpdatedAt = DateTime.UtcNow;
 
         await Session.UpdateAsync(credential, cancellationToken);

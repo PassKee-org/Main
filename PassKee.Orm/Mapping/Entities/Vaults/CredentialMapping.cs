@@ -1,4 +1,5 @@
 using PassKee.Orm.Entities.Vaults;
+using PassKee.Orm.Extensions;
 using PassKee.Orm.Mapping.Common;
 
 namespace PassKee.Orm.Mapping.Entities.Vaults;
@@ -12,5 +13,6 @@ public class CredentialMapping : BaseGuidMappings<CredentialEntity>
         Map(x => x.DirectoryId).Column("directory_id").Nullable();
         Map(x => x.Type).Column("type").CustomType<int>().Not.Nullable();
         Map(x => x.EncryptedBody).Column("encrypted_body").Not.Nullable();
+        Map(x => x.ArchivedAt).Column("archived_at").DateTimeNullable();
     }
 }

@@ -55,35 +55,35 @@
             </AppButton>
         </AppCardHeader>
         <AppCardBody Class="p-2 flex-1 overflow-y-auto">
-            @if (!VaultsState.Value.Directories.Any())
-            {
-                <div class="p-4 text-center text-sm text-slate-500">
-                    No directories yet.
-                </div>
-            }
-            else
-            {
-                <div class="flex flex-col gap-1">
-                    <div class="group flex items-center justify-between py-1.5 px-2 rounded-md cursor-pointer transition-colors
-                                @(VaultsState.Value.SelectedDirectoryId == null ? "bg-blue-50 text-blue-700 font-medium" : "text-slate-600 hover:bg-slate-100")"
-                         @onclick="() => SelectDirectory(null)"
-                         @ondragover="HandleRootDragOver"
-                         @ondragover:preventDefault="true"
-                         @ondrop="HandleRootDrop"
-                         @ondrop:preventDefault="true">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-vault text-blue-500 ml-1"></i>
-                            <span class="text-sm">All Items</span>
-                        </div>
+            <div class="flex flex-col gap-1">
+                <div class="group flex items-center justify-between py-1.5 px-2 rounded-md cursor-pointer transition-colors
+                            @(!VaultsState.Value.IsArchiveSelected && VaultsState.Value.SelectedDirectoryId == null ? "bg-blue-50 text-blue-700 font-medium" : "text-slate-600 hover:bg-slate-100")"
+                     @onclick="() => SelectDirectory(null)"
+                     @ondragover="HandleRootDragOver"
+                     @ondragover:preventDefault="true"
+                     @ondrop="HandleRootDrop"
+                     @ondrop:preventDefault="true">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-vault text-blue-500 ml-1"></i>
+                        <span class="text-sm">All Items</span>
                     </div>
+                </div>
 
-                    @{ EnsureDirectoryStructure(); }
+                @if (!VaultsState.Value.Directories.Any())
+                {
+                    <div class="px-3 py-2 text-xs text-slate-400">
+                        No directories yet.
+                    </div>
+                }
+                else
+                {
+                    EnsureDirectoryStructure();
                     @foreach (var dir in _rootDirectories)
                     {
                         <DirectoryNode Directory="@dir" 
                                        ChildrenMap="@_childrenMap" 
                                        DirectoryMap="@_directoryMap" 
-                                       SelectedDirectoryId="@VaultsState.Value.SelectedDirectoryId"
+                                       SelectedDirectoryId="@(VaultsState.Value.IsArchiveSelected ? null : VaultsState.Value.SelectedDirectoryId)"
                                        ExpandedAncestorIds="@_expandedAncestorIds"
                                        OnSelect="@SelectDirectory"
                                        OnAddSubdirectory="@OpenCreateSubDirectoryModal"
@@ -91,8 +91,17 @@
                                        OnEdit="@OpenDirectoryModal"
                                        OnDelete="@DeleteDirectory" />
                     }
+                }
+
+                <div class="group flex items-center justify-between py-1.5 px-2 rounded-md cursor-pointer transition-colors mt-1 pt-1 border-t border-slate-100
+                            @(VaultsState.Value.IsArchiveSelected ? "bg-blue-50 text-blue-700 font-medium" : "text-slate-600 hover:bg-slate-100")"
+                     @onclick="SelectArchive">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-box-archive text-amber-500 ml-1"></i>
+                        <span class="text-sm">Archive</span>
+                    </div>
                 </div>
-            }
+            </div>
         </AppCardBody>
     </AppCard>
 </div>

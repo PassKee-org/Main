@@ -36,4 +36,10 @@ public class CredentialsController : MainApiControllerBase
         => this.RequestAsync()
             .For<DeleteCredentialResponse>()
             .With(new DeleteCredentialRequest { CredentialId = credentialId });
+
+    [HttpPost("{credentialId:guid}/archive")]
+    public Task<IActionResult> Archive([FromRoute] System.Guid credentialId)
+        => this.RequestAsync()
+            .For<CredentialResponse>()
+            .With(new ArchiveCredentialRequest { CredentialId = credentialId });
 }

@@ -20,6 +20,9 @@ public record VaultsState
     public List<DecryptedCredential> Credentials { get; init; } = new();
     public List<DecryptedTag> Tags { get; init; } = new();
     public Guid? SelectedDirectoryId { get; init; }
+    public bool IsArchiveSelected { get; init; }
+    public bool IsArchiveLoading { get; init; }
+    public List<DecryptedCredential> ArchivedCredentials { get; init; } = new();
 
     public int PendingFileUploads { get; init; }
     public string SearchQuery { get; init; } = string.Empty;

@@ -81,7 +81,7 @@ public class DirectoryDao : BaseDao, IDirectoryDao
         var dirIdsNullable = dirIds.Cast<Guid?>().ToList();
 
         var credentialsToDelete = await Session.Query<CredentialEntity>()
-            .Where(c => c.VaultId == directory.VaultId && dirIdsNullable.Contains(c.DirectoryId) && c.DeletedAt == null)
+            .Where(c => c.VaultId == directory.VaultId && dirIdsNullable.Contains(c.DirectoryId) && c.DeletedAt == null && c.ArchivedAt == null)
             .ToListAsync(cancellationToken);
 
         var credIds = credentialsToDelete.Select(c => c.Id).ToList();

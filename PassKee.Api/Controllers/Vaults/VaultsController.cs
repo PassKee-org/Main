@@ -28,6 +28,12 @@ public class VaultsController : MainApiControllerBase
             .For<VaultDetailsResponse>()
             .With(new GetVaultDetailsRequest { VaultId = vaultId });
 
+    [HttpGet("{vaultId:guid}/credentials/archived")]
+    public Task<IActionResult> GetArchivedCredentials([FromRoute] System.Guid vaultId)
+        => this.RequestAsync()
+            .For<ArchivedCredentialsResponse>()
+            .With(new GetArchivedCredentialsRequest { VaultId = vaultId });
+
     [HttpPost]
     public Task<IActionResult> CreateVault([FromBody] CreateVaultRequest request)
         => this.RequestAsync()

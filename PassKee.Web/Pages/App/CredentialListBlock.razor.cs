@@ -32,6 +32,7 @@ public partial class CredentialListBlock : BaseReactiveComponent
 
     private string? _cachedCredsQuery;
     private Guid? _cachedSelectedDirId;
+    private bool _cachedIsArchiveSelected;
     private List<DecryptedCredential>? _cachedCredentialsRef;
     private ICollection<DecryptedCredential>? _cachedFilteredCredentials;
 
@@ -43,9 +44,11 @@ public partial class CredentialListBlock : BaseReactiveComponent
     private bool IsSearchActive => !string.IsNullOrWhiteSpace(SearchQuery);
 
     private string ActiveDirectoryName =>
-        VaultsState.Value.SelectedDirectoryId.HasValue
-            ? VaultsState.Value.Directories.FirstOrDefault(d => d.Id == VaultsState.Value.SelectedDirectoryId)?.Name ?? "Directory"
-            : "All Items";
+        VaultsState.Value.IsArchiveSelected
+            ? "Archive"
+            : VaultsState.Value.SelectedDirectoryId.HasValue
+                ? VaultsState.Value.Directories.FirstOrDefault(d => d.Id == VaultsState.Value.SelectedDirectoryId)?.Name ?? "Directory"
+                : "All Items";
 
     private ICollection<DecryptedCredential> FilteredCredentials
     {
@@ -54,12 +57,14 @@ public partial class CredentialListBlock : BaseReactiveComponent
             EnsureCaches();
 
             var query = SearchQuery?.Trim() ?? string.Empty;
-            var selectedDirId = VaultsState.Value.SelectedDirectoryId;
-            var credentials = VaultsState.Value.Credentials;
+            var isArchive = VaultsState.Value.IsArchiveSelected;
+            var selectedDirId = isArchive ? null : VaultsState.Value.SelectedDirectoryId;
+            var credentials = isArchive ? VaultsState.Value.ArchivedCredentials : VaultsState.Value.Credentials;
 
             if (ReferenceEquals(credentials, _cachedCredentialsRef) &&
                 query == _cachedCredsQuery &&
                 selectedDirId == _cachedSelectedDirId &&
+                isArchive == _cachedIsArchiveSelected &&
                 _cachedFilteredCredentials != null)
             {
                 return _cachedFilteredCredentials;
@@ -68,6 +73,7 @@ public partial class CredentialListBlock : BaseReactiveComponent
             _cachedCredentialsRef = credentials;
             _cachedCredsQuery = query;
             _cachedSelectedDirId = selectedDirId;
+            _cachedIsArchiveSelected = isArchive;
 
             if (!string.IsNullOrWhiteSpace(query))
             {
@@ -92,7 +98,7 @@ public partial class CredentialListBlock : BaseReactiveComponent
     {
         get
         {
-            if (!IsSearchActive)
+            if (!IsSearchActive || VaultsState.Value.IsArchiveSelected)
             {
                 return [];
             }
@@ -190,7 +196,8 @@ public partial class CredentialListBlock : BaseReactiveComponent
             { "AdditionalFields", cred?.Payload?.AdditionalFields ?? [] },
             { "Sections", cred?.Payload?.Sections ?? [] },
             { "CredentialId", (Guid?)cred?.Id },
-            { "DirectoryId", directoryId }
+            { "DirectoryId", directoryId },
+            { "IsArchived", cred?.ArchivedAt != null || VaultsState.Value.IsArchiveSelected }
         };
 
         if (cred?.Payload is LoginCredentialPayload login)
@@ -278,15 +285,15 @@ public partial class CredentialListBlock : BaseReactiveComponent
         }
     }
 
-    private async Task DeleteCredential(DecryptedCredential cred)
+    private async Task ArchiveCredential(DecryptedCredential cred)
     {
         if (!VaultsState.Value.ActiveVaultId.HasValue) return;
         var vaultId = VaultsState.Value.ActiveVaultId.Value;
 
-        var confirm = await ModalService.ShowConfirmationAsync($"Are you sure you want to delete '{cred.Payload.Title}'?");
+        var confirm = await ModalService.ShowConfirmationAsync($"Are you sure you want to archive '{cred.Payload.Title}'?");
         if (confirm)
         {
-            Dispatcher.Dispatch(new DeleteCredentialAction(vaultId, cred.Id));
+            Dispatcher.Dispatch(new ArchiveCredentialAction(vaultId, cred.Id));
         }
     }
 }

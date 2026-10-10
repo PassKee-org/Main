@@ -126,6 +126,19 @@ public class VaultClientService : IVaultClientService
         return _apiService.DeleteCredentialAsync(credentialId);
     }
 
+    public Task<CredentialDto?> ArchiveCredentialAsync(Guid credentialId)
+    {
+        return _apiService.ArchiveCredentialAsync(credentialId);
+    }
+
+    public async Task<List<DecryptedCredential>> GetArchivedCredentialsAsync(Guid vaultId, byte[] vaultKey)
+    {
+        var response = await _apiService.GetArchivedCredentialsAsync(vaultId);
+        if (response == null) return [];
+
+        return _vaultCrypto.DecryptCredentials(response, vaultKey);
+    }
+
     public async Task<DecryptedTag?> CreateTagAsync(Guid vaultId, string name, byte[] vaultKey)
     {
         var encryptedName = _vaultCrypto.EncryptTagName(name, vaultKey);

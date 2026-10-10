@@ -125,4 +125,97 @@ public class VaultsReducersTests
         Assert.Single(nextState.Credentials);
         Assert.Equal(keepCred.Id, nextState.Credentials[0].Id);
     }
+
+    [Fact]
+    public void ReduceSelectArchiveAction_SetsIsArchiveSelected_ClearsSelectedDirectoryIdAndSearchQuery()
+    {
+        var state = new VaultsState
+        {
+            SelectedDirectoryId = Guid.NewGuid(),
+            SearchQuery = "test search",
+            IsArchiveSelected = false
+        };
+
+        var nextState = VaultsReducers.ReduceSelectArchiveAction(state, new SelectArchiveAction());
+
+        Assert.True(nextState.IsArchiveSelected);
+        Assert.Null(nextState.SelectedDirectoryId);
+        Assert.Equal(string.Empty, nextState.SearchQuery);
+    }
+
+    [Fact]
+    public void ReduceSelectDirectoryAction_ResetsIsArchiveSelected()
+    {
+        var state = new VaultsState
+        {
+            IsArchiveSelected = true
+        };
+        var dirId = Guid.NewGuid();
+
+        var nextState = VaultsReducers.ReduceSelectDirectoryAction(state, new SelectDirectoryAction(dirId));
+
+        Assert.False(nextState.IsArchiveSelected);
+        Assert.Equal(dirId, nextState.SelectedDirectoryId);
+    }
+
+    [Fact]
+    public void ReduceLoadArchivedCredentialsSuccessAction_SetsArchivedCredentials()
+    {
+        var vaultId = Guid.NewGuid();
+        var state = new VaultsState
+        {
+            ActiveVaultId = vaultId,
+            IsArchiveLoading = true,
+            ArchivedCredentials = []
+        };
+        var archivedCred = new DecryptedCredential(Guid.NewGuid(), vaultId, null, CredentialType.Login, new LoginCredentialPayload { Title = "Archived" }, DateTime.UtcNow);
+
+        var nextState = VaultsReducers.ReduceLoadArchivedCredentialsSuccessAction(state, new LoadArchivedCredentialsSuccessAction(vaultId, [archivedCred]));
+
+        Assert.False(nextState.IsArchiveLoading);
+        Assert.Single(nextState.ArchivedCredentials);
+        Assert.Equal(archivedCred.Id, nextState.ArchivedCredentials[0].Id);
+    }
+
+    [Fact]
+    public void ReduceArchiveCredentialSuccessAction_MovesCredentialToArchivedCredentials()
+    {
+        var vaultId = Guid.NewGuid();
+        var credId = Guid.NewGuid();
+        var cred = new DecryptedCredential(credId, vaultId, null, CredentialType.Login, new LoginCredentialPayload { Title = "To Archive" });
+        var otherCred = new DecryptedCredential(Guid.NewGuid(), vaultId, null, CredentialType.Login, new LoginCredentialPayload { Title = "Active" });
+
+        var state = new VaultsState
+        {
+            Credentials = [cred, otherCred],
+            ArchivedCredentials = []
+        };
+
+        var nextState = VaultsReducers.ReduceArchiveCredentialSuccessAction(state, new ArchiveCredentialSuccessAction(vaultId, credId));
+
+        Assert.Single(nextState.Credentials);
+        Assert.Equal(otherCred.Id, nextState.Credentials[0].Id);
+
+        Assert.Single(nextState.ArchivedCredentials);
+        Assert.Equal(credId, nextState.ArchivedCredentials[0].Id);
+        Assert.NotNull(nextState.ArchivedCredentials[0].ArchivedAt);
+    }
+
+    [Fact]
+    public void ReduceDeleteCredentialSuccessAction_RemovesFromArchivedCredentials()
+    {
+        var vaultId = Guid.NewGuid();
+        var credId = Guid.NewGuid();
+        var archivedCred = new DecryptedCredential(credId, vaultId, null, CredentialType.Login, new LoginCredentialPayload { Title = "Archived" }, DateTime.UtcNow);
+
+        var state = new VaultsState
+        {
+            Credentials = [],
+            ArchivedCredentials = [archivedCred]
+        };
+
+        var nextState = VaultsReducers.ReduceDeleteCredentialSuccessAction(state, new DeleteCredentialSuccessAction(vaultId, credId));
+
+        Assert.Empty(nextState.ArchivedCredentials);
+    }
 }

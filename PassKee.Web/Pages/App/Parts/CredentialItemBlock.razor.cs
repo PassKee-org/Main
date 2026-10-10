@@ -30,7 +30,7 @@ public partial class CredentialItemBlock : ComponentBase
     public EventCallback<DecryptedCredential> OnDuplicate { get; set; }
 
     [Parameter]
-    public EventCallback<DecryptedCredential> OnDelete { get; set; }
+    public EventCallback<DecryptedCredential> OnArchive { get; set; }
 
     [Parameter]
     public string? DirectoryPath { get; set; }

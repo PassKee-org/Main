@@ -124,6 +124,17 @@ public partial class VaultSidebarBlock : BaseReactiveComponent
         await OnItemNavigated.InvokeAsync();
     }
 
+    private async Task SelectArchive()
+    {
+        var vaultId = VaultsState.Value.ActiveVaultId;
+        if (vaultId.HasValue)
+        {
+            Dispatcher.Dispatch(new SelectArchiveAction());
+            Dispatcher.Dispatch(new LoadArchivedCredentialsAction(vaultId.Value));
+        }
+        await OnItemNavigated.InvokeAsync();
+    }
+
     private Task OpenCreateSubDirectoryModal(DecryptedDirectory parentDir) =>
         OpenDirectoryModal(null, parentDir.Id);
 

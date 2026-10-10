@@ -9,5 +9,6 @@ public class CredentialEntity : AEntity
     public virtual Guid? DirectoryId { get; set; }
     public virtual CredentialType Type { get; set; }
     public virtual byte[] EncryptedBody { get; set; } = null!;
+    public virtual DateTime? ArchivedAt { get; set; }
 }
 
