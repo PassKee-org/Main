@@ -21,6 +21,7 @@ public class DbCleanUpService : IDbCleanUpService
             "user_access_tokens",
             "user_kdf_params",
             "queues",
+            "credential_shares",
             "credentials",
             "directories",
             "tags",

@@ -24,5 +24,8 @@ public class ApiUrl
 
     public const string StorageUpload = "api/storage/upload";
     public static string StorageFile(Guid fileId) => $"api/storage/file/{fileId}";
+
+    public const string Shares = "api/shares";
+    public static string Share(string token) => $"api/shares/{token}";
 }
 

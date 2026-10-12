@@ -253,6 +253,20 @@ public partial class CredentialListBlock : BaseReactiveComponent
         });
     }
 
+    private async Task OpenShareModal(DecryptedCredential cred)
+    {
+        var parameters = new Dictionary<string, object?>
+        {
+            { "Credential", cred }
+        };
+
+        await ModalService.ShowAsync<ShareCredentialModal>(parameters, new PassKee.Web.Core.Services.UI.Modal.AppModalOptions
+        {
+            Size = PassKee.Web.Core.Services.UI.Modal.AppModalSize.Medium,
+            ModalClass = "!bg-[#22252a] !border-slate-700/60 !shadow-2xl text-slate-100"
+        });
+    }
+
     private async Task DuplicateCredential(DecryptedCredential cred)
     {
         var activeVaultId = VaultsState.Value.ActiveVaultId;
