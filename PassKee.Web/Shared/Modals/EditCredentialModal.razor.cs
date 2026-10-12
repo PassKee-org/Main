@@ -350,6 +350,26 @@ public partial class EditCredentialModal : ComponentBase
         }
     }
 
+    private async Task OpenShareModalAsync()
+    {
+        if (!_credentialId.HasValue) return;
+
+        var cred = VaultsState.Value.Credentials.FirstOrDefault(c => c.Id == _credentialId.Value)
+            ?? VaultsState.Value.ArchivedCredentials.FirstOrDefault(c => c.Id == _credentialId.Value);
+        if (cred == null) return;
+
+        var parameters = new Dictionary<string, object?>
+        {
+            { "Credential", cred }
+        };
+
+        await ModalService.ShowAsync<ShareCredentialModal>(parameters, new AppModalOptions
+        {
+            Size = AppModalSize.Medium,
+            ModalClass = "!bg-[#22252a] !border-slate-700/60 !shadow-2xl text-slate-100"
+        });
+    }
+
     private async Task DuplicateAsync()
     {
         if (_isSaving || !_credentialId.HasValue) return;

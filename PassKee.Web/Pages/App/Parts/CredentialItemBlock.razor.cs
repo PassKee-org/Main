@@ -30,6 +30,9 @@ public partial class CredentialItemBlock : ComponentBase
     public EventCallback<DecryptedCredential> OnDuplicate { get; set; }
 
     [Parameter]
+    public EventCallback<DecryptedCredential> OnShare { get; set; }
+
+    [Parameter]
     public EventCallback<DecryptedCredential> OnArchive { get; set; }
 
     [Parameter]
