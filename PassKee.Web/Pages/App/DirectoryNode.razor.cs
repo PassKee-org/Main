@@ -18,12 +18,14 @@ public partial class DirectoryNode : ComponentBase
     [Parameter] public EventCallback<Guid?> OnSelect { get; set; }
     [Parameter] public EventCallback<DecryptedDirectory> OnAddSubdirectory { get; set; }
     [Parameter] public EventCallback<(Guid SourceId, Guid? TargetId)> OnMove { get; set; }
+    [Parameter] public EventCallback<DecryptedDirectory> OnOpenMove { get; set; }
     [Parameter] public EventCallback<DecryptedDirectory> OnEdit { get; set; }
     [Parameter] public EventCallback<DecryptedDirectory> OnDelete { get; set; }
 
     private bool IsExpanded { get; set; }
     private bool IsDragged { get; set; }
     private bool IsDragTarget { get; set; }
+    private bool IsMenuOpen { get; set; }
 
     private IReadOnlyList<DecryptedDirectory> Children =>
         ChildrenMap.TryGetValue(Directory.Id, out var list) ? list : Array.Empty<DecryptedDirectory>();

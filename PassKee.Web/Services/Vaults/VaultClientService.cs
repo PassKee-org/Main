@@ -88,6 +88,17 @@ public class VaultClientService : IVaultClientService
         return await _apiService.UpdateDirectoryAsync(directoryId, request);
     }
 
+    public async Task<DirectoryDto?> MoveDirectoryAsync(Guid directoryId, Guid? parentId)
+    {
+        var request = new MoveDirectoryRequest
+        {
+            DirectoryId = directoryId,
+            ParentDirectoryId = parentId
+        };
+
+        return await _apiService.MoveDirectoryAsync(request);
+    }
+
     public Task<DeleteDirectoryResponse?> DeleteDirectoryAsync(Guid directoryId)
     {
         return _apiService.DeleteDirectoryAsync(directoryId);

@@ -43,6 +43,13 @@ public record UpdateDirectorySuccessAction(DecryptedDirectory Directory);
 public record DeleteDirectoryAction(Guid VaultId, Guid DirectoryId);
 public record DeleteDirectorySuccessAction(Guid VaultId, Guid DirectoryId, List<Guid>? DeletedDirectoryIds = null, List<Guid>? DeletedCredentialIds = null);
 
+public record DirectorySaveResult(Guid RequestId, Guid? VaultId, Guid? DirectoryId, Guid? ParentId, string? ErrorMessage)
+{
+    public bool IsSuccess => DirectoryId.HasValue;
+}
+
+public record MoveDirectoryAction(Guid RequestId, Guid VaultId, Guid DirectoryId, Guid? DestinationFolderId, TaskCompletionSource<DirectorySaveResult>? Completion = null);
+
 // Credential CRUD
 public record CredentialSaveResult(Guid RequestId, Guid? VaultId, Guid? CredentialId, Guid? DirectoryId, string? ErrorMessage)
 {

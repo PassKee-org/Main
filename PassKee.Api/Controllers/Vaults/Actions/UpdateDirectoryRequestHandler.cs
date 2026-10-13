@@ -37,11 +37,34 @@ public class UpdateDirectoryRequestHandler : IAsyncRequestHandler<UpdateDirector
 
         if (request.ParentDirectoryId.HasValue)
         {
+            if (request.ParentDirectoryId.Value == request.DirectoryId)
+            {
+                throw new PassKee.Business.Common.Exceptions.Common.ValidationException("Cannot move a directory into itself.");
+            }
+
             var parentDir = await _directoryDao.GetById(request.ParentDirectoryId.Value);
             await _securityService.CheckAccess(AccessLevel.Write, userId, parentDir);
             if (parentDir!.VaultId != dir!.VaultId)
             {
                 throw new HasNoAccessException();
+            }
+
+            var visited = new System.Collections.Generic.HashSet<System.Guid> { dir!.Id };
+            var checkId = request.ParentDirectoryId;
+            while (checkId.HasValue)
+            {
+                if (checkId.Value == dir.Id)
+                {
+                    throw new PassKee.Business.Common.Exceptions.Common.ValidationException("Cannot move a directory into its descendant.");
+                }
+
+                var current = await _directoryDao.GetById(checkId.Value);
+                if (current == null || !visited.Add(current.Id))
+                {
+                    break;
+                }
+
+                checkId = current.ParentDirectoryId;
             }
         }
 

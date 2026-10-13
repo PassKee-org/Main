@@ -13,6 +13,7 @@ public interface IDirectoryDao : IBaseDao
     Task<IList<DirectoryEntity>> GetByVaultId(Guid vaultId, CancellationToken cancellationToken = default);
     Task<DirectoryEntity> CreateAsync(Guid vaultId, Guid? parentDirectoryId, byte[] encryptedName, CancellationToken cancellationToken = default);
     Task<DirectoryEntity> UpdateAsync(DirectoryEntity directory, Guid? parentDirectoryId, byte[] encryptedName, CancellationToken cancellationToken = default);
+    Task<DirectoryEntity> MoveAsync(DirectoryEntity directory, Guid? parentDirectoryId, CancellationToken cancellationToken = default);
     Task<(List<Guid> DeletedDirectoryIds, List<Guid> DeletedCredentialIds)> DeleteWithDescendantsAsync(DirectoryEntity directory, CancellationToken cancellationToken = default);
 }
 

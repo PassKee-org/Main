@@ -36,4 +36,10 @@ public class DirectoriesController : MainApiControllerBase
         => this.RequestAsync()
             .For<DeleteDirectoryResponse>()
             .With(new DeleteDirectoryRequest { DirectoryId = directoryId });
+
+    [HttpPost("move")]
+    public Task<IActionResult> Move([FromBody] MoveDirectoryRequest request)
+        => this.RequestAsync()
+            .For<DirectoryResponse>()
+            .With(request);
 }
