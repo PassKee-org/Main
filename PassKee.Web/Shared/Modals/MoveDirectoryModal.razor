@@ -1,0 +1,42 @@
+@namespace PassKee.Web.Shared.Modals
+@using PassKee.Web.Core.Services.UI.Modal
+@using PassKee.Web.Core.Ui.Shared.Components
+@using PassKee.Web.Core.Ui.Shared.Components.Enums
+@using PassKee.Web.Core.Ui.Shared.Components.Modal
+@using PassKee.Web.Shared.Modals.Parts
+
+<div class="move-directory-modal">
+    <AppModalHeader
+        Title="Move Folder"
+        Description="@($"Select destination folder for \"{Directory?.Name}\"")"
+        Icon="fa-solid fa-folder-tree" />
+
+    <AppModalBody Class="pt-2 sm:pt-3">
+        <MoveFolderSelectBlock
+            Directories="@Directories"
+            SelectedFolderId="@_selectedFolderId"
+            SelectedFolderIdChanged="@OnFolderChanged"
+            CurrentFolderId="@Directory?.ParentDirectoryId"
+            ExcludedDirectoryId="@Directory?.Id" />
+    </AppModalBody>
+
+    <AppModalFooter>
+        <AppButton
+            Color="@ComponentColor.Default"
+            Variant="@ButtonVariant.Outlined"
+            Radius="@ButtonRadius.Medium"
+            OnClick="@Cancel">
+            Cancel
+        </AppButton>
+        <AppButton
+            Color="@ComponentColor.Primary"
+            Variant="@ButtonVariant.Solid"
+            Radius="@ButtonRadius.Medium"
+            IsLoading="@_isSaving"
+            Disabled="@(_isSaving || _selectedFolderId == Directory?.ParentDirectoryId)"
+            OnClick="@SubmitAsync">
+            Move
+        </AppButton>
+    </AppModalFooter>
+</div>
+

@@ -6,6 +6,7 @@ using Fluxor;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using PassKee.Web.Components;
+using PassKee.Web.Core.Services.UI.Modal;
 using PassKee.Web.Models.Vaults;
 using PassKee.Web.Shared.Modals;
 using PassKee.Web.Store.Vaults;
@@ -190,6 +191,19 @@ public partial class VaultSidebarBlock : BaseReactiveComponent
         }
     }
 
+    private async Task OpenMoveDirectoryModal(DecryptedDirectory dir)
+    {
+        var parameters = new Dictionary<string, object?>
+        {
+            { "Directory", dir }
+        };
+
+        await ModalService.ShowAsync<PassKee.Web.Shared.Modals.MoveDirectoryModal>(parameters, new AppModalOptions
+        {
+            Size = AppModalSize.Small
+        });
+    }
+
     private void HandleDirectoryMove((Guid SourceId, Guid? TargetId) moveAction)
     {
         if (!VaultsState.Value.ActiveVaultId.HasValue) return;
@@ -198,7 +212,7 @@ public partial class VaultSidebarBlock : BaseReactiveComponent
         var dir = VaultsState.Value.Directories.FirstOrDefault(d => d.Id == moveAction.SourceId);
         if (dir != null)
         {
-            Dispatcher.Dispatch(new UpdateDirectoryAction(vaultId, dir.Id, moveAction.TargetId, dir.Name));
+            Dispatcher.Dispatch(new MoveDirectoryAction(Guid.NewGuid(), vaultId, dir.Id, moveAction.TargetId));
         }
     }
 

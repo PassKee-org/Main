@@ -37,10 +37,6 @@ public partial class MoveCredentialModal : ComponentBase
 
     private IReadOnlyList<DecryptedDirectory> Directories => VaultsState.Value.Directories;
 
-    private string CurrentDestinationName => _selectedFolderId.HasValue
-        ? Directories.FirstOrDefault(d => d.Id == _selectedFolderId)?.Name ?? "Directory"
-        : "Root (No folder)";
-
     protected override void OnParametersSet()
     {
         if (Credential == null)

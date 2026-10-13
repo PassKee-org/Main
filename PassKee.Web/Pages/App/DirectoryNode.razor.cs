@@ -18,6 +18,7 @@ public partial class DirectoryNode : ComponentBase
     [Parameter] public EventCallback<Guid?> OnSelect { get; set; }
     [Parameter] public EventCallback<DecryptedDirectory> OnAddSubdirectory { get; set; }
     [Parameter] public EventCallback<(Guid SourceId, Guid? TargetId)> OnMove { get; set; }
+    [Parameter] public EventCallback<DecryptedDirectory> OnOpenMove { get; set; }
     [Parameter] public EventCallback<DecryptedDirectory> OnEdit { get; set; }
     [Parameter] public EventCallback<DecryptedDirectory> OnDelete { get; set; }
 

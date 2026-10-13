@@ -52,6 +52,15 @@ public class DirectoryDao : BaseDao, IDirectoryDao
         return directory;
     }
 
+    public async Task<DirectoryEntity> MoveAsync(DirectoryEntity directory, Guid? parentDirectoryId, CancellationToken cancellationToken = default)
+    {
+        directory.ParentDirectoryId = parentDirectoryId;
+        directory.UpdatedAt = DateTime.UtcNow;
+
+        await Session.UpdateAsync(directory, cancellationToken);
+        return directory;
+    }
+
     public async Task<(List<Guid> DeletedDirectoryIds, List<Guid> DeletedCredentialIds)> DeleteWithDescendantsAsync(DirectoryEntity directory, CancellationToken cancellationToken = default)
     {
         var allVaultDirs = await GetByVaultId(directory.VaultId, cancellationToken);

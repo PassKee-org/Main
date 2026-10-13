@@ -29,13 +29,16 @@
         </div>
         
         <div class="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 flex items-center gap-1 transition-opacity">
-            <button type="button" class="p-1.5 sm:p-1 text-slate-400 hover:text-blue-600 rounded touch-manipulation" title="Add Subdirectory" @onclick="() => OnAddSubdirectory.InvokeAsync(Directory)" @onclick:stopPropagation="true">
+            <button type="button" class="p-1.5 sm:p-1 text-slate-400 hover:text-blue-600 rounded touch-manipulation cursor-pointer" title="Add Subdirectory" @onclick="() => OnAddSubdirectory.InvokeAsync(Directory)" @onclick:stopPropagation="true">
                 <i class="fa-solid fa-plus text-xs sm:text-[10px]"></i>
             </button>
-            <button type="button" class="p-1.5 sm:p-1 text-slate-400 hover:text-blue-600 rounded touch-manipulation" title="Edit" @onclick="() => OnEdit.InvokeAsync(Directory)" @onclick:stopPropagation="true">
+            <button type="button" class="p-1.5 sm:p-1 text-slate-400 hover:text-blue-600 rounded touch-manipulation cursor-pointer" title="Move" @onclick="() => OnOpenMove.InvokeAsync(Directory)" @onclick:stopPropagation="true">
+                <i class="fa-solid fa-folder-tree text-xs sm:text-[10px]"></i>
+            </button>
+            <button type="button" class="p-1.5 sm:p-1 text-slate-400 hover:text-blue-600 rounded touch-manipulation cursor-pointer" title="Edit" @onclick="() => OnEdit.InvokeAsync(Directory)" @onclick:stopPropagation="true">
                 <i class="fa-solid fa-pen text-xs sm:text-[10px]"></i>
             </button>
-            <button type="button" class="p-1.5 sm:p-1 text-slate-400 hover:text-rose-600 rounded touch-manipulation" title="Delete" @onclick="() => OnDelete.InvokeAsync(Directory)" @onclick:stopPropagation="true">
+            <button type="button" class="p-1.5 sm:p-1 text-slate-400 hover:text-rose-600 rounded touch-manipulation cursor-pointer" title="Delete" @onclick="() => OnDelete.InvokeAsync(Directory)" @onclick:stopPropagation="true">
                 <i class="fa-solid fa-trash text-xs sm:text-[10px]"></i>
             </button>
         </div>
@@ -54,6 +57,7 @@
                                OnSelect="OnSelect"
                                OnAddSubdirectory="OnAddSubdirectory"
                                OnMove="OnMove"
+                               OnOpenMove="OnOpenMove"
                                OnEdit="OnEdit"
                                OnDelete="OnDelete" />
             }
