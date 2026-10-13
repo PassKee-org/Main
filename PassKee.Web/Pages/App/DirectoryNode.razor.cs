@@ -25,6 +25,7 @@ public partial class DirectoryNode : ComponentBase
     private bool IsExpanded { get; set; }
     private bool IsDragged { get; set; }
     private bool IsDragTarget { get; set; }
+    private bool IsMenuOpen { get; set; }
 
     private IReadOnlyList<DecryptedDirectory> Children =>
         ChildrenMap.TryGetValue(Directory.Id, out var list) ? list : Array.Empty<DecryptedDirectory>();

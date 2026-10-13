@@ -28,19 +28,44 @@
             <span class="text-sm truncate select-none">@Directory.Name</span>
         </div>
         
-        <div class="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 flex items-center gap-1 transition-opacity">
-            <button type="button" class="p-1.5 sm:p-1 text-slate-400 hover:text-blue-600 rounded touch-manipulation cursor-pointer" title="Add Subdirectory" @onclick="() => OnAddSubdirectory.InvokeAsync(Directory)" @onclick:stopPropagation="true">
-                <i class="fa-solid fa-plus text-xs sm:text-[10px]"></i>
-            </button>
-            <button type="button" class="p-1.5 sm:p-1 text-slate-400 hover:text-blue-600 rounded touch-manipulation cursor-pointer" title="Move" @onclick="() => OnOpenMove.InvokeAsync(Directory)" @onclick:stopPropagation="true">
-                <i class="fa-solid fa-folder-tree text-xs sm:text-[10px]"></i>
-            </button>
-            <button type="button" class="p-1.5 sm:p-1 text-slate-400 hover:text-blue-600 rounded touch-manipulation cursor-pointer" title="Edit" @onclick="() => OnEdit.InvokeAsync(Directory)" @onclick:stopPropagation="true">
-                <i class="fa-solid fa-pen text-xs sm:text-[10px]"></i>
-            </button>
-            <button type="button" class="p-1.5 sm:p-1 text-slate-400 hover:text-rose-600 rounded touch-manipulation cursor-pointer" title="Delete" @onclick="() => OnDelete.InvokeAsync(Directory)" @onclick:stopPropagation="true">
-                <i class="fa-solid fa-trash text-xs sm:text-[10px]"></i>
-            </button>
+        <div class="flex items-center transition-opacity @(IsMenuOpen ? "opacity-100" : "opacity-100 sm:opacity-0 sm:group-hover:opacity-100")"
+             @onclick:stopPropagation="true">
+            <AppDropdown Alignment="@DropdownAlignment.Right"
+                         OnOpenChanged="@((isOpen) => IsMenuOpen = isOpen)">
+                <Trigger>
+                    <button type="button"
+                            class="p-1.5 sm:p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 rounded touch-manipulation cursor-pointer"
+                            title="Directory options">
+                        <i class="fa-solid fa-ellipsis-vertical text-xs"></i>
+                    </button>
+                </Trigger>
+                <Menu>
+                    <AppDropdownItem OnClick="() => OnAddSubdirectory.InvokeAsync(Directory)">
+                        <div class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-plus w-4 text-center text-slate-500" aria-hidden="true"></i>
+                            <span class="font-medium">Add Subdirectory</span>
+                        </div>
+                    </AppDropdownItem>
+                    <AppDropdownItem OnClick="() => OnOpenMove.InvokeAsync(Directory)">
+                        <div class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-folder-tree w-4 text-center text-slate-500" aria-hidden="true"></i>
+                            <span class="font-medium">Move...</span>
+                        </div>
+                    </AppDropdownItem>
+                    <AppDropdownItem OnClick="() => OnEdit.InvokeAsync(Directory)">
+                        <div class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-pen w-4 text-center text-slate-500" aria-hidden="true"></i>
+                            <span class="font-medium">Edit</span>
+                        </div>
+                    </AppDropdownItem>
+                    <AppDropdownItem OnClick="() => OnDelete.InvokeAsync(Directory)" Color="@ComponentColor.Danger" ShowDivider="true">
+                        <div class="flex items-center gap-2.5 text-rose-600">
+                            <i class="fa-solid fa-trash w-4 text-center text-rose-500" aria-hidden="true"></i>
+                            <span class="font-medium">Delete</span>
+                        </div>
+                    </AppDropdownItem>
+                </Menu>
+            </AppDropdown>
         </div>
     </div>
 

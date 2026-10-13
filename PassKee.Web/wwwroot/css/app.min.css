@@ -3207,6 +3207,16 @@
       }
     }
   }
+  .hover\:bg-slate-200\/60 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: color-mix(in srgb, oklch(92.9% 0.013 255.508) 60%, transparent);
+        @supports (color: color-mix(in lab, red, red)) {
+          background-color: color-mix(in oklab, var(--color-slate-200) 60%, transparent);
+        }
+      }
+    }
+  }
   .hover\:bg-slate-200\/70 {
     &:hover {
       @media (hover: hover) {
@@ -4015,11 +4025,6 @@
     @media (width >= 40rem) {
       font-size: var(--text-xs);
       line-height: var(--tw-leading, var(--text-xs--line-height));
-    }
-  }
-  .sm\:text-\[10px\] {
-    @media (width >= 40rem) {
-      font-size: 10px;
     }
   }
   .sm\:opacity-0 {
