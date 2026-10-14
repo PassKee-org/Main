@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using PassKee.Web.Core.Ui.Shared.Components.Dropdown;
 using Xunit;
 
@@ -39,5 +40,18 @@ public class AppDropdownTest
         var positionClass = dropdown.GetPositionClass();
         Assert.Contains("relative", positionClass);
         Assert.DoesNotContain("absolute", positionClass);
+    }
+
+    [Fact]
+    public async Task AppDropdown_OpenAndClose_UpdatesIsOpenState()
+    {
+        var dropdown = new TestableDropdown();
+        Assert.False(dropdown.IsOpen);
+
+        await dropdown.Open();
+        Assert.True(dropdown.IsOpen);
+
+        await dropdown.Close();
+        Assert.False(dropdown.IsOpen);
     }
 }

@@ -14,6 +14,7 @@ public partial class DirectoryNode : ComponentBase
     [Parameter] public IReadOnlyDictionary<Guid, DecryptedDirectory> DirectoryMap { get; set; } = new Dictionary<Guid, DecryptedDirectory>();
     [Parameter] public Guid? SelectedDirectoryId { get; set; }
     [Parameter] public IReadOnlySet<Guid>? ExpandedAncestorIds { get; set; }
+    [Parameter] public bool IsDropUp { get; set; }
 
     [Parameter] public EventCallback<Guid?> OnSelect { get; set; }
     [Parameter] public EventCallback<DecryptedDirectory> OnAddSubdirectory { get; set; }

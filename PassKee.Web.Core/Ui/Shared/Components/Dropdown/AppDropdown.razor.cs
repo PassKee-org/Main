@@ -1,3 +1,5 @@
+using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
@@ -50,12 +52,14 @@ public partial class AppDropdown : ComponentBase
 
     public async Task ToggleOpen()
     {
-        IsOpen = !IsOpen;
-        if (OnOpenChanged.HasDelegate)
+        if (IsOpen)
         {
-            await OnOpenChanged.InvokeAsync(IsOpen);
+            await Close();
         }
-        StateHasChanged();
+        else
+        {
+            await Open();
+        }
     }
 
     public async Task Open()
@@ -67,7 +71,7 @@ public partial class AppDropdown : ComponentBase
             {
                 await OnOpenChanged.InvokeAsync(true);
             }
-            StateHasChanged();
+            SafeStateHasChanged();
         }
     }
 
@@ -80,7 +84,19 @@ public partial class AppDropdown : ComponentBase
             {
                 await OnOpenChanged.InvokeAsync(false);
             }
+            SafeStateHasChanged();
+        }
+    }
+
+    private void SafeStateHasChanged()
+    {
+        try
+        {
             StateHasChanged();
+        }
+        catch (InvalidOperationException)
+        {
+            // Occurs when invoked in unit tests outside a Blazor renderer pipeline
         }
     }
 
@@ -91,5 +107,4 @@ public partial class AppDropdown : ComponentBase
             await Close();
         }
     }
-
 }

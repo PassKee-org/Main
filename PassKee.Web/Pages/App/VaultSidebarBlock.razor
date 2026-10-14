@@ -64,8 +64,8 @@
                      @ondrop="HandleRootDrop"
                      @ondrop:preventDefault="true">
                     <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-vault text-blue-500 ml-1"></i>
-                        <span class="text-sm">All Items</span>
+                        <i class="fa-solid fa-folder-minus text-blue-500 ml-1"></i>
+                        <span class="text-sm">No Directory</span>
                     </div>
                 </div>
 
@@ -78,13 +78,16 @@
                 else
                 {
                     EnsureDirectoryStructure();
-                    @foreach (var dir in _rootDirectories)
+                    @for (var i = 0; i < _rootDirectories.Count; i++)
                     {
+                        var dir = _rootDirectories[i];
+                        var isDropUp = i >= Math.Max(1, _rootDirectories.Count / 2);
                         <DirectoryNode Directory="@dir" 
                                        ChildrenMap="@_childrenMap" 
                                        DirectoryMap="@_directoryMap" 
                                        SelectedDirectoryId="@(VaultsState.Value.IsArchiveSelected ? null : VaultsState.Value.SelectedDirectoryId)"
                                        ExpandedAncestorIds="@_expandedAncestorIds"
+                                       IsDropUp="@isDropUp"
                                        OnSelect="@SelectDirectory"
                                        OnAddSubdirectory="@OpenCreateSubDirectoryModal"
                                        OnMove="@HandleDirectoryMove"

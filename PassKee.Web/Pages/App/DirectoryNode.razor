@@ -31,6 +31,7 @@
         <div class="flex items-center transition-opacity @(IsMenuOpen ? "opacity-100" : "opacity-100 sm:opacity-0 sm:group-hover:opacity-100")"
              @onclick:stopPropagation="true">
             <AppDropdown Alignment="@DropdownAlignment.Right"
+                         IsDropUp="@IsDropUp"
                          OnOpenChanged="@((isOpen) => IsMenuOpen = isOpen)">
                 <Trigger>
                     <button type="button"
@@ -72,13 +73,16 @@
     @if (IsExpanded && HasChildren)
     {
         <div class="ml-4 pl-1 border-l border-slate-200 flex flex-col gap-0.5 mt-0.5">
-            @foreach (var child in Children)
+            @for (var i = 0; i < Children.Count; i++)
             {
+                var child = Children[i];
+                var isChildDropUp = IsDropUp || (i >= Math.Max(1, Children.Count / 2));
                 <DirectoryNode Directory="child" 
                                ChildrenMap="ChildrenMap" 
                                DirectoryMap="DirectoryMap"
                                SelectedDirectoryId="SelectedDirectoryId"
                                ExpandedAncestorIds="ExpandedAncestorIds"
+                               IsDropUp="@isChildDropUp"
                                OnSelect="OnSelect"
                                OnAddSubdirectory="OnAddSubdirectory"
                                OnMove="OnMove"
