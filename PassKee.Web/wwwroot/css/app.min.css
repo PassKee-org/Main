@@ -3848,11 +3848,6 @@
       border-radius: 2rem;
     }
   }
-  .sm\:p-1 {
-    @media (width >= 40rem) {
-      padding: calc(var(--spacing) * 1);
-    }
-  }
   .sm\:p-3\.5 {
     @media (width >= 40rem) {
       padding: calc(var(--spacing) * 3.5);
