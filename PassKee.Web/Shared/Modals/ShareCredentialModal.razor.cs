@@ -27,6 +27,9 @@ public partial class ShareCredentialModal : ComponentBase
     [Inject] private IJSRuntime Js { get; set; } = null!;
     [Inject] private IToastService ToastService { get; set; } = null!;
 
+    protected static readonly int[] ExpiryOptions = [3600, 86400, 604800, 2592000];
+    protected static readonly string[] AudienceOptions = ["anyone"];
+
     protected int SelectedExpirySeconds { get; set; } = 604800; // 7 days by default
     protected string SelectedAudience { get; set; } = "anyone";
     protected bool IsOneTimeView { get; set; } = false;
@@ -34,12 +37,27 @@ public partial class ShareCredentialModal : ComponentBase
     protected bool IsCopied { get; set; } = false;
     protected string? GeneratedShareUrl { get; set; }
 
+    protected static string GetExpiryLabel(int seconds) => seconds switch
+    {
+        3600 => "1 hour",
+        86400 => "1 day",
+        604800 => "7 days",
+        2592000 => "30 days",
+        _ => $"{seconds} sec."
+    };
+
+    protected static string GetAudienceLabel(string audience) => audience switch
+    {
+        "anyone" => "Anyone with the link",
+        _ => audience
+    };
+
     protected string ItemInitial
     {
         get
         {
             var title = Credential?.Payload?.Title?.Trim();
-            if (string.IsNullOrEmpty(title)) return "Ит";
+            if (string.IsNullOrEmpty(title)) return "It";
             return title.Length >= 2 ? title[..2] : title;
         }
     }
@@ -65,9 +83,21 @@ public partial class ShareCredentialModal : ComponentBase
         _ => "fa-solid fa-shield-halved"
     };
 
-    protected void ToggleOneTimeView(ChangeEventArgs e)
+    protected void OnExpiryChanged(int seconds)
     {
-        IsOneTimeView = e.Value is bool b && b;
+        SelectedExpirySeconds = seconds;
+        OnSettingChanged();
+    }
+
+    protected void OnAudienceChanged(string audience)
+    {
+        SelectedAudience = audience;
+        OnSettingChanged();
+    }
+
+    protected void OnOneTimeViewChanged(bool value)
+    {
+        IsOneTimeView = value;
         OnSettingChanged();
     }
 
@@ -92,7 +122,7 @@ public partial class ShareCredentialModal : ComponentBase
             IsCreating = true;
             StateHasChanged();
 
-            // 1. Clone payload and strip files (per requirement / screenshot)
+            // 1. Clone payload and strip files
             var json = JsonHelper.SerializeToString(Credential.Payload);
             var cleanPayload = (BaseCredentialPayload)JsonHelper.DeserializeObject(json, Credential.Payload.GetType())!;
 
@@ -133,7 +163,7 @@ public partial class ShareCredentialModal : ComponentBase
             var response = await ApiService.CreateShareAsync(request);
             if (response == null || string.IsNullOrWhiteSpace(response.Token))
             {
-                ToastService.ShowError("Не удалось создать ссылку для шеринга");
+                ToastService.ShowError("Failed to create share link");
                 return;
             }
 
@@ -146,7 +176,7 @@ public partial class ShareCredentialModal : ComponentBase
         }
         catch (Exception ex)
         {
-            ToastService.ShowError($"Ошибка при создании ссылки: {ex.Message}");
+            ToastService.ShowError($"Error creating link: {ex.Message}");
         }
         finally
         {
@@ -163,7 +193,7 @@ public partial class ShareCredentialModal : ComponentBase
         {
             await Js.InvokeVoidAsync("navigator.clipboard.writeText", GeneratedShareUrl);
             IsCopied = true;
-            ToastService.ShowSuccess("Ссылка скопирована в буфер обмена");
+            ToastService.ShowSuccess("Link copied to clipboard");
             StateHasChanged();
 
             await Task.Delay(3000);
@@ -172,7 +202,7 @@ public partial class ShareCredentialModal : ComponentBase
         }
         catch
         {
-            ToastService.ShowWarning("Не удалось автоматически скопировать в буфер обмена. Пожалуйста, скопируйте вручную.");
+            ToastService.ShowWarning("Failed to automatically copy to clipboard. Please copy manually.");
         }
     }
 
@@ -181,4 +211,3 @@ public partial class ShareCredentialModal : ComponentBase
         await ModalInstance.CloseAsync();
     }
 }
-

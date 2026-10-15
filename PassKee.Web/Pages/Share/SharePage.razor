@@ -13,8 +13,8 @@
     {
         <div class="max-w-md mx-auto w-full p-8 bg-white rounded-2xl shadow-xs border border-slate-200/80 text-center flex flex-col items-center justify-center">
             <AppSpinner Color="@ComponentColor.Primary" Size="@ComponentSize.Large" />
-            <h3 class="text-base font-semibold text-slate-900 mt-4">Расшифровка элемента...</h3>
-            <p class="text-xs text-slate-500 mt-1">Ключ дешифрования извлекается из ссылки</p>
+            <h3 class="text-base font-semibold text-slate-900 mt-4">Decrypting item...</h3>
+            <p class="text-xs text-slate-500 mt-1">Decryption key is being extracted from the link</p>
         </div>
     }
     else if (HasError || DecryptedPayload == null)
@@ -23,12 +23,12 @@
             <div class="h-14 w-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl mx-auto mb-4">
                 <i class="fa-solid fa-link-slash"></i>
             </div>
-            <h2 class="text-lg sm:text-xl font-bold text-slate-900 mb-2">Ссылка недоступна</h2>
+            <h2 class="text-lg sm:text-xl font-bold text-slate-900 mb-2">Link unavailable</h2>
             <p class="text-sm text-slate-500 leading-relaxed mb-6">@ErrorMessage</p>
             <a href="/"
                class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition shadow-xs">
                 <i class="fa-solid fa-arrow-left text-xs"></i>
-                <span>Перейти в PassKee</span>
+                <span>Go to PassKee</span>
             </a>
         </div>
     }
@@ -71,7 +71,7 @@
                 {
                     <div class="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2 text-xs text-slate-500">
                         <i class="fa-regular fa-clock text-slate-400"></i>
-                        <span>Ссылка действительна до: <strong class="text-slate-700">@ExpiresAt.Value.ToLocalTime().ToString("g")</strong></span>
+                        <span>Link valid until: <strong class="text-slate-700">@ExpiresAt.Value.ToLocalTime().ToString("g")</strong></span>
                     </div>
                 }
             </AppCard>
@@ -85,13 +85,12 @@
             <div class="p-4 rounded-xl bg-blue-50/70 border border-blue-200/60 flex items-start gap-3 text-xs text-blue-900">
                 <i class="fa-solid fa-shield-halved text-blue-600 text-base mt-0.5 shrink-0"></i>
                 <div class="space-y-1">
-                    <p class="font-semibold text-blue-950">Сквозное шифрование (Zero-Knowledge)</p>
+                    <p class="font-semibold text-blue-950">End-to-End Encryption (Zero-Knowledge)</p>
                     <p class="text-blue-800 leading-relaxed">
-                        Этот элемент был расшифрован прямо в вашем браузере. Ключ дешифрования находился в ссылке после символа <code class="bg-blue-100 px-1 py-0.5 rounded text-blue-900 font-mono font-bold">#</code> и никогда не отправлялся на сервер.
+                        This item was decrypted directly in your browser. The decryption key was included in the link fragment after <code class="bg-blue-100 px-1 py-0.5 rounded text-blue-900 font-mono font-bold">#</code> and was never sent to the server.
                     </p>
                 </div>
             </div>
         </div>
     }
 </div>
-

@@ -12,6 +12,7 @@ public partial class DirectoryNode : ComponentBase
     [Parameter] public DecryptedDirectory Directory { get; set; } = null!;
     [Parameter] public IReadOnlyDictionary<Guid, List<DecryptedDirectory>> ChildrenMap { get; set; } = new Dictionary<Guid, List<DecryptedDirectory>>();
     [Parameter] public IReadOnlyDictionary<Guid, DecryptedDirectory> DirectoryMap { get; set; } = new Dictionary<Guid, DecryptedDirectory>();
+    [Parameter] public IReadOnlyDictionary<Guid, int> DirectoryCounts { get; set; } = new Dictionary<Guid, int>();
     [Parameter] public Guid? SelectedDirectoryId { get; set; }
     [Parameter] public IReadOnlySet<Guid>? ExpandedAncestorIds { get; set; }
     [Parameter] public bool IsDropUp { get; set; }
@@ -22,6 +23,8 @@ public partial class DirectoryNode : ComponentBase
     [Parameter] public EventCallback<DecryptedDirectory> OnOpenMove { get; set; }
     [Parameter] public EventCallback<DecryptedDirectory> OnEdit { get; set; }
     [Parameter] public EventCallback<DecryptedDirectory> OnDelete { get; set; }
+
+    private int ItemCount => DirectoryCounts.TryGetValue(Directory.Id, out var count) ? count : 0;
 
     private bool IsExpanded { get; set; }
     private bool IsDragged { get; set; }

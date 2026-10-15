@@ -14,7 +14,7 @@
          @ondrop="HandleDrop"
          @ondrop:preventDefault="true">
         
-        <div class="flex items-center gap-2 overflow-hidden flex-1" @onclick="HandleSelect">
+        <div class="flex items-center gap-2 overflow-hidden flex-1 min-w-0" @onclick="HandleSelect">
             @if (HasChildren)
             {
                 <i class="fa-solid fa-chevron-right text-[10px] w-3 text-center transition-transform @(IsExpanded ? "rotate-90" : "") text-slate-400" 
@@ -28,9 +28,17 @@
             <span class="text-sm truncate select-none">@Directory.Name</span>
         </div>
         
-        <div class="flex items-center transition-opacity @(IsMenuOpen ? "opacity-100" : "opacity-100 sm:opacity-0 sm:group-hover:opacity-100")"
-             @onclick:stopPropagation="true">
-            <AppDropdown Alignment="@DropdownAlignment.Right"
+        <div class="flex items-center gap-1.5 shrink-0 ml-1.5">
+            @if (ItemCount > 0)
+            {
+                <span class="text-[11px] tabular-nums font-normal select-none transition-colors @(Directory.Id == SelectedDirectoryId ? "text-blue-600/80 font-medium" : "text-slate-400 group-hover:text-slate-500")"
+                      @onclick="HandleSelect">
+                    @ItemCount
+                </span>
+            }
+            <div class="flex items-center transition-opacity @(IsMenuOpen ? "opacity-100" : "opacity-100 sm:opacity-0 sm:group-hover:opacity-100")"
+                 @onclick:stopPropagation="true">
+                <AppDropdown Alignment="@DropdownAlignment.Right"
                          IsDropUp="@IsDropUp"
                          OnOpenChanged="@((isOpen) => IsMenuOpen = isOpen)">
                 <Trigger>
@@ -67,6 +75,7 @@
                     </AppDropdownItem>
                 </Menu>
             </AppDropdown>
+            </div>
         </div>
     </div>
 
@@ -80,6 +89,7 @@
                 <DirectoryNode Directory="child" 
                                ChildrenMap="ChildrenMap" 
                                DirectoryMap="DirectoryMap"
+                               DirectoryCounts="DirectoryCounts"
                                SelectedDirectoryId="SelectedDirectoryId"
                                ExpandedAncestorIds="ExpandedAncestorIds"
                                IsDropUp="@isChildDropUp"

@@ -41,7 +41,7 @@ public partial class SharePage : ComponentBase
         if (string.IsNullOrWhiteSpace(Token))
         {
             HasError = true;
-            ErrorMessage = "Недействительная ссылка для шеринга.";
+            ErrorMessage = "Invalid share link.";
             IsLoading = false;
             return;
         }
@@ -50,7 +50,7 @@ public partial class SharePage : ComponentBase
         if (string.IsNullOrWhiteSpace(keyFragment))
         {
             HasError = true;
-            ErrorMessage = "Ключ дешифрования отсутствует в ссылке. Убедитесь, что ссылка скопирована полностью (включая символ # и ключ).";
+            ErrorMessage = "Decryption key is missing from the link. Make sure the entire link was copied (including the # character and key).";
             IsLoading = false;
             return;
         }
@@ -63,7 +63,7 @@ public partial class SharePage : ComponentBase
         catch
         {
             HasError = true;
-            ErrorMessage = "Неверный формат ключа дешифрования.";
+            ErrorMessage = "Invalid decryption key format.";
             IsLoading = false;
             return;
         }
@@ -76,7 +76,7 @@ public partial class SharePage : ComponentBase
         catch (Exception)
         {
             HasError = true;
-            ErrorMessage = "Этот элемент больше недоступен. Возможно, истек срок действия ссылки или был исчерпан лимит просмотров.";
+            ErrorMessage = "This item is no longer available. The link may have expired or reached its view limit.";
             IsLoading = false;
             return;
         }
@@ -84,7 +84,7 @@ public partial class SharePage : ComponentBase
         if (shareResponse == null)
         {
             HasError = true;
-            ErrorMessage = "Этот элемент больше недоступен. Ссылка была удалена или исчерпала количество просмотров.";
+            ErrorMessage = "This item is no longer available. The link was deleted or has reached its view limit.";
             IsLoading = false;
             return;
         }
@@ -102,7 +102,7 @@ public partial class SharePage : ComponentBase
         catch (Exception)
         {
             HasError = true;
-            ErrorMessage = "Не удалось расшифровать данные. Возможно, ключ в ссылке поврежден или неверен.";
+            ErrorMessage = "Failed to decrypt data. The key in the link may be corrupted or incorrect.";
             IsLoading = false;
             return;
         }
@@ -173,4 +173,3 @@ public partial class SharePage : ComponentBase
         _ => "Item"
     };
 }
-
