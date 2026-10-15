@@ -36,9 +36,12 @@ public partial class VaultSidebarBlock : BaseReactiveComponent
     public EventCallback OnItemNavigated { get; set; }
 
     private List<DecryptedDirectory>? _lastDirectoriesRef;
+    private List<DecryptedCredential>? _lastCredentialsRef;
     private Guid? _lastSelectedDirectoryId;
     private Dictionary<Guid, DecryptedDirectory> _directoryMap = new();
     private Dictionary<Guid, List<DecryptedDirectory>> _childrenMap = new();
+    private Dictionary<Guid, int> _directoryCounts = new();
+    private int _rootCount;
     private HashSet<Guid> _expandedAncestorIds = new();
     private List<DecryptedDirectory> _rootDirectories = [];
 
@@ -46,6 +49,27 @@ public partial class VaultSidebarBlock : BaseReactiveComponent
     {
         var dirs = VaultsState.Value.Directories;
         var selectedId = VaultsState.Value.SelectedDirectoryId;
+        var credentials = VaultsState.Value.Credentials;
+
+        if (!ReferenceEquals(_lastCredentialsRef, credentials))
+        {
+            _lastCredentialsRef = credentials;
+            var counts = new Dictionary<Guid, int>();
+            var rootCount = 0;
+            foreach (var cred in credentials)
+            {
+                if (cred.DirectoryId.HasValue)
+                {
+                    counts[cred.DirectoryId.Value] = counts.GetValueOrDefault(cred.DirectoryId.Value) + 1;
+                }
+                else
+                {
+                    rootCount++;
+                }
+            }
+            _directoryCounts = counts;
+            _rootCount = rootCount;
+        }
 
         if (!ReferenceEquals(_lastDirectoriesRef, dirs))
         {

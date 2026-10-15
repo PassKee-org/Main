@@ -58,6 +58,9 @@
             </AppButton>
         </AppCardHeader>
         <AppCardBody Class="p-2 flex-1 overflow-y-auto min-h-0">
+            @{
+                EnsureDirectoryStructure();
+            }
             <div class="flex flex-col gap-0.5">
                 <div class="group flex items-center justify-between py-1.5 px-2 rounded-md cursor-pointer transition-colors
                             @(!VaultsState.Value.IsArchiveSelected && VaultsState.Value.SelectedDirectoryId == null ? "bg-blue-50 text-blue-700 font-medium" : "text-slate-600 hover:bg-slate-100")"
@@ -66,10 +69,16 @@
                      @ondragover:preventDefault="true"
                      @ondrop="HandleRootDrop"
                      @ondrop:preventDefault="true">
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 overflow-hidden flex-1 min-w-0">
                         <i class="fa-solid fa-folder-minus text-blue-500 ml-1"></i>
-                        <span class="text-sm">No Directory</span>
+                        <span class="text-sm truncate select-none">No Directory</span>
                     </div>
+                    @if (_rootCount > 0)
+                    {
+                        <span class="text-[11px] tabular-nums font-normal select-none shrink-0 ml-1.5 transition-colors @(!VaultsState.Value.IsArchiveSelected && VaultsState.Value.SelectedDirectoryId == null ? "text-blue-600/80 font-medium" : "text-slate-400 group-hover:text-slate-500")">
+                            @_rootCount
+                        </span>
+                    }
                 </div>
 
                 @if (!VaultsState.Value.Directories.Any())
@@ -80,7 +89,6 @@
                 }
                 else
                 {
-                    EnsureDirectoryStructure();
                     @for (var i = 0; i < _rootDirectories.Count; i++)
                     {
                         var dir = _rootDirectories[i];
@@ -88,6 +96,7 @@
                         <DirectoryNode Directory="@dir" 
                                        ChildrenMap="@_childrenMap" 
                                        DirectoryMap="@_directoryMap" 
+                                       DirectoryCounts="@_directoryCounts"
                                        SelectedDirectoryId="@(VaultsState.Value.IsArchiveSelected ? null : VaultsState.Value.SelectedDirectoryId)"
                                        ExpandedAncestorIds="@_expandedAncestorIds"
                                        IsDropUp="@isDropUp"

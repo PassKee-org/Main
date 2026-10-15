@@ -365,8 +365,7 @@ public partial class EditCredentialModal : ComponentBase
 
         await ModalService.ShowAsync<ShareCredentialModal>(parameters, new AppModalOptions
         {
-            Size = AppModalSize.Medium,
-            ModalClass = "!bg-[#22252a] !border-slate-700/60 !shadow-2xl text-slate-100"
+            Size = AppModalSize.Medium
         });
     }
 

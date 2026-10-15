@@ -287,8 +287,7 @@ public partial class CredentialListBlock : BaseReactiveComponent
 
         await ModalService.ShowAsync<ShareCredentialModal>(parameters, new PassKee.Web.Core.Services.UI.Modal.AppModalOptions
         {
-            Size = PassKee.Web.Core.Services.UI.Modal.AppModalSize.Medium,
-            ModalClass = "!bg-[#22252a] !border-slate-700/60 !shadow-2xl text-slate-100"
+            Size = PassKee.Web.Core.Services.UI.Modal.AppModalSize.Medium
         });
     }
 
