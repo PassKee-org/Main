@@ -51,6 +51,20 @@ public partial class CredentialListBlock : BaseReactiveComponent
                 ? VaultsState.Value.Directories.FirstOrDefault(d => d.Id == VaultsState.Value.SelectedDirectoryId)?.Name ?? "Directory"
                 : "No Directory";
 
+    private string? ActiveDirectoryPath
+    {
+        get
+        {
+            if (VaultsState.Value.IsArchiveSelected || !VaultsState.Value.SelectedDirectoryId.HasValue)
+            {
+                return null;
+            }
+
+            EnsureCaches();
+            return _directoryPaths.TryGetValue(VaultsState.Value.SelectedDirectoryId.Value, out var path) ? path : null;
+        }
+    }
+
     private ICollection<DecryptedCredential> FilteredCredentials
     {
         get
