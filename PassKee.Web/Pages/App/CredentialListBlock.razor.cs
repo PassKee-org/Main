@@ -26,6 +26,7 @@ public partial class CredentialListBlock : BaseReactiveComponent
     private Dictionary<Guid, string> _directoryPaths = new();
     private Dictionary<Guid, string> _tagNames = new();
     private Dictionary<Guid, List<DecryptedCredential>> _credentialsByDir = new();
+    private List<DecryptedCredential> _rootCredentials = [];
     private List<DecryptedDirectory>? _lastDirectoriesRef;
     private List<DecryptedTag>? _lastTagsRef;
     private List<DecryptedCredential>? _lastCredentialsRef;
@@ -48,7 +49,21 @@ public partial class CredentialListBlock : BaseReactiveComponent
             ? "Archive"
             : VaultsState.Value.SelectedDirectoryId.HasValue
                 ? VaultsState.Value.Directories.FirstOrDefault(d => d.Id == VaultsState.Value.SelectedDirectoryId)?.Name ?? "Directory"
-                : "All Items";
+                : "No Directory";
+
+    private string? ActiveDirectoryPath
+    {
+        get
+        {
+            if (VaultsState.Value.IsArchiveSelected || !VaultsState.Value.SelectedDirectoryId.HasValue)
+            {
+                return null;
+            }
+
+            EnsureCaches();
+            return _directoryPaths.TryGetValue(VaultsState.Value.SelectedDirectoryId.Value, out var path) ? path : null;
+        }
+    }
 
     private ICollection<DecryptedCredential> FilteredCredentials
     {
@@ -85,9 +100,13 @@ public partial class CredentialListBlock : BaseReactiveComponent
                     ? list
                     : [];
             }
-            else
+            else if (isArchive)
             {
                 _cachedFilteredCredentials = credentials;
+            }
+            else
+            {
+                _cachedFilteredCredentials = _rootCredentials;
             }
 
             return _cachedFilteredCredentials;
@@ -144,6 +163,7 @@ public partial class CredentialListBlock : BaseReactiveComponent
         {
             _lastCredentialsRef = state.Credentials;
             var byDir = new Dictionary<Guid, List<DecryptedCredential>>();
+            var rootCreds = new List<DecryptedCredential>();
             foreach (var cred in state.Credentials)
             {
                 if (cred.DirectoryId.HasValue)
@@ -155,8 +175,13 @@ public partial class CredentialListBlock : BaseReactiveComponent
                     }
                     list.Add(cred);
                 }
+                else
+                {
+                    rootCreds.Add(cred);
+                }
             }
             _credentialsByDir = byDir;
+            _rootCredentials = rootCreds;
         }
     }
 

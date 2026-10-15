@@ -3,31 +3,33 @@
 @using PassKee.Web.Core.Ui.Shared.Components.Enums
 @inherits BaseReactiveComponent
 
-<div class="min-h-screen bg-slate-50 flex flex-col font-sans">
+<div class="h-screen bg-slate-50 flex flex-col font-sans overflow-hidden">
     <AppHeaderBlock OnToggleMobileDrawer="@ToggleMobileDrawer" />
 
     <VaultDrawerBlock IsOpen="@IsMobileDrawerOpen"
                       OnClose="@CloseMobileDrawer" />
 
-    <main class="flex-1 max-w-[1400px] w-full mx-auto py-4 sm:py-8 px-3 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-6 items-start">
+    <main class="flex-1 max-w-[1600px] w-full mx-auto p-3 sm:p-5 flex flex-col lg:flex-row gap-5 items-stretch min-h-0 overflow-hidden">
         @if (VaultsState.Value.IsLoading && !VaultsState.Value.Vaults.Any())
         {
-            <div class="flex-1 flex items-center justify-center w-full min-h-[50vh]">
+            <div class="flex-1 flex items-center justify-center w-full">
                 <AppSpinner Color="@ComponentColor.Primary"
                             Size="@ComponentSize.Large" />
             </div>
         }
         else if (!VaultsState.Value.Vaults.Any())
         {
-            <VaultWelcomeBlock />
+            <div class="flex-1 overflow-y-auto">
+                <VaultWelcomeBlock />
+            </div>
         }
         else
         {
-            <aside class="hidden lg:flex w-72 flex-shrink-0 flex-col gap-4 sticky top-24 max-h-[calc(100vh-8rem)]">
+            <aside class="hidden lg:flex w-80 flex-shrink-0 flex-col h-full min-h-0">
                 <VaultSidebarBlock />
             </aside>
 
-            <div class="flex-1 w-full flex flex-col min-w-0">
+            <div class="flex-1 w-full flex flex-col min-w-0 h-full min-h-0">
                 <CredentialListBlock OnToggleMobileDrawer="@ToggleMobileDrawer" />
             </div>
         }
