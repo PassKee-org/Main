@@ -61,7 +61,7 @@ public class DirectoryDao : BaseDao, IDirectoryDao
         return directory;
     }
 
-    public async Task<(List<Guid> DeletedDirectoryIds, List<Guid> DeletedCredentialIds)> DeleteWithDescendantsAsync(DirectoryEntity directory, CancellationToken cancellationToken = default)
+    public async Task<(List<Guid> DeletedDirectoryIds, List<Guid> ArchivedCredentialIds)> DeleteWithDescendantsAsync(DirectoryEntity directory, CancellationToken cancellationToken = default)
     {
         var allVaultDirs = await GetByVaultId(directory.VaultId, cancellationToken);
 
@@ -89,13 +89,20 @@ public class DirectoryDao : BaseDao, IDirectoryDao
         var dirIds = dirsToDelete.Select(d => d.Id).ToList();
         var dirIdsNullable = dirIds.Cast<Guid?>().ToList();
 
-        var credentialsToDelete = await Session.Query<CredentialEntity>()
+        var credentialsToArchive = await Session.Query<CredentialEntity>()
             .Where(c => c.VaultId == directory.VaultId && dirIdsNullable.Contains(c.DirectoryId) && c.DeletedAt == null && c.ArchivedAt == null)
             .ToListAsync(cancellationToken);
 
-        var credIds = credentialsToDelete.Select(c => c.Id).ToList();
+        var now = DateTime.UtcNow;
+        foreach (var credential in credentialsToArchive)
+        {
+            credential.ArchivedAt = now;
+            credential.UpdatedAt = now;
+            await Session.UpdateAsync(credential, cancellationToken);
+        }
 
-        await DeleteAsync(credentialsToDelete, cancellationToken);
+        var credIds = credentialsToArchive.Select(c => c.Id).ToList();
+
         await DeleteAsync(dirsToDelete, cancellationToken);
 
         return (dirIds, credIds);

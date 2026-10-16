@@ -104,21 +104,27 @@ public class VaultsArchiveTests : BaseTest
         Assert.NotNull(archivedCred1.ArchivedAt);
         Assert.Equal(dirId, archivedCred1.DirectoryId);
 
-        // 8. Delete directory and verify cred1 is NOT deleted and retains its DirectoryId (Requirement 4)
+        // 8. Delete directory and verify cred1 is NOT deleted, cred2 is archived, and both retain their DirectoryId
         var deleteDirRes = await DeleteRequestAsync(ApiUrl.VaultDirectory(dirId), jwtToken);
         Assert.Equal(HttpStatusCode.OK, deleteDirRes.StatusCode);
+        var deleteDirResponse = await deleteDirRes.Content.ReadFromJsonAsync<DeleteDirectoryResponse>();
+        Assert.NotNull(deleteDirResponse);
+        Assert.Single(deleteDirResponse!.ArchivedCredentialIds);
+        Assert.Contains(cred2Id, deleteDirResponse.ArchivedCredentialIds);
 
         var archivedAfterDirDeleteRes = await GetRequestAsync(ApiUrl.VaultArchivedCredentials(vaultId), jwtToken);
         Assert.Equal(HttpStatusCode.OK, archivedAfterDirDeleteRes.StatusCode);
         var archivedAfterDirDelete = await archivedAfterDirDeleteRes.Content.ReadFromJsonAsync<ArchivedCredentialsResponse>();
         Assert.NotNull(archivedAfterDirDelete);
-        Assert.Single(archivedAfterDirDelete!.Credentials);
-        Assert.Equal(cred1Id, archivedAfterDirDelete.Credentials[0].Id);
-        Assert.Equal(dirId, archivedAfterDirDelete.Credentials[0].DirectoryId);
+        Assert.Equal(2, archivedAfterDirDelete!.Credentials.Count);
+        Assert.Contains(archivedAfterDirDelete.Credentials, c => c.Id == cred1Id && c.DirectoryId == dirId && c.ArchivedAt != null);
+        Assert.Contains(archivedAfterDirDelete.Credentials, c => c.Id == cred2Id && c.DirectoryId == dirId && c.ArchivedAt != null);
 
-        // 9. Delete archived credential
-        var deleteCredRes = await DeleteRequestAsync(ApiUrl.VaultCredential(cred1Id), jwtToken);
-        Assert.Equal(HttpStatusCode.OK, deleteCredRes.StatusCode);
+        // 9. Delete archived credentials
+        var deleteCred1Res = await DeleteRequestAsync(ApiUrl.VaultCredential(cred1Id), jwtToken);
+        Assert.Equal(HttpStatusCode.OK, deleteCred1Res.StatusCode);
+        var deleteCred2Res = await DeleteRequestAsync(ApiUrl.VaultCredential(cred2Id), jwtToken);
+        Assert.Equal(HttpStatusCode.OK, deleteCred2Res.StatusCode);
 
         var finalArchivedRes = await GetRequestAsync(ApiUrl.VaultArchivedCredentials(vaultId), jwtToken);
         Assert.Equal(HttpStatusCode.OK, finalArchivedRes.StatusCode);

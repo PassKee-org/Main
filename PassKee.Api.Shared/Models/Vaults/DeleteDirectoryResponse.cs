@@ -8,6 +8,6 @@ public class DeleteDirectoryResponse : ActionResponse
 {
     public Guid DirectoryId { get; set; }
     public List<Guid> DeletedDirectoryIds { get; set; } = [];
-    public List<Guid> DeletedCredentialIds { get; set; } = [];
+    public List<Guid> ArchivedCredentialIds { get; set; } = [];
 }
 

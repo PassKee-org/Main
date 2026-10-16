@@ -91,14 +91,28 @@ public static class VaultsReducers
         deletedDirIds.Add(action.DirectoryId);
         CollectAllDescendantIds(state.Directories, action.DirectoryId, deletedDirIds);
 
-        var deletedCredIds = new HashSet<Guid>(action.DeletedCredentialIds ?? []);
+        var archivedCredIds = new HashSet<Guid>(action.ArchivedCredentialIds ?? []);
 
         var remainingDirectories = state.Directories
             .Where(d => !deletedDirIds.Contains(d.Id))
             .ToList();
 
+        bool ShouldArchive(DecryptedCredential c) =>
+            archivedCredIds.Contains(c.Id) || (c.DirectoryId.HasValue && deletedDirIds.Contains(c.DirectoryId.Value));
+
+        var newlyArchivedCredentials = state.Credentials
+            .Where(ShouldArchive)
+            .Select(c => c with { ArchivedAt = c.ArchivedAt ?? DateTime.UtcNow })
+            .ToList();
+
         var remainingCredentials = state.Credentials
-            .Where(c => !deletedCredIds.Contains(c.Id) && !(c.DirectoryId.HasValue && deletedDirIds.Contains(c.DirectoryId.Value)))
+            .Where(c => !ShouldArchive(c))
+            .ToList();
+
+        var newlyArchivedIds = new HashSet<Guid>(newlyArchivedCredentials.Select(c => c.Id));
+        var updatedArchivedCredentials = state.ArchivedCredentials
+            .Where(c => !newlyArchivedIds.Contains(c.Id))
+            .Concat(newlyArchivedCredentials)
             .ToList();
 
         var selectedDirectoryId = state.SelectedDirectoryId.HasValue && deletedDirIds.Contains(state.SelectedDirectoryId.Value)
@@ -109,6 +123,7 @@ public static class VaultsReducers
         {
             Directories = remainingDirectories,
             Credentials = remainingCredentials,
+            ArchivedCredentials = updatedArchivedCredentials,
             SelectedDirectoryId = selectedDirectoryId
         };
     }

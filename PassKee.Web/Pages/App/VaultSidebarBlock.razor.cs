@@ -208,7 +208,7 @@ public partial class VaultSidebarBlock : BaseReactiveComponent
         if (!VaultsState.Value.ActiveVaultId.HasValue) return;
         var vaultId = VaultsState.Value.ActiveVaultId.Value;
 
-        var confirm = await ModalService.ShowConfirmationAsync($"Are you sure you want to delete directory '{dir.Name}'? All nested items will be lost.");
+        var confirm = await ModalService.ShowConfirmationAsync($"Are you sure you want to delete directory '{dir.Name}'? All nested items will be archived.");
         if (confirm)
         {
             Dispatcher.Dispatch(new DeleteDirectoryAction(vaultId, dir.Id));
