@@ -213,7 +213,7 @@ public class VaultsCrudTests : BaseTest
         Assert.Empty(finalDetails.Directories);
         Assert.Empty(finalDetails.Credentials);
 
-        // 12. Verify directly via DB query: soft-deleted (DeletedAt != null)
+        // 12. Verify directly via DB query: directories are soft-deleted (DeletedAt != null), credentials are archived (ArchivedAt != null, DeletedAt == null)
         var allDirsInDb = await NHibernate.Linq.LinqExtensionMethods.ToListAsync(
             DbSessionProvider.CurrentSession.Query<PassKee.Orm.Entities.Vaults.DirectoryEntity>()
                 .Where(d => d.VaultId == vaultId)
@@ -225,10 +225,14 @@ public class VaultsCrudTests : BaseTest
         Assert.NotEmpty(allDirsInDb);
         Assert.All(allDirsInDb, d => Assert.NotNull(d.DeletedAt));
         Assert.NotEmpty(allCredsInDb);
-        Assert.All(allCredsInDb, c => Assert.NotNull(c.DeletedAt));
+        Assert.All(allCredsInDb, c =>
+        {
+            Assert.Null(c.DeletedAt);
+            Assert.NotNull(c.ArchivedAt);
+        });
 
         var activeDirs = allDirsInDb.Where(d => d.DeletedAt == null).ToList();
-        var activeCreds = allCredsInDb.Where(c => c.DeletedAt == null).ToList();
+        var activeCreds = allCredsInDb.Where(c => c.DeletedAt == null && c.ArchivedAt == null).ToList();
         Assert.Empty(activeDirs);
         Assert.Empty(activeCreds);
     }

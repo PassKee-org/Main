@@ -41,7 +41,7 @@ public record CreateDirectorySuccessAction(DecryptedDirectory Directory);
 public record UpdateDirectoryAction(Guid VaultId, Guid DirectoryId, Guid? ParentId, string Name);
 public record UpdateDirectorySuccessAction(DecryptedDirectory Directory);
 public record DeleteDirectoryAction(Guid VaultId, Guid DirectoryId);
-public record DeleteDirectorySuccessAction(Guid VaultId, Guid DirectoryId, List<Guid>? DeletedDirectoryIds = null, List<Guid>? DeletedCredentialIds = null);
+public record DeleteDirectorySuccessAction(Guid VaultId, Guid DirectoryId, List<Guid>? DeletedDirectoryIds = null, List<Guid>? ArchivedCredentialIds = null);
 
 public record DirectorySaveResult(Guid RequestId, Guid? VaultId, Guid? DirectoryId, Guid? ParentId, string? ErrorMessage)
 {

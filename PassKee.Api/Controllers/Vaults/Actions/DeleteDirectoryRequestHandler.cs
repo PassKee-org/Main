@@ -30,13 +30,13 @@ public class DeleteDirectoryRequestHandler : IAsyncRequestHandler<DeleteDirector
         var dir = await _directoryDao.GetById(request.DirectoryId);
         await _securityService.CheckAccess(AccessLevel.Write, userId, dir);
 
-        var (deletedDirIds, deletedCredIds) = await _directoryDao.DeleteWithDescendantsAsync(dir!);
+        var (deletedDirIds, archivedCredIds) = await _directoryDao.DeleteWithDescendantsAsync(dir!);
         return new DeleteDirectoryResponse
         {
             Success = true,
             DirectoryId = request.DirectoryId,
             DeletedDirectoryIds = deletedDirIds,
-            DeletedCredentialIds = deletedCredIds
+            ArchivedCredentialIds = archivedCredIds
         };
     }
 }

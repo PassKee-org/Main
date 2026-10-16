@@ -29,7 +29,7 @@ public class DeleteDirectoryEffect : Effect<DeleteDirectoryAction>
                     action.VaultId,
                     action.DirectoryId,
                     res.DeletedDirectoryIds,
-                    res.DeletedCredentialIds
+                    res.ArchivedCredentialIds
                 ));
             }
         }

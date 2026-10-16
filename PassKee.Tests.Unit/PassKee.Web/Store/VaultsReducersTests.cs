@@ -41,7 +41,7 @@ public class VaultsReducersTests
     }
 
     [Fact]
-    public void ReduceDeleteDirectorySuccessAction_RemovesDirectoryDescendantsAndNestedCredentials()
+    public void ReduceDeleteDirectorySuccessAction_RemovesDirectoryDescendantsAndArchivesNestedCredentials()
     {
         var vaultId = Guid.NewGuid();
         var parentId = Guid.NewGuid();
@@ -60,6 +60,7 @@ public class VaultsReducersTests
         {
             Directories = [parentDir, childDir, otherDir],
             Credentials = [credInParent, credInChild, credInOther],
+            ArchivedCredentials = [],
             SelectedDirectoryId = childId
         };
 
@@ -73,6 +74,10 @@ public class VaultsReducersTests
 
         Assert.Single(nextState.Credentials);
         Assert.Equal(credInOther.Id, nextState.Credentials[0].Id);
+
+        Assert.Equal(2, nextState.ArchivedCredentials.Count);
+        Assert.Contains(nextState.ArchivedCredentials, c => c.Id == credInParent.Id && c.ArchivedAt != null);
+        Assert.Contains(nextState.ArchivedCredentials, c => c.Id == credInChild.Id && c.ArchivedAt != null);
 
         Assert.Null(nextState.SelectedDirectoryId);
     }
