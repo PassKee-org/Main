@@ -1,0 +1,54 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components.List
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@typeparam TItem
+
+<div class="@Class">
+    @if (UseVirtualization)
+    {
+        <Virtualize
+            @ref="_virtualize"
+            TItem="TItem"
+            Items="@_workingItems"
+            Context="item"
+            ItemSize="@ItemSize"
+            OverscanCount="@OverscanCount">
+            <ItemContent>
+                <div
+                    @key="GetKey(item)"
+                    class="transition @ItemClass @GetDragItemClass(item) @GetDropTargetClass(item)"
+                    draggable="@(IsDragEnabled ? "true" : "false")"
+                    @ondragstart="@(() => OnDragStart(item))"
+                    @ondragover:preventDefault="@IsDragEnabled"
+                    @ondragover="@(() => OnDragOver(item))"
+                    @ondrop="@(() => OnDropAsync(item))"
+                    @ondragend="@OnDragEnd">
+                    @ItemTemplate(item)
+                </div>
+            </ItemContent>
+            <Placeholder>
+                @if (Placeholder != null)
+                {
+                    @Placeholder
+                }
+            </Placeholder>
+        </Virtualize>
+    }
+    else
+    {
+        @foreach (var item in _workingItems)
+        {
+            <div
+                @key="GetKey(item)"
+                class="transition @ItemClass @GetDragItemClass(item) @GetDropTargetClass(item)"
+                draggable="@(IsDragEnabled ? "true" : "false")"
+                @ondragstart="@(() => OnDragStart(item))"
+                @ondragover:preventDefault="@IsDragEnabled"
+                @ondragover="@(() => OnDragOver(item))"
+                @ondrop="@(() => OnDropAsync(item))"
+                @ondragend="@OnDragEnd">
+                @ItemTemplate(item)
+            </div>
+        }
+    }
+</div>
+

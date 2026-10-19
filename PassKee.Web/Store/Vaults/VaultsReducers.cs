@@ -183,6 +183,25 @@ public static class VaultsReducers
         };
     }
 
+    [ReducerMethod]
+    public static VaultsState ReduceUpdateCredentialPositionsAction(VaultsState state, UpdateCredentialPositionsAction action)
+    {
+        if (state.ActiveVaultId != action.VaultId || action.Positions.Count == 0)
+        {
+            return state;
+        }
+
+        var updatedCredentials = state.Credentials
+            .Select(c => action.Positions.TryGetValue(c.Id, out var newOrder) ? c with { Order = newOrder } : c)
+            .OrderBy(c => c.Order)
+            .ToList();
+
+        return state with
+        {
+            Credentials = updatedCredentials
+        };
+    }
+
     private static bool IsDescendantDirectory(List<DecryptedDirectory> directories, Guid parentId, Guid? targetId)
     {
         if (!targetId.HasValue) return false;

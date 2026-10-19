@@ -10,5 +10,6 @@ public class CredentialEntity : AEntity
     public virtual CredentialType Type { get; set; }
     public virtual byte[] EncryptedBody { get; set; } = null!;
     public virtual DateTime? ArchivedAt { get; set; }
+    public virtual int Order { get; set; }
 }
 

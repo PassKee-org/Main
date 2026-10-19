@@ -44,7 +44,7 @@ public class UpdateCredentialEffect : Effect<UpdateCredentialAction>
             }
 
             var payload = _vaultCrypto.DecryptCredentialPayload(updated.EncryptedBody, updated.Type, vaultKey);
-            var decryptedCred = new DecryptedCredential(updated.Id, updated.VaultId, updated.DirectoryId, updated.Type, payload);
+            var decryptedCred = new DecryptedCredential(updated, payload);
 
             dispatcher.Dispatch(new UpdateCredentialSuccessAction(decryptedCred));
             action.Completion.TrySetResult(new CredentialSaveResult(action.RequestId, vaultId, updated.Id, updated.DirectoryId, null));

@@ -19,6 +19,11 @@ public partial class ApiService
         return await _httpClient.RequestAsync<TResponse>(requestUri, data, HttpMethod.Post);
     }
 
+    public async Task PostAsync(string requestUri, object? data = null)
+    {
+        await _httpClient.RequestAsync(requestUri, data, HttpMethod.Post);
+    }
+
     public async Task<TResponse?> GetAsync<TResponse>(string requestUri)
     {
         return await _httpClient.RequestAsync<TResponse>(requestUri, null, HttpMethod.Get);

@@ -142,6 +142,16 @@ public class VaultClientService : IVaultClientService
         return _apiService.ArchiveCredentialAsync(credentialId);
     }
 
+    public Task UpdateCredentialPositionsAsync(Guid vaultId, IDictionary<Guid, int> items)
+    {
+        var request = new UpdateCredentialPositionsRequest
+        {
+            VaultId = vaultId,
+            Items = items
+        };
+        return _apiService.UpdateCredentialPositionsAsync(request);
+    }
+
     public async Task<List<DecryptedCredential>> GetArchivedCredentialsAsync(Guid vaultId, byte[] vaultKey)
     {
         var response = await _apiService.GetArchivedCredentialsAsync(vaultId);

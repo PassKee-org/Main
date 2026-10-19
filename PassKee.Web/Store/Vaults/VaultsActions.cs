@@ -64,6 +64,7 @@ public record DeleteCredentialAction(Guid VaultId, Guid CredentialId);
 public record DeleteCredentialSuccessAction(Guid VaultId, Guid CredentialId);
 public record ArchiveCredentialAction(Guid VaultId, Guid CredentialId);
 public record ArchiveCredentialSuccessAction(Guid VaultId, Guid CredentialId, DecryptedCredential? Credential = null);
+public record UpdateCredentialPositionsAction(Guid VaultId, IDictionary<Guid, int> Positions);
 
 // Archive Navigation & Loading
 public record SelectArchiveAction;

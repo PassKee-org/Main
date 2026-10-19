@@ -42,4 +42,8 @@ public class CredentialsController : MainApiControllerBase
         => this.RequestAsync()
             .For<CredentialResponse>()
             .With(new ArchiveCredentialRequest { CredentialId = credentialId });
+
+    [HttpPost("update-positions")]
+    public Task<IActionResult> UpdatePositions([FromBody] UpdateCredentialPositionsRequest request)
+        => this.RequestAsync(request);
 }

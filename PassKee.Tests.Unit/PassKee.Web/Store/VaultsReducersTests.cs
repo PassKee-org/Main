@@ -223,4 +223,31 @@ public class VaultsReducersTests
 
         Assert.Empty(nextState.ArchivedCredentials);
     }
+
+    [Fact]
+    public void ReduceUpdateCredentialPositionsAction_UpdatesOrderAndSortsCredentials()
+    {
+        var vaultId = Guid.NewGuid();
+        var cred1 = new DecryptedCredential(Guid.NewGuid(), vaultId, null, CredentialType.Login, new LoginCredentialPayload { Title = "First" }, 0);
+        var cred2 = new DecryptedCredential(Guid.NewGuid(), vaultId, null, CredentialType.Login, new LoginCredentialPayload { Title = "Second" }, 1);
+        var cred3 = new DecryptedCredential(Guid.NewGuid(), vaultId, null, CredentialType.Login, new LoginCredentialPayload { Title = "Third" }, 2);
+
+        var state = new VaultsState
+        {
+            ActiveVaultId = vaultId,
+            Credentials = [cred1, cred2, cred3]
+        };
+
+        var positions = new Dictionary<Guid, int>
+        {
+            { cred3.Id, 0 },
+            { cred1.Id, 1 },
+            { cred2.Id, 2 }
+        };
+
+        var nextState = VaultsReducers.ReduceUpdateCredentialPositionsAction(state, new UpdateCredentialPositionsAction(vaultId, positions));
+
+        Assert.Equal([cred3.Id, cred1.Id, cred2.Id], nextState.Credentials.Select(c => c.Id).ToArray());
+        Assert.Equal([0, 1, 2], nextState.Credentials.Select(c => c.Order).ToArray());
+    }
 }

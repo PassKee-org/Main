@@ -43,6 +43,7 @@ public partial class CredentialListBlock : BaseReactiveComponent
 
     private string SearchQuery => VaultsState.Value.SearchQuery;
     private bool IsSearchActive => !string.IsNullOrWhiteSpace(SearchQuery);
+    private bool IsReorderEnabled => !IsSearchActive && !VaultsState.Value.IsArchiveSelected;
 
     private string ActiveDirectoryName =>
         VaultsState.Value.IsArchiveSelected
@@ -164,7 +165,7 @@ public partial class CredentialListBlock : BaseReactiveComponent
             _lastCredentialsRef = state.Credentials;
             var byDir = new Dictionary<Guid, List<DecryptedCredential>>();
             var rootCreds = new List<DecryptedCredential>();
-            foreach (var cred in state.Credentials)
+            foreach (var cred in state.Credentials.OrderBy(c => c.Order))
             {
                 if (cred.DirectoryId.HasValue)
                 {
@@ -203,6 +204,22 @@ public partial class CredentialListBlock : BaseReactiveComponent
     private void ClearSearch()
     {
         Dispatcher.Dispatch(new ClearSearchQueryAction());
+    }
+
+    private void HandleCredentialsReordered(IList<DecryptedCredential> reorderedCredentials)
+    {
+        if (!VaultsState.Value.ActiveVaultId.HasValue || reorderedCredentials.Count == 0)
+        {
+            return;
+        }
+
+        var positions = new Dictionary<Guid, int>(reorderedCredentials.Count);
+        for (var i = 0; i < reorderedCredentials.Count; i++)
+        {
+            positions[reorderedCredentials[i].Id] = i;
+        }
+
+        Dispatcher.Dispatch(new UpdateCredentialPositionsAction(VaultsState.Value.ActiveVaultId.Value, positions));
     }
 
     private async Task OpenCredentialModal(DecryptedCredential? cred)

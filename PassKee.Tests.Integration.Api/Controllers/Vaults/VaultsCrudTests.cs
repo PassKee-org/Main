@@ -236,4 +236,71 @@ public class VaultsCrudTests : BaseTest
         Assert.Empty(activeDirs);
         Assert.Empty(activeCreds);
     }
+
+    [Fact]
+    public async Task Can_Update_Credential_Positions()
+    {
+        var (jwtToken, _) = await UserSeeder.CreateAuthorizedAsync();
+
+        var createVaultRes = await PostRequestAsync(ApiUrl.Vaults, jwtToken, new CreateVaultRequest
+        {
+            Name = "Ordering Vault",
+            EncryptedVaultKey = new byte[] { 1, 2, 3 }
+        });
+        Assert.Equal(HttpStatusCode.OK, createVaultRes.StatusCode);
+        var vaultId = (await createVaultRes.Content.ReadFromJsonAsync<VaultResponse>())!.Vault.Id;
+
+        var cred1Res = await PostRequestAsync(ApiUrl.VaultCredentials, jwtToken, new CreateCredentialRequest
+        {
+            VaultId = vaultId,
+            DirectoryId = null,
+            Type = CredentialType.Login,
+            EncryptedBody = new byte[] { 10 }
+        });
+        var cred1 = (await cred1Res.Content.ReadFromJsonAsync<CredentialResponse>())!.Credential;
+
+        var cred2Res = await PostRequestAsync(ApiUrl.VaultCredentials, jwtToken, new CreateCredentialRequest
+        {
+            VaultId = vaultId,
+            DirectoryId = null,
+            Type = CredentialType.Login,
+            EncryptedBody = new byte[] { 20 }
+        });
+        var cred2 = (await cred2Res.Content.ReadFromJsonAsync<CredentialResponse>())!.Credential;
+
+        var cred3Res = await PostRequestAsync(ApiUrl.VaultCredentials, jwtToken, new CreateCredentialRequest
+        {
+            VaultId = vaultId,
+            DirectoryId = null,
+            Type = CredentialType.Login,
+            EncryptedBody = new byte[] { 30 }
+        });
+        var cred3 = (await cred3Res.Content.ReadFromJsonAsync<CredentialResponse>())!.Credential;
+
+        Assert.Equal(0, cred1.Order);
+        Assert.Equal(1, cred2.Order);
+        Assert.Equal(2, cred3.Order);
+
+        var updatePositionsReq = new UpdateCredentialPositionsRequest
+        {
+            VaultId = vaultId,
+            Items = new System.Collections.Generic.Dictionary<Guid, int>
+            {
+                { cred3.Id, 0 },
+                { cred1.Id, 1 },
+                { cred2.Id, 2 }
+            }
+        };
+
+        var updateRes = await PostRequestAsync(ApiUrl.VaultCredentialsUpdatePositions, jwtToken, updatePositionsReq);
+        Assert.Equal(HttpStatusCode.OK, updateRes.StatusCode);
+
+        var detailsRes = await GetRequestAsync(ApiUrl.VaultDetails(vaultId), jwtToken);
+        Assert.Equal(HttpStatusCode.OK, detailsRes.StatusCode);
+        var details = await detailsRes.Content.ReadFromJsonAsync<VaultDetailsResponse>();
+        Assert.NotNull(details);
+
+        Assert.Equal(new[] { cred3.Id, cred1.Id, cred2.Id }, details!.Credentials.Select(c => c.Id).ToArray());
+        Assert.Equal(new[] { 0, 1, 2 }, details.Credentials.Select(c => c.Order).ToArray());
+    }
 }
