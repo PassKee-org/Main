@@ -6,8 +6,17 @@ namespace PassKee.Web.Core.Ui.Shared.Components.Modal;
 
 public partial class AppModalWindow : ComponentBase, IHandleEvent
 {
+    private Guid? _renderedModalId;
+
     [Parameter]
     public required AppModalInstance ModalInstance { get; set; }
+
+    protected override bool ShouldRender() => _renderedModalId != ModalInstance.Id;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        _renderedModalId = ModalInstance.Id;
+    }
 
     Task IHandleEvent.HandleEventAsync(EventCallbackWorkItem callback, object? argument)
         => callback.InvokeAsync(argument);
