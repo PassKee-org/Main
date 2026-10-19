@@ -14,5 +14,6 @@ public class CredentialMapping : BaseGuidMappings<CredentialEntity>
         Map(x => x.Type).Column("type").CustomType<int>().Not.Nullable();
         Map(x => x.EncryptedBody).Column("encrypted_body").Not.Nullable();
         Map(x => x.ArchivedAt).Column("archived_at").DateTimeNullable();
+        Map(x => x.Order).Column("`order`").Not.Nullable();
     }
 }

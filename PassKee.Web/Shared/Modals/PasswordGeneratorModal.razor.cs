@@ -124,7 +124,7 @@ public partial class PasswordGeneratorModal : ComponentBase
 
     private void UsePassword()
     {
-        ModalService.Close(ModalInstance, AppModalResult.Ok(_password));
+        ModalService.Close(ModalInstance, AppModalResult.Ok<string>(_password));
     }
 
     private async Task CopyToClipboardAsync()

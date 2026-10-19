@@ -35,7 +35,8 @@ public class SnakeCaseConvention :
     
     public void Apply(IPropertyInstance instance)
     {
-        instance.Column(ToSnakeCase(instance.Name));
+        var columnName = ToSnakeCase(instance.Name);
+        instance.Column(columnName == "order" ? "`order`" : columnName);
     }    
     
 

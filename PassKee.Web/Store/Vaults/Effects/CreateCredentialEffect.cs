@@ -45,7 +45,7 @@ public class CreateCredentialEffect : Effect<CreateCredentialAction>
             }
 
             var payload = _vaultCrypto.DecryptCredentialPayload(created.EncryptedBody, created.Type, vaultKey);
-            var decryptedCred = new DecryptedCredential(created.Id, created.VaultId, created.DirectoryId, created.Type, payload);
+            var decryptedCred = new DecryptedCredential(created, payload);
 
             dispatcher.Dispatch(new CreateCredentialSuccessAction(decryptedCred));
             action.Completion.TrySetResult(new CredentialSaveResult(action.RequestId, vaultId, created.Id, created.DirectoryId, null));

@@ -14,7 +14,7 @@ public class AppModalInstance
 
     public Action<AppModalResult>? OnClosedCallback { get; init; }
 
-    internal TaskCompletionSource<AppModalResult> Tcs { get; } = new();
+    internal TaskCompletionSource<AppModalResult> Tcs { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     private readonly IAppModalDialogService _service;
 

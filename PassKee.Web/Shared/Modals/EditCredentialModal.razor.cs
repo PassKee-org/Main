@@ -50,6 +50,7 @@ public partial class EditCredentialModal : ComponentBase
     // File fields
     [Parameter] public StoredFileDto? File { get; set; }
 
+    private bool _isInitialized;
     private bool _isEditing;
     private bool _isExisting;
     private bool _isSaving;
@@ -81,8 +82,19 @@ public partial class EditCredentialModal : ComponentBase
         ? "Title is required."
         : null;
 
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        if (_isInitialized)
+        {
+            return Task.CompletedTask;
+        }
+
+        return base.SetParametersAsync(parameters);
+    }
+
     protected override void OnInitialized()
     {
+        _isInitialized = true;
         _credentialVaultId = VaultsState.Value.ActiveVaultId;
         _credentialId = CredentialId;
         _directoryId = DirectoryId;
@@ -110,8 +122,8 @@ public partial class EditCredentialModal : ComponentBase
         _initialExpirationDate = ExpirationDate;
         _initialCvv = Cvv;
         _initialFile = File;
-        _initialAdditionalFields = AdditionalFields.Select(CloneField).ToList();
-        _initialSections = Sections.Select(CloneSection).ToList();
+        _initialAdditionalFields = _additionalFields.Select(CloneField).ToList();
+        _initialSections = _sections.Select(CloneSection).ToList();
     }
 
     private static CredentialField CloneField(CredentialField field) => new()

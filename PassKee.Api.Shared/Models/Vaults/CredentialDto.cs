@@ -11,4 +11,5 @@ public class CredentialDto
     public CredentialType Type { get; set; }
     public byte[] EncryptedBody { get; set; } = null!;
     public DateTime? ArchivedAt { get; set; }
+    public int Order { get; set; }
 }

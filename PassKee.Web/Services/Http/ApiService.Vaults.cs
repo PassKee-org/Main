@@ -71,6 +71,11 @@ public partial class ApiService
         return res?.Credential;
     }
 
+    public async Task UpdateCredentialPositionsAsync(UpdateCredentialPositionsRequest request)
+    {
+        await PostAsync(ApiUrl.VaultCredentialsUpdatePositions, request);
+    }
+
     public async Task<List<CredentialDto>?> GetArchivedCredentialsAsync(Guid vaultId)
     {
         var res = await GetAsync<ArchivedCredentialsResponse>(ApiUrl.VaultArchivedCredentials(vaultId));
