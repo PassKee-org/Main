@@ -99,6 +99,33 @@ public class AppModalDialogService : IAppModalDialogService
         }
     }
 
+    public void CloseAll(AppModalResult? result = null)
+    {
+        if (_modals.Count == 0)
+        {
+            return;
+        }
+
+        result ??= AppModalResult.Cancel();
+        var modalsToClose = _modals.ToList();
+        _modals.Clear();
+        NotifyChanged();
+
+        foreach (var modal in modalsToClose)
+        {
+            try
+            {
+                modal.OnClosedCallback?.Invoke(result);
+            }
+            catch
+            {
+                // Suppress callback exceptions during bulk closure
+            }
+
+            modal.Tcs.TrySetResult(result);
+        }
+    }
+
     private AppModalInstance CreateInstance(
         Type componentType,
         IDictionary<string, object?>? parameters,
