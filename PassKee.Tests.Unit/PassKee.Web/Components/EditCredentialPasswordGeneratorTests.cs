@@ -47,6 +47,31 @@ public class EditCredentialPasswordGeneratorTests
     }
 
     [Fact]
+    public async Task PasswordGeneratorModal_StandaloneCancel_ClosesWithCancelResult()
+    {
+        var modalService = new AppModalDialogService();
+        var modalTask = modalService.ShowAsync<PasswordGeneratorModal>();
+        var modalInstance = Assert.Single(modalService.Modals);
+
+        var generatorModal = new PasswordGeneratorModal
+        {
+            ModalInstance = modalInstance,
+            ModalService = modalService,
+            IsStandalone = true
+        };
+
+        var onInitialized = typeof(PasswordGeneratorModal).GetMethod("OnInitialized", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        var cancel = typeof(PasswordGeneratorModal).GetMethod("Cancel", BindingFlags.NonPublic | BindingFlags.Instance)!;
+
+        onInitialized.Invoke(generatorModal, null);
+        cancel.Invoke(generatorModal, null);
+
+        var result = await modalTask;
+        Assert.False(result.IsSuccess);
+        Assert.Equal("cancel", result.ButtonId);
+    }
+
+    [Fact]
     public async Task EditCredentialModal_SetParametersAsyncAfterInit_PreservesEditedTitleAndPassword()
     {
         var vaultStateMock = new Mock<IState<VaultsState>>();

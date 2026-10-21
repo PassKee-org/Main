@@ -2,6 +2,7 @@
 @using PassKee.Web.Components
 @using PassKee.Web.Core.Ui.Shared.Components
 @using PassKee.Web.Core.Ui.Shared.Components.Enums
+@using PassKee.Web.Core.Ui.Shared.Components.Dropdown
 @inherits BaseReactiveComponent
 
 <header class="sticky top-0 z-30 shrink-0 border-b border-slate-200 bg-white/95 backdrop-blur">
@@ -20,11 +21,6 @@
                 <i class="fa-solid fa-shield-halved text-xl sm:text-2xl text-blue-600"></i>
                 <span class="tracking-tight text-slate-900 font-extrabold">Pass<span class="text-blue-600">Kee</span></span>
             </a>
-            <nav class="hidden sm:flex items-center gap-1">
-                <a href="/app" class="px-3 py-1.5 rounded-lg text-sm font-semibold bg-blue-50 text-blue-600">
-                    <i class="fa-solid fa-vault mr-1.5"></i> Vault
-                </a>
-            </nav>
         </div>
         @if (VaultsState.Value.ActiveVaultId.HasValue && VaultsState.Value.Vaults.Any())
         {
@@ -54,20 +50,80 @@
                 </div>
             </div>
         }
-        <div class="flex items-center gap-2 sm:gap-3">
+        <div class="flex items-center gap-1.5 sm:gap-2">
+            @* Desktop quick-access generator buttons (md: and up) *@
+            <div class="hidden md:flex items-center gap-1.5">
+                <AppButton Color="@ComponentColor.Default"
+                           Variant="@ButtonVariant.Light"
+                           Radius="@ButtonRadius.Medium"
+                           Size="@ComponentSize.Small"
+                           OnClick="@OpenPasswordGeneratorAsync"
+                           Title="Generate password or PIN"
+                           aria-label="Generate password or PIN">
+                    <i class="fa-solid fa-key mr-1.5 text-blue-600"></i>
+                    <span>Password</span>
+                </AppButton>
+                <AppButton Color="@ComponentColor.Default"
+                           Variant="@ButtonVariant.Light"
+                           Radius="@ButtonRadius.Medium"
+                           Size="@ComponentSize.Small"
+                           OnClick="@OpenGuidGeneratorAsync"
+                           Title="Generate GUID, UUID, or token"
+                           aria-label="Generate GUID, UUID, or token">
+                    <i class="fa-solid fa-fingerprint mr-1.5 text-indigo-600"></i>
+                    <span>GUID</span>
+                </AppButton>
+                <div class="h-4 w-px bg-slate-200 mx-0.5"></div>
+            </div>
+
+            @* Mobile & tablet dropdown (< md) *@
+            <div class="md:hidden">
+                <AppDropdown Alignment="@DropdownAlignment.Right">
+                    <Trigger>
+                        <AppButton Color="@ComponentColor.Default"
+                                   Variant="@ButtonVariant.Light"
+                                   Radius="@ButtonRadius.Medium"
+                                   Size="@ComponentSize.Small"
+                                   Title="Quick generators"
+                                   aria-label="Quick generators">
+                            <i class="fa-solid fa-wand-magic-sparkles text-blue-600"></i>
+                            <span class="hidden sm:inline ml-1.5">Generate</span>
+                            <i class="fa-solid fa-chevron-down text-[10px] ml-1 text-slate-400"></i>
+                        </AppButton>
+                    </Trigger>
+                    <Menu>
+                        <AppDropdownItem Icon="fa-solid fa-key text-blue-600"
+                                         Text="Password"
+                                         Description="Random passwords & PIN codes"
+                                         OnClick="@OpenPasswordGeneratorAsync" />
+                        <AppDropdownItem Icon="fa-solid fa-fingerprint text-indigo-600"
+                                         Text="GUID & Tokens"
+                                         Description="UUID v4/v7, Hex, Base64 tokens"
+                                         OnClick="@OpenGuidGeneratorAsync" />
+                    </Menu>
+                </AppDropdown>
+            </div>
+
+            @* Vault session actions with responsive text *@
             <AppButton Color="@ComponentColor.Default"
                        Variant="@ButtonVariant.Outlined"
                        Radius="@ButtonRadius.Medium"
                        Size="@ComponentSize.Small"
-                       OnClick="@LockVaultAsync">
-                <i class="fa-solid fa-lock mr-1.5"></i> Lock
+                       OnClick="@LockVaultAsync"
+                       Title="Lock vault"
+                       aria-label="Lock vault">
+                <i class="fa-solid fa-lock"></i>
+                <span class="hidden sm:inline ml-1.5">Lock</span>
             </AppButton>
             <AppButton Color="@ComponentColor.Default"
                        Variant="@ButtonVariant.Outlined"
                        Radius="@ButtonRadius.Medium"
                        Size="@ComponentSize.Small"
-                       OnClick="@LogoutAsync">
-                <i class="fa-solid fa-arrow-right-from-bracket mr-1.5"></i> Logout
+                       OnClick="@LogoutAsync"
+                       Title="Log out"
+                       aria-label="Log out">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span class="hidden sm:inline ml-1.5">Logout</span>
             </AppButton>
         </div>
     </div>
