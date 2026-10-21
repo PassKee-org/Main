@@ -5,7 +5,7 @@ namespace PassKee.Tests.Unit.Web.Mocks;
 
 public class TestNavigationManager : NavigationManager
 {
-    public string? NavigatedToUri { get; private set; }
+    public string? NavigatedToUri { get; set; }
 
     public TestNavigationManager(string baseUri = "http://localhost/", string initialUri = "http://localhost/")
     {

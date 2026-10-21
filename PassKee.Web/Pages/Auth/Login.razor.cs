@@ -29,6 +29,7 @@ public partial class Login : BaseReactiveComponent
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+        ModalService.CloseAll();
         if (AuthState.Value.UserPrivateKey is { } userPrivateKey)
         {
             CryptographicOperations.ZeroMemory(userPrivateKey);

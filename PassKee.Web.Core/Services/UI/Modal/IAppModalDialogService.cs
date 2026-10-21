@@ -34,4 +34,6 @@ public interface IAppModalDialogService
     void Close(AppModalInstance modalInstance, AppModalResult? result = null);
 
     void Close(Guid modalId, AppModalResult? result = null);
+
+    void CloseAll(AppModalResult? result = null);
 }

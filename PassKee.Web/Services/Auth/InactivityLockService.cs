@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Fluxor;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using PassKee.Web.Core.Services.UI.Modal;
 using PassKee.Web.Services.Storage;
 using PassKee.Web.Store.Auth;
 using PassKee.Web.Store.Vaults;
@@ -22,6 +23,7 @@ public class InactivityLockService : IInactivityLockService
     private readonly IState<VaultsState> _vaultsState;
     private readonly IDispatcher _dispatcher;
     private readonly NavigationManager _navigationManager;
+    private readonly IAppModalDialogService _modalDialogService;
 
     private DotNetObjectReference<InactivityLockService>? _dotNetRef;
     private Timer? _timer;
@@ -41,7 +43,8 @@ public class InactivityLockService : IInactivityLockService
         IState<AuthState> authState,
         IState<VaultsState> vaultsState,
         IDispatcher dispatcher,
-        NavigationManager navigationManager)
+        NavigationManager navigationManager,
+        IAppModalDialogService modalDialogService)
     {
         _jsRuntime = jsRuntime;
         _sessionLockStorage = sessionLockStorage;
@@ -49,22 +52,36 @@ public class InactivityLockService : IInactivityLockService
         _vaultsState = vaultsState;
         _dispatcher = dispatcher;
         _navigationManager = navigationManager;
+        _modalDialogService = modalDialogService;
 
         Volatile.Write(ref _lastActivityTicks, DateTime.UtcNow.Ticks);
     }
 
     public void Initialize()
     {
-        if (_isDisposed || _isInitialized || _isInitializing)
+        if (_isDisposed)
+        {
+            return;
+        }
+
+        Volatile.Write(ref _lastActivityTicks, DateTime.UtcNow.Ticks);
+        Interlocked.Exchange(ref _isLocking, 0);
+
+        if (_timer == null)
+        {
+            _timer = new Timer(OnTimerTick, null, CheckInterval, CheckInterval);
+        }
+        else
+        {
+            _timer.Change(CheckInterval, CheckInterval);
+        }
+
+        if (_isInitialized || _isInitializing)
         {
             return;
         }
 
         _isInitializing = true;
-        Volatile.Write(ref _lastActivityTicks, DateTime.UtcNow.Ticks);
-
-        _timer = new Timer(OnTimerTick, null, CheckInterval, CheckInterval);
-
         _ = InitializeJsListenerAsync();
     }
 
@@ -149,6 +166,9 @@ public class InactivityLockService : IInactivityLockService
         {
             return;
         }
+
+        // Close all open modals when locking
+        _modalDialogService.CloseAll();
 
         // Stop timer
         _timer?.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);

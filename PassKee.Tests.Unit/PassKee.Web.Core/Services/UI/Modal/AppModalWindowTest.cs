@@ -42,4 +42,74 @@ public class AppModalWindowTest
         Assert.Empty(service.Modals);
         Assert.False((await modalTask).IsSuccess);
     }
+
+    [Fact]
+    public async Task CloseAll_WhenMultipleModalsOpen_ClosesAllAndCompletesTasksAsCancelled()
+    {
+        var service = new AppModalDialogService();
+        var modalsChangedFired = false;
+        service.OnModalsChanged += () => modalsChangedFired = true;
+
+        var modal1Task = service.ShowAsync<AppConfirmationModal>();
+        var modal2Task = service.ShowAsync<AppConfirmationModal>();
+
+        Assert.Equal(2, service.Modals.Count);
+
+        service.CloseAll();
+
+        Assert.Empty(service.Modals);
+        Assert.True(modalsChangedFired);
+
+        var result1 = await modal1Task;
+        var result2 = await modal2Task;
+
+        Assert.True(result1.IsCancelled);
+        Assert.False(result1.IsSuccess);
+        Assert.True(result2.IsCancelled);
+        Assert.False(result2.IsSuccess);
+    }
+
+    [Fact]
+    public void CloseAll_WhenNoModalsOpen_DoesNotThrowOrNotify()
+    {
+        var service = new AppModalDialogService();
+        var modalsChangedFired = false;
+        service.OnModalsChanged += () => modalsChangedFired = true;
+
+        service.CloseAll();
+
+        Assert.Empty(service.Modals);
+        Assert.False(modalsChangedFired);
+    }
+
+    [Fact]
+    public async Task CloseAll_SuppressesCallbackExceptionsAndCompletesAllTasks()
+    {
+        var service = new AppModalDialogService();
+        var modal1Closed = false;
+        var modal2Closed = false;
+
+        var modal1Task = service.ShowAsync<AppConfirmationModal>(onClose: _ =>
+        {
+            modal1Closed = true;
+            throw new InvalidOperationException("Simulated error in modal callback");
+        });
+
+        var modal2Task = service.ShowAsync<AppConfirmationModal>(onClose: _ =>
+        {
+            modal2Closed = true;
+        });
+
+        service.CloseAll();
+
+        Assert.Empty(service.Modals);
+        Assert.True(modal1Closed);
+        Assert.True(modal2Closed);
+
+        var result1 = await modal1Task;
+        var result2 = await modal2Task;
+
+        Assert.True(result1.IsCancelled);
+        Assert.True(result2.IsCancelled);
+    }
 }
