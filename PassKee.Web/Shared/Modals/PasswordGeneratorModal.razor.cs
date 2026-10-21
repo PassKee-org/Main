@@ -16,6 +16,7 @@ public partial class PasswordGeneratorModal : ComponentBase
     [Inject] private IToastService ToastService { get; set; } = null!;
 
     [Parameter] public int InitialLength { get; set; } = 20;
+    [Parameter] public bool IsStandalone { get; set; }
 
     private string _password = string.Empty;
     private string _generatorType = "Random";
@@ -124,6 +125,12 @@ public partial class PasswordGeneratorModal : ComponentBase
 
     private void UsePassword()
     {
+        ModalService.Close(ModalInstance, AppModalResult.Ok<string>(_password));
+    }
+
+    private async Task CopyAndCloseAsync()
+    {
+        await CopyToClipboardAsync();
         ModalService.Close(ModalInstance, AppModalResult.Ok<string>(_password));
     }
 

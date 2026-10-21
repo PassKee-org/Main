@@ -3,8 +3,10 @@ using System.Threading.Tasks;
 using Fluxor;
 using Microsoft.AspNetCore.Components;
 using PassKee.Web.Components;
+using PassKee.Web.Core.Services.UI.Modal;
 using PassKee.Web.Services.Auth;
 using PassKee.Web.Services.Storage;
+using PassKee.Web.Shared.Modals;
 using PassKee.Web.Store.Auth;
 using PassKee.Web.Store.Vaults;
 
@@ -95,5 +97,28 @@ public partial class AppHeaderBlock : BaseReactiveComponent
     private async Task LockVaultAsync()
     {
         await InactivityLockService.LockAsync();
+    }
+
+    private async Task OpenPasswordGeneratorAsync()
+    {
+        var parameters = new Dictionary<string, object?>
+        {
+            { nameof(PasswordGeneratorModal.IsStandalone), true }
+        };
+
+        await ModalService.ShowAsync<PasswordGeneratorModal>(parameters, options: new AppModalOptions
+        {
+            Size = AppModalSize.Small,
+            HasCloseButton = false
+        });
+    }
+
+    private async Task OpenGuidGeneratorAsync()
+    {
+        await ModalService.ShowAsync<GuidGeneratorModal>(options: new AppModalOptions
+        {
+            Size = AppModalSize.Small,
+            HasCloseButton = false
+        });
     }
 }
