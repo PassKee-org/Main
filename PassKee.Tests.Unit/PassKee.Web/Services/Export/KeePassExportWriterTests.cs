@@ -7,6 +7,70 @@ namespace PassKee.Tests.Unit.Web.Services.Export;
 
 public class KeePassExportWriterTests
 {
+    [Fact]
+    public void UsesStandardKeePassArgon2idUuidInKdbx4Header()
+    {
+        var expectedBytes = new byte[]
+        {
+            0x9e, 0x29, 0x8b, 0x19, 0x56, 0xdb, 0x47, 0x73,
+            0xb2, 0x3d, 0xfc, 0x3e, 0xc6, 0xf0, 0xa1, 0xe6
+        };
+        Assert.Equal(expectedBytes, GuidRfc4122.ToBytes(Argon2Kdf.Argon2idUuid));
+    }
+
+    [Fact]
+    public async Task DefaultExportedDatabaseOpensInKeePassXcCliWhenInstalled()
+    {
+        var rootGroup = new ExportGroup(
+            "Personal",
+            [new ExportEntry("Root Item", "user", "pass", "https://example.com", "notes", ["tag1"], [new ExportField("Secret", "val", true)], [new ExportAttachment("hello.txt", [65, 66, 67])])],
+            [new ExportGroup("Archive", [new ExportEntry("Archived Item", "old", "oldpass", "", "", [], [], [])], [])]);
+
+        var bytes = await new KeePassExportWriter().WriteAsync(rootGroup, "123456");
+        Assert.NotEmpty(bytes);
+
+        if (!File.Exists("/usr/bin/keepassxc-cli"))
+        {
+            return;
+        }
+
+        var tempFile = Path.Combine(Path.GetTempPath(), $"passkee-test-{Guid.NewGuid():N}.kdbx");
+        try
+        {
+            await File.WriteAllBytesAsync(tempFile, bytes);
+            using var process = new System.Diagnostics.Process
+            {
+                StartInfo = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "/usr/bin/keepassxc-cli",
+                    ArgumentList = { "ls", "-R", tempFile },
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false
+                }
+            };
+            process.Start();
+            await process.StandardInput.WriteLineAsync("123456");
+            process.StandardInput.Close();
+            var stdout = await process.StandardOutput.ReadToEndAsync();
+            var stderr = await process.StandardError.ReadToEndAsync();
+            await process.WaitForExitAsync();
+
+            Assert.True(process.ExitCode == 0, $"keepassxc-cli failed with exit code {process.ExitCode}: {stderr}");
+            Assert.Contains("Root Item", stdout);
+            Assert.Contains("Archive/", stdout);
+            Assert.Contains("Archived Item", stdout);
+        }
+        finally
+        {
+            if (File.Exists(tempFile))
+            {
+                File.Delete(tempFile);
+            }
+        }
+    }
+
     [Theory]
     [InlineData(KdbxFormat.Kdbx3, CipherAlgorithm.Aes256Cbc, false)]
     [InlineData(KdbxFormat.Kdbx4, CipherAlgorithm.Aes256Cbc, false)]
