@@ -56,6 +56,9 @@ builder.Services.AddScoped<PassKee.Web.Services.Vaults.IVaultClientService, Pass
 builder.Services.AddScoped<PassKee.Web.Services.Import.IKdbxImportReader, PassKee.Web.Services.Import.KeePassImportReader>();
 builder.Services.AddScoped<PassKee.Web.Services.Import.IVaultImportService, PassKee.Web.Services.Import.VaultImportService>();
 builder.Services.AddScoped<PassKee.Web.Services.Import.VaultImportSession>();
+builder.Services.AddScoped<PassKee.Web.Services.Export.IKdbxExportWriter, PassKee.Web.Services.Export.KeePassExportWriter>();
+builder.Services.AddScoped<PassKee.Web.Services.Export.IVaultExportService, PassKee.Web.Services.Export.VaultExportService>();
+builder.Services.AddScoped<PassKee.Web.Services.Export.VaultExportSession>();
 
 // UI Services
 builder.Services.AddScoped<PassKee.Web.Core.Services.UI.Toast.IToastService, PassKee.Web.Core.Services.UI.Toast.ToastService>();
