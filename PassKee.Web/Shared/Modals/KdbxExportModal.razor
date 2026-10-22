@@ -1,0 +1,111 @@
+@using PassKee.Web.Core.Ui.Shared.Components
+@using PassKee.Web.Core.Ui.Shared.Components.Enums
+@using PassKee.Web.Core.Ui.Shared.Components.Progress
+
+<div class="p-5 sm:p-6">
+    <h3 class="mb-5 break-words text-lg font-bold text-slate-900">Backup @VaultName</h3>
+    @if (IsRunning)
+    {
+        <div class="space-y-4" aria-live="polite">
+            <AppProgressBar
+                Value="@ExportState.Value.Progress.Percent"
+                Indeterminate="@(ExportState.Value.Progress.Total == 0)"
+                Label="@ExportState.Value.Progress.Phase" />
+            @if (ExportState.Value.Progress.Total > 0)
+            {
+                <p class="text-sm text-slate-500">@ExportState.Value.Progress.Completed / @ExportState.Value.Progress.Total operations processed</p>
+            }
+            @if (_cancelling)
+            {
+                <p class="text-sm text-amber-700">Stopping after the current operation.</p>
+            }
+        </div>
+    }
+    else if (Result != null)
+    {
+        <div class="space-y-4">
+            <p class="font-medium text-slate-900">@(Result.Cancelled ? "Backup stopped" : Result.Issues.Count > 0 ? "Backup completed with issues" : "Backup completed")</p>
+            <dl class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                <dt>Complete entries</dt><dd class="text-right tabular-nums">@Result.Entries</dd>
+                <dt>Archived entries</dt><dd class="text-right tabular-nums">@Result.ArchivedEntries</dd>
+                <dt>Partial entries</dt><dd class="text-right tabular-nums">@Result.PartialEntries</dd>
+                <dt>Directories</dt><dd class="text-right tabular-nums">@Result.Directories</dd>
+                <dt>Attachments</dt><dd class="text-right tabular-nums">@Result.Files</dd>
+            </dl>
+            @if (Result.Issues.Count > 0)
+            {
+                <ul class="max-h-56 space-y-3 overflow-y-auto border-t border-slate-200 pt-3 text-sm">
+                    @foreach (var issue in Result.Issues)
+                    {
+                        <li class="break-words"><span class="font-medium text-slate-800">@issue.Item</span><p class="text-amber-700">@issue.Message</p></li>
+                    }
+                </ul>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="space-y-4">
+            <div class="rounded-xl border border-amber-200 bg-amber-50/70 p-3.5 text-sm leading-6 text-slate-700 space-y-1.5">
+                <p>Exports all directories, entries, tags, and attachments into an encrypted KeePass <strong>.kdbx</strong> (KDBX 4) database. Archived entries are placed in a separate <strong>Archive</strong> directory.</p>
+                <p class="text-amber-800 font-medium">Keep your backup file and its password in a safe place. You are solely responsible for storing your exported backup securely and preventing data loss.</p>
+            </div>
+            <AppInputText
+                Label="Backup database password"
+                Type="password"
+                Value="@_password"
+                ValueChanged="@SetPassword"
+                Disabled="@IsRunning"
+                Autocomplete="new-password" />
+            <AppInputText
+                Label="Confirm database password"
+                Type="password"
+                Value="@_confirmPassword"
+                ValueChanged="@SetConfirmPassword"
+                ErrorMessage="@PasswordMismatchError"
+                Disabled="@IsRunning"
+                Autocomplete="new-password" />
+        </div>
+    }
+    @if (_error != null)
+    {
+        <p role="alert" class="mt-4 break-words text-sm text-rose-600">@_error</p>
+    }
+    <div class="mt-6 flex flex-wrap justify-end gap-3">
+        @if (IsRunning)
+        {
+            <AppButton
+                OnClick="@CancelExport"
+                Disabled="@_cancelling"
+                Variant="ButtonVariant.Light">
+                Stop backup
+            </AppButton>
+        }
+        else
+        {
+            <AppButton
+                OnClick="@Close"
+                Variant="ButtonVariant.Light">
+                @(Result == null ? "Cancel" : "Close")
+            </AppButton>
+            @if (Result == null)
+            {
+                <AppButton
+                    OnClick="@Start"
+                    Disabled="@(!CanStart)"
+                    Color="ComponentColor.Primary">
+                    <i class="fa-solid fa-file-export mr-2" aria-hidden="true"></i>Backup
+                </AppButton>
+            }
+            else if (!Result.Cancelled && Result.FileBytes.Length > 0)
+            {
+                <AppButton
+                    OnClick="@DownloadAsync"
+                    Color="ComponentColor.Primary">
+                    <i class="fa-solid fa-download mr-2" aria-hidden="true"></i>Download .kdbx
+                </AppButton>
+            }
+        }
+    </div>
+</div>
+

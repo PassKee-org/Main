@@ -2,34 +2,54 @@
 @using PassKee.Web.Components
 @using PassKee.Web.Models.Vaults
 @using PassKee.Web.Core.Ui.Shared.Components
+@using PassKee.Web.Core.Ui.Shared.Components.Dropdown
 @using PassKee.Web.Core.Ui.Shared.Components.Enums
 @inherits BaseReactiveComponent
 
 <div class="flex flex-col gap-3 w-full h-full min-h-0">
-    <AppCard Class="shrink-0 shadow-xs">
+    <AppCard Class="shrink-0 shadow-xs z-20">
         <AppCardBody Class="p-3">
             <div class="flex items-center justify-between mb-2">
                 <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider">Current Vault</label>
-                <div class="flex items-center gap-1.5">
-                    <AppButton Color="@ComponentColor.Primary"
-                               Variant="@ButtonVariant.Light"
-                               Size="@ComponentSize.Small"
-                               OnClick="@OpenImportModal"
-                               Title="Import from KeePass"
-                               Disabled="@(!VaultsState.Value.ActiveVaultId.HasValue || VaultsState.Value.ActiveVaultKey == null || VaultsState.Value.IsLoading || ImportState.Value.IsRunning)"
-                               Class="h-6 px-2 text-xs">
-                        <i class="fa-solid fa-file-import mr-1" aria-hidden="true"></i>Import
-                    </AppButton>
-                    <AppButton Color="@ComponentColor.Primary"
-                               Variant="@ButtonVariant.Light"
-                               Size="@ComponentSize.Small"
-                               OnClick="@OpenCreateVaultModal"
-                               Title="New Vault"
-                               IsLoading="@VaultsState.Value.IsCreating"
-                               Disabled="@VaultsState.Value.IsCreating"
-                               Class="h-6 w-6 min-w-6 p-0">
+                <div class="flex items-center gap-1">
+                    <AppButton
+                        Color="@ComponentColor.Primary"
+                        Variant="@ButtonVariant.Light"
+                        Size="@ComponentSize.Small"
+                        OnClick="@OpenCreateVaultModal"
+                        Title="New Vault"
+                        IsLoading="@VaultsState.Value.IsCreating"
+                        Disabled="@VaultsState.Value.IsCreating"
+                        Class="h-6 w-6 min-w-6 p-0">
                         <i class="fa-solid fa-plus text-xs"></i>
                     </AppButton>
+                    <AppDropdown Alignment="@DropdownAlignment.Right">
+                        <Trigger>
+                            <AppButton
+                                Color="@ComponentColor.Primary"
+                                Variant="@ButtonVariant.Light"
+                                Size="@ComponentSize.Small"
+                                Title="Vault actions"
+                                aria-label="Vault actions"
+                                Class="h-6 w-6 min-w-6 p-0">
+                                <i class="fa-solid fa-ellipsis-vertical text-xs" aria-hidden="true"></i>
+                            </AppButton>
+                        </Trigger>
+                        <Menu>
+                            <AppDropdownItem
+                                Icon="fa-solid fa-file-import text-blue-600"
+                                Text="Import"
+                                Description="From KeePass (.kdbx)"
+                                Disabled="@(!CanImportOrExport)"
+                                OnClick="@OpenImportModal" />
+                            <AppDropdownItem
+                                Icon="fa-solid fa-file-export text-blue-600"
+                                Text="Backup"
+                                Description="Export to KeePass (.kdbx)"
+                                Disabled="@(!CanImportOrExport)"
+                                OnClick="@OpenExportModal" />
+                        </Menu>
+                    </AppDropdown>
                 </div>
             </div>
             <AppSelect TValue="Guid?"

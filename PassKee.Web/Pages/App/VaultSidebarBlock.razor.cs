@@ -17,12 +17,32 @@ public partial class VaultSidebarBlock : BaseReactiveComponent
 {
     [Inject] public IState<VaultsState> VaultsState { get; set; } = null!;
     [Inject] public IState<PassKee.Web.Store.Import.ImportState> ImportState { get; set; } = null!;
+    [Inject] public IState<PassKee.Web.Store.Export.ExportState> ExportState { get; set; } = null!;
+
+    private bool CanImportOrExport =>
+        VaultsState.Value.ActiveVaultId.HasValue &&
+        VaultsState.Value.ActiveVaultKey != null &&
+        !VaultsState.Value.IsLoading &&
+        !ImportState.Value.IsRunning &&
+        !ExportState.Value.IsRunning;
 
     private async Task OpenImportModal()
     {
-        var state = VaultsState.Value;
-        if (!state.ActiveVaultId.HasValue || state.ActiveVaultKey == null || ImportState.Value.IsRunning) return;
+        if (!CanImportOrExport) return;
         await ModalService.ShowAsync<KdbxImportModal>(options: new PassKee.Web.Core.Services.UI.Modal.AppModalOptions
+        {
+            Size = PassKee.Web.Core.Services.UI.Modal.AppModalSize.Medium,
+            IsScrollable = true,
+            HasCloseButton = false,
+            IsCloseOnBackdropClick = false,
+            IsCloseOnEscapeKey = false
+        });
+    }
+
+    private async Task OpenExportModal()
+    {
+        if (!CanImportOrExport) return;
+        await ModalService.ShowAsync<KdbxExportModal>(options: new PassKee.Web.Core.Services.UI.Modal.AppModalOptions
         {
             Size = PassKee.Web.Core.Services.UI.Modal.AppModalSize.Medium,
             IsScrollable = true,
