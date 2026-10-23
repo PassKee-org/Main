@@ -65,6 +65,11 @@ public partial class ApiService
         return await DeleteAsync<DeleteCredentialResponse>(ApiUrl.VaultCredential(credentialId));
     }
 
+    public async Task<DeleteCredentialsResponse?> DeleteCredentialsAsync(List<Guid> credentialIds)
+    {
+        return await PostAsync<DeleteCredentialsResponse>(ApiUrl.VaultCredentialsBatchDelete, new DeleteCredentialsRequest { CredentialIds = credentialIds });
+    }
+
     public async Task<CredentialDto?> ArchiveCredentialAsync(Guid credentialId)
     {
         var res = await PostAsync<CredentialResponse>(ApiUrl.VaultCredentialArchive(credentialId), new { });

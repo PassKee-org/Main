@@ -27,6 +27,7 @@ public interface IVaultClientService
     Task<CredentialDto?> CreateCredentialAsync(Guid vaultId, Guid? directoryId, CredentialType type, BaseCredentialPayload payload, byte[] vaultKey);
     Task<CredentialDto?> UpdateCredentialAsync(Guid credentialId, Guid? directoryId, CredentialType type, BaseCredentialPayload payload, byte[] vaultKey);
     Task<DeleteCredentialResponse?> DeleteCredentialAsync(Guid credentialId);
+    Task<DeleteCredentialsResponse?> DeleteCredentialsAsync(List<Guid> credentialIds);
     Task<CredentialDto?> ArchiveCredentialAsync(Guid credentialId);
     Task UpdateCredentialPositionsAsync(Guid vaultId, IDictionary<Guid, int> items);
     Task<List<DecryptedCredential>> GetArchivedCredentialsAsync(Guid vaultId, byte[] vaultKey);

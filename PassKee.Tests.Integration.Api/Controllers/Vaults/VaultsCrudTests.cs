@@ -83,7 +83,6 @@ public class VaultsCrudTests : BaseTest
         Assert.Equal(HttpStatusCode.OK, deleteCredRes.StatusCode);
         var deleteCredDto = await deleteCredRes.Content.ReadFromJsonAsync<DeleteCredentialResponse>();
         Assert.NotNull(deleteCredDto);
-        Assert.True(deleteCredDto.Success);
         Assert.Equal(credId, deleteCredDto.CredentialId);
 
         // 6. Delete Directory
@@ -91,7 +90,6 @@ public class VaultsCrudTests : BaseTest
         Assert.Equal(HttpStatusCode.OK, deleteDirRes.StatusCode);
         var deleteDirDto = await deleteDirRes.Content.ReadFromJsonAsync<DeleteDirectoryResponse>();
         Assert.NotNull(deleteDirDto);
-        Assert.True(deleteDirDto.Success);
         Assert.Contains(dirId, deleteDirDto.DeletedDirectoryIds);
     }
 
@@ -302,5 +300,62 @@ public class VaultsCrudTests : BaseTest
 
         Assert.Equal(new[] { cred3.Id, cred1.Id, cred2.Id }, details!.Credentials.Select(c => c.Id).ToArray());
         Assert.Equal(new[] { 0, 1, 2 }, details.Credentials.Select(c => c.Order).ToArray());
+    }
+
+    [Fact]
+    public async Task Can_Batch_Delete_Credentials()
+    {
+        var (jwtToken, _) = await UserSeeder.CreateAuthorizedAsync();
+
+        var createVaultRes = await PostRequestAsync(ApiUrl.Vaults, jwtToken, new CreateVaultRequest
+        {
+            Name = "Batch Delete Vault",
+            EncryptedVaultKey = new byte[] { 1, 2, 3 }
+        });
+        var vaultId = (await createVaultRes.Content.ReadFromJsonAsync<VaultResponse>())!.Vault.Id;
+
+        var cred1Res = await PostRequestAsync(ApiUrl.VaultCredentials, jwtToken, new CreateCredentialRequest
+        {
+            VaultId = vaultId,
+            Type = CredentialType.Login,
+            EncryptedBody = new byte[] { 1 }
+        });
+        var cred1Id = (await cred1Res.Content.ReadFromJsonAsync<CredentialResponse>())!.Credential.Id;
+
+        var cred2Res = await PostRequestAsync(ApiUrl.VaultCredentials, jwtToken, new CreateCredentialRequest
+        {
+            VaultId = vaultId,
+            Type = CredentialType.Login,
+            EncryptedBody = new byte[] { 2 }
+        });
+        var cred2Id = (await cred2Res.Content.ReadFromJsonAsync<CredentialResponse>())!.Credential.Id;
+
+        var cred3Res = await PostRequestAsync(ApiUrl.VaultCredentials, jwtToken, new CreateCredentialRequest
+        {
+            VaultId = vaultId,
+            Type = CredentialType.Login,
+            EncryptedBody = new byte[] { 3 }
+        });
+        var cred3Id = (await cred3Res.Content.ReadFromJsonAsync<CredentialResponse>())!.Credential.Id;
+
+        var batchDeleteReq = new DeleteCredentialsRequest
+        {
+            CredentialIds = new System.Collections.Generic.List<Guid> { cred1Id, cred2Id }
+        };
+
+        var batchRes = await PostRequestAsync(ApiUrl.VaultCredentialsBatchDelete, jwtToken, batchDeleteReq);
+        Assert.Equal(HttpStatusCode.OK, batchRes.StatusCode);
+        var batchResponse = await batchRes.Content.ReadFromJsonAsync<DeleteCredentialsResponse>();
+        Assert.NotNull(batchResponse);
+        Assert.Equal(2, batchResponse.CredentialIds.Count);
+        Assert.Contains(cred1Id, batchResponse.CredentialIds);
+        Assert.Contains(cred2Id, batchResponse.CredentialIds);
+
+        var detailsRes = await GetRequestAsync(ApiUrl.VaultDetails(vaultId), jwtToken);
+        var details = await detailsRes.Content.ReadFromJsonAsync<VaultDetailsResponse>();
+        Assert.NotNull(details);
+        var remainingIds = details!.Credentials.Select(c => c.Id).ToList();
+        Assert.Single(remainingIds);
+        Assert.Contains(cred3Id, remainingIds);
     }
 }

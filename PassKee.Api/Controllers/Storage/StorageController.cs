@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PassKee.Api.Shared.Models.Storage.Requests;
 using PassKee.Api.Shared.Models.Storage;
-using PassKee.Api.Shared.Models.Vaults;
 using AspNetCore.ApiControllers.Abstractions;
 using AspNetCore.ApiControllers.Extensions;
 using PassKee.Api.Models.Storage.Requests;
@@ -45,7 +44,5 @@ public class StorageController : MainApiControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public Task<IActionResult> DeleteFile([FromRoute] Guid fileId)
-        => this.RequestAsync()
-            .For<ActionResponse>()
-            .With(new DeleteFileRequest { FileId = fileId });
+        => this.RequestAsync(new DeleteFileRequest { FileId = fileId });
 }

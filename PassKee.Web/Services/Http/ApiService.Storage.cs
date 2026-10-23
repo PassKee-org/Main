@@ -38,8 +38,16 @@ public partial class ApiService
 
     public async Task<bool> DeleteFileAsync(Guid fileId)
     {
-        var response = await DeleteAsync<Api.Shared.Models.Vaults.ActionResponse>(ApiUrl.StorageFile(fileId));
-        return response?.Success ?? false;
+        try
+        {
+            await DeleteAsync(ApiUrl.StorageFile(fileId));
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Delete file error: {ex.Message}");
+            return false;
+        }
     }
 }
 
