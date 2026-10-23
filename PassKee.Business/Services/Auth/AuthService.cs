@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using PassKee.Business.Common.Exceptions.Api;
@@ -69,12 +70,29 @@ public class AuthService(
     )
     {
         var user = await userDao.GetByEmail(email, cancellationToken);
-        if (user?.AuthSalt == null)
+        if (user?.AuthSalt != null)
         {
-            throw new UserNotFoundException();
+            return user;
         }
 
-        return user;
+        // Return deterministic dummy salt to prevent user enumeration
+        var normalizedEmail = email?.Trim().ToLowerInvariant() ?? string.Empty;
+        var fakeSalt = CryptoUtils.GenerateHmacSha256(
+            Encoding.UTF8.GetBytes("passkee_user_enumeration_dummy_salt_key"),
+            Encoding.UTF8.GetBytes(normalizedEmail)
+        );
+
+        return new UserEntity
+        {
+            Email = email ?? string.Empty,
+            AuthSalt = fakeSalt,
+            KdfParams = new UserKdfParamsEntity
+            {
+                Iterations = CryptoUtils.DefaultKdfIterations,
+                MemorySize = CryptoUtils.DefaultKdfMemorySize,
+                Parallelism = CryptoUtils.DefaultKdfParallelism
+            }
+        };
     }
 
     public async Task<AuthResultDto> GenerateNewJwtToken(

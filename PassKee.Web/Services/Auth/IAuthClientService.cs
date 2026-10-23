@@ -11,9 +11,9 @@ public record LoginResult(AuthResponse Response, byte[]? UserPrivateKey, byte[]?
 
 public interface IAuthClientService
 {
-    Task<RegisterResult> RegisterAsync(string email, string password, string? secretKey = null);
-    Task<LoginResult> LoginAsync(string email, string password, string secretKey);
-    Task<LoginResult> LoginAsync(string email, string password, byte[] secretKeyBytes);
+    Task<RegisterResult> RegisterAsync(string email, string password, string? secretKey = null, bool rememberSecretKey = true);
+    Task<LoginResult> LoginAsync(string email, string password, string secretKey, bool rememberSecretKey = true);
+    Task<LoginResult> LoginAsync(string email, string password, byte[] secretKeyBytes, bool rememberSecretKey = true);
     Task<LoginResult> UnlockWithMasterPasswordAsync(string password);
 }
 

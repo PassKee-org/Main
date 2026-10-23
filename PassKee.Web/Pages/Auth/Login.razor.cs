@@ -22,6 +22,7 @@ public partial class Login : BaseReactiveComponent
     private string Password { get; set; } = "";
     private string SecretKey { get; set; } = "";
     private bool IsLockedSession { get; set; }
+    private bool RememberSecretKey { get; set; } = true;
     private string _localErrorMessage = "";
     private string ErrorMessage => !string.IsNullOrEmpty(_localErrorMessage) ? _localErrorMessage : (AuthState.Value.ErrorMessage ?? "");
     private bool IsProcessing => AuthState.Value.IsLoading;
@@ -83,7 +84,7 @@ public partial class Login : BaseReactiveComponent
                 return;
             }
 
-            Dispatcher.Dispatch(new LoginAction(Email, Password, SecretKey));
+            Dispatcher.Dispatch(new LoginAction(Email, Password, SecretKey, RememberSecretKey));
         }
     }
 

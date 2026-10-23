@@ -24,11 +24,13 @@ public class LogoutRequestHandler : IAsyncRequestHandler<LogoutRequest>
 
     public async Task ExecuteAsync(LogoutRequest request)
     {
+        var currentUserId = _apiRequestService.GetCurrentUserIdOrDefault();
+
         var accessToken = _apiRequestService.GetAccessToken();
         if (!string.IsNullOrEmpty(accessToken))
         {
             var accessTokenEntity = await _accessTokenDao.GetByToken(accessToken);
-            if (accessTokenEntity != null)
+            if (accessTokenEntity != null && (currentUserId == null || accessTokenEntity.User.Id == currentUserId))
             {
                 await _accessTokenDao.Delete(accessTokenEntity);
             }
@@ -39,7 +41,7 @@ public class LogoutRequestHandler : IAsyncRequestHandler<LogoutRequest>
             if (accessTokenId.HasValue)
             {
                 var accessTokenEntity = await _accessTokenDao.GetById(accessTokenId.Value);
-                if (accessTokenEntity != null)
+                if (accessTokenEntity != null && (currentUserId == null || accessTokenEntity.User.Id == currentUserId))
                 {
                     await _accessTokenDao.Delete(accessTokenEntity);
                 }

@@ -55,8 +55,26 @@ public class BaseApiRequestService: IBaseApiRequestService
     {
         if (_currentUserGuid == null)
         {
+            var user = _httpContext?.HttpContext?.User;
+            if (user?.Identity?.IsAuthenticated == true)
+            {
+                var claim = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) ?? user.FindFirst("nameid");
+                if (claim != null && Guid.TryParse(claim.Value, out var authGuid) && authGuid != Guid.Empty)
+                {
+                    _currentUserGuid = authGuid;
+                    return _currentUserGuid;
+                }
+            }
+
             var jwtToken = GetApiToken();
-            _currentUserGuid = string.IsNullOrEmpty(jwtToken) ? null : _jwtAuthService.GetUserId(jwtToken);
+            if (!string.IsNullOrEmpty(jwtToken))
+            {
+                var userId = _jwtAuthService.GetUserId(jwtToken);
+                if (userId != Guid.Empty)
+                {
+                    _currentUserGuid = userId;
+                }
+            }
         }
         return _currentUserGuid;
     }
@@ -64,22 +82,34 @@ public class BaseApiRequestService: IBaseApiRequestService
     public Guid? GetAccessTokenIdFromJwt()
     {
         var jwtToken = GetApiToken();
-        return string.IsNullOrEmpty(jwtToken) ? null : _jwtAuthService.GetAccessTokenId(jwtToken);
+        if (string.IsNullOrEmpty(jwtToken))
+        {
+            return null;
+        }
+
+        var tokenId = _jwtAuthService.GetAccessTokenId(jwtToken);
+        return tokenId == Guid.Empty ? null : tokenId;
     }
     
     public Guid GetCurrentUserId()
     {
         var guid = GetUserGuidFromJwt();
-        if (guid == null)
+        if (guid == null || guid == Guid.Empty)
         {
             throw DomainException.UserNotFoundException;
         }
         return guid.Value;
     }
+
+    public Guid? GetCurrentUserIdOrDefault()
+    {
+        return IsAuthorized() ? GetUserGuidFromJwt() : null;
+    }
     
     public bool IsAuthorized()
     {
-        return GetUserGuidFromJwt() != null;
+        var guid = GetUserGuidFromJwt();
+        return guid != null && guid != Guid.Empty;
     }
     
     public IPAddress? GetIpAddress()

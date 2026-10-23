@@ -11,7 +11,7 @@ namespace PassKee.Business.Helpers
             get
             {
                 var value = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-                return string.IsNullOrEmpty(value) ? "Development" : value;
+                return string.IsNullOrEmpty(value) ? "Production" : value;
             }
 
         }

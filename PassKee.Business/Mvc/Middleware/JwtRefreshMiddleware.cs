@@ -63,7 +63,7 @@ public class JwtRefreshMiddleware
                     }
                     else
                     {
-                        var accessTokenId = jwtAuthService.GetAccessTokenId(jwt);
+                        var accessTokenId = jwtAuthService.GetAccessTokenId(jwt, isValidateLifeTime: false);
                         if (accessTokenId.HasValue)
                         {
                             accessTokenEntity = await accessTokenDao.GetById(accessTokenId.Value);
@@ -79,12 +79,13 @@ public class JwtRefreshMiddleware
                     }
                     else
                     {
-                        var jwtUserId = jwtAuthService.GetUserId(jwt);
+                        var jwtUserId = jwtAuthService.GetUserId(jwt, isValidateLifeTime: false);
                         if (accessTokenEntity.User.Id != jwtUserId)
                         {
                             _logger.LogWarning("Access token user does not match JWT user.");
                             context.Items["__AuthFailed"] = "Access token user does not match JWT user.";
                             context.Request.Headers.Remove("Authorization");
+                            context.Request.Headers.Remove(HttpHeaderKeyEnum.JwtToken.ToString());
                         }
                         else
                         {

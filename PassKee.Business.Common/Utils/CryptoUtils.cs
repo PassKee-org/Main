@@ -42,10 +42,11 @@ public static class CryptoUtils
     private const int NonceSize = 12;
     private const int TagSize = 16;
     private const int MacSizeBits = 128;
-    private const int SessionUnlockKdfIterations = 2;
-    private const int SessionUnlockKdfMemorySize = 19456;
+    private const int SessionUnlockKdfIterations = 3;
+    private const int SessionUnlockKdfMemorySize = 65536;
     private const int SessionUnlockKdfParallelism = 1;
     public const string AuthLoginContext = "auth_login";
+    private static readonly System.Threading.SemaphoreSlim ServerHashThrottle = new(Math.Max(2, Environment.ProcessorCount * 2));
 
     public const int DefaultKdfIterations = 1;
     public const int DefaultKdfMemorySize = 16384;
@@ -112,6 +113,7 @@ public static class CryptoUtils
 
     /// <summary>
     /// Encrypts data for a recipient's X25519 public key using Ephemeral ECDH + AES-256-GCM.
+    /// Derives key bound to both ephemeral and recipient public keys to prevent small-subgroup/key-replacement attacks.
     /// Output format: [32 bytes Ephemeral Public Key][12 bytes Nonce][Ciphertext][16 bytes Auth Tag]
     /// </summary>
     public static byte[] EccEncrypt(byte[] recipientPublicKey, byte[] plaintext)
@@ -127,7 +129,8 @@ public static class CryptoUtils
             sharedSecret = new byte[agreement.AgreementSize];
             agreement.CalculateAgreement(new X25519PublicKeyParameters(recipientPublicKey, 0), sharedSecret, 0);
 
-            derivedKey = GenerateHmacSha256(sharedSecret, Encoding.UTF8.GetBytes("ecc_vault_encryption"));
+            var keyContext = BuildEccContext(ephemeralPublicKey, recipientPublicKey);
+            derivedKey = GenerateHmacSha256(sharedSecret, keyContext);
             var encryptedPayload = AesGcmEncrypt(derivedKey, plaintext);
 
             var result = new byte[32 + encryptedPayload.Length];
@@ -157,23 +160,66 @@ public static class CryptoUtils
         Buffer.BlockCopy(encryptedData, 0, ephemeralPublicKey, 0, 32);
 
         var agreement = new X25519Agreement();
-        agreement.Init(new X25519PrivateKeyParameters(recipientPrivateKey, 0));
+        var recipientPrivParams = new X25519PrivateKeyParameters(recipientPrivateKey, 0);
+        agreement.Init(recipientPrivParams);
         var sharedSecret = new byte[agreement.AgreementSize];
         var derivedKey = Array.Empty<byte>();
         try
         {
             agreement.CalculateAgreement(new X25519PublicKeyParameters(ephemeralPublicKey, 0), sharedSecret, 0);
-            derivedKey = GenerateHmacSha256(sharedSecret, Encoding.UTF8.GetBytes("ecc_vault_encryption"));
+
+            var recipientPublicKey = recipientPrivParams.GeneratePublicKey().GetEncoded();
+            var keyContext = BuildEccContext(ephemeralPublicKey, recipientPublicKey);
+            derivedKey = GenerateHmacSha256(sharedSecret, keyContext);
 
             var encryptedPayload = new byte[encryptedData.Length - 32];
             Buffer.BlockCopy(encryptedData, 32, encryptedPayload, 0, encryptedPayload.Length);
 
-            return AesGcmDecrypt(derivedKey, encryptedPayload);
+            try
+            {
+                return AesGcmDecrypt(derivedKey, encryptedPayload);
+            }
+            catch when (TryLegacyEccDecrypt(sharedSecret, encryptedPayload, out var legacyDecrypted))
+            {
+                return legacyDecrypted!;
+            }
         }
         finally
         {
             CryptographicOperations.ZeroMemory(sharedSecret);
             CryptographicOperations.ZeroMemory(derivedKey);
+        }
+    }
+
+    private static byte[] BuildEccContext(byte[] ephemeralPublicKey, byte[] recipientPublicKey)
+    {
+        var label = Encoding.UTF8.GetBytes("ecc_vault_encryption");
+        var context = new byte[label.Length + ephemeralPublicKey.Length + recipientPublicKey.Length];
+        Buffer.BlockCopy(label, 0, context, 0, label.Length);
+        Buffer.BlockCopy(ephemeralPublicKey, 0, context, label.Length, ephemeralPublicKey.Length);
+        Buffer.BlockCopy(recipientPublicKey, 0, context, label.Length + ephemeralPublicKey.Length, recipientPublicKey.Length);
+        return context;
+    }
+
+    private static bool TryLegacyEccDecrypt(byte[] sharedSecret, byte[] encryptedPayload, out byte[]? plaintext)
+    {
+        try
+        {
+            var legacyKey = GenerateHmacSha256(sharedSecret, Encoding.UTF8.GetBytes("ecc_vault_encryption"));
+            try
+            {
+                plaintext = AesGcmDecrypt(legacyKey, encryptedPayload);
+                return true;
+            }
+            finally
+            {
+                CryptographicOperations.ZeroMemory(legacyKey);
+            }
+        }
+        catch
+        {
+            plaintext = null;
+            return false;
         }
     }
 
@@ -445,10 +491,19 @@ public static class CryptoUtils
 
     /// <summary>
     /// Computes the server-side double hash from the client's Auth Hash and Auth Salt using Argon2id.
+    /// Uses concurrency throttling to prevent thread-pool and memory exhaustion DoS attacks.
     /// </summary>
     public static byte[] ComputeServerHash(byte[] authHash, byte[] authSalt)
     {
-        return GenerateArgon2idHash(authHash, authSalt, DefaultKdfIterations, DefaultKdfMemorySize, DefaultKdfParallelism, 32);
+        ServerHashThrottle.Wait();
+        try
+        {
+            return GenerateArgon2idHash(authHash, authSalt, DefaultKdfIterations, DefaultKdfMemorySize, DefaultKdfParallelism, 32);
+        }
+        finally
+        {
+            ServerHashThrottle.Release();
+        }
     }
 
     /// <summary>

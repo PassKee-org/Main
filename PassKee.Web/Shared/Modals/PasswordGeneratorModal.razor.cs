@@ -140,7 +140,7 @@ public partial class PasswordGeneratorModal : ComponentBase
 
         try
         {
-            await Js.InvokeVoidAsync("navigator.clipboard.writeText", _password);
+            await Js.InvokeVoidAsync("PassKeeInterop.copyToClipboard", _password, 60);
             _isCopied = true;
             ToastService.ShowSuccess("Password copied to clipboard");
             StateHasChanged();

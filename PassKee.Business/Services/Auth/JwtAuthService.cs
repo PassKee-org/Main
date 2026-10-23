@@ -74,20 +74,12 @@ public class JwtAuthService : IJwtAuthService
         return tokenHandler.WriteToken(tokenObject);
     }
 
-    public Guid GetUserId(string jwtString)
+    public Guid GetUserId(string jwtString, bool isValidateLifeTime = true)
     {
-        ArgumentNullException.ThrowIfNull(jwtString);
-        try
-        {
-            var jwt = new JwtSecurityToken(jwtString);
-            var userIdClaim = jwt.Claims.FirstOrDefault(c => c.Type == "nameid");
-            ArgumentNullException.ThrowIfNull(userIdClaim);
-            return Guid.Parse(userIdClaim.Value);
-        }
-        catch (Exception)
-        {
-            return Guid.Empty;
-        }
+        var id = GetClaimStringValue(ClaimTypes.NameIdentifier, jwtString, isValidateLifeTime)
+            ?? GetClaimStringValue("nameid", jwtString, isValidateLifeTime);
+
+        return Guid.TryParse(id, out var guid) ? guid : Guid.Empty;
     }
 
     public bool IsValidJwt(string token, bool isValidateLifeTime = true)
@@ -135,9 +127,10 @@ public class JwtAuthService : IJwtAuthService
         }
     }
     
-    public Guid? GetAccessTokenId(string jwtString)
+    public Guid? GetAccessTokenId(string jwtString, bool isValidateLifeTime = true)
     {
-        return GetClaimValue<Guid>(ClaimTypes.Authentication, jwtString);
+        var id = GetClaimStringValue(ClaimTypes.Authentication, jwtString, isValidateLifeTime);
+        return Guid.TryParse(id, out var guid) ? guid : null;
     }
     
     public bool IsTokenExpired(string token, TimeSpan? delayBefore = null)
@@ -160,38 +153,32 @@ public class JwtAuthService : IJwtAuthService
         return jwtToken.ValidTo;
     }
     
-    private T? GetClaimValue<T>(string claimType, string jwtString)
+    private string? GetClaimStringValue(string claimType, string jwtString, bool isValidateLifeTime = true)
     {
-        ArgumentNullException.ThrowIfNull(jwtString);
+        if (string.IsNullOrWhiteSpace(jwtString))
+            return null;
+
+        var parameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = isValidateLifeTime,
+            ValidIssuer = _issuer,
+            ValidAudience = _audience,
+            IssuerSigningKey = _key
+        };
+
         try
         {   
-            var jwt = new JwtSecurityToken(jwtString);
-            var value = jwt.Claims.FirstOrDefault(c => c.Type == claimType)?.Value;
-            if (value == null)
-                return default;
-            if (typeof(T) == typeof(Guid))
-            {
-                if (Guid.TryParse(value, out var guidValue))
-                {
-                    return (T)Convert.ChangeType(guidValue, typeof(T));
-                }
-            }
-            if (typeof(T) == typeof(bool))
-            {
-                if (bool.TryParse(value, out var boolValue))
-                {
-                    return (T)Convert.ChangeType(boolValue, typeof(T));
-                }
-            }
-            if (typeof(T) == typeof(string))
-            {
-                return (T)Convert.ChangeType(value, typeof(T));
-            }
-            return default;
+            var handler = new JwtSecurityTokenHandler();
+            var principal = handler.ValidateToken(jwtString, parameters, out _);
+            return principal.Claims.FirstOrDefault(c => c.Type == claimType)?.Value;
         }
-        catch (Exception)
+        catch (Exception e)
         {
-            return default;
+            _logger.LogDebug($"Failed to extract claim {claimType} from JWT: {e.Message}");
+            return null;
         }
     }
 }

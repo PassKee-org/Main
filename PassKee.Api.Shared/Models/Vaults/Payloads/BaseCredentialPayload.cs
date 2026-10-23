@@ -1,7 +1,14 @@
+using PassKee.Business.Common.Constants;
+
 namespace PassKee.Api.Shared.Models.Vaults.Payloads;
 
 public abstract class BaseCredentialPayload
 {
+    /// <summary>
+    /// Type marker encrypted inside the ciphertext payload to prevent ciphertext transplanting / type confusion attacks.
+    /// </summary>
+    public CredentialType? PayloadType { get; set; }
+
     public string Title { get; set; } = string.Empty;
     public string? Notes { get; set; }
     /// <summary>

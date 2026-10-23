@@ -19,7 +19,7 @@ public class AuthClientService : IAuthClientService
         _sessionLockStorage = sessionLockStorage;
     }
 
-    public async Task<RegisterResult> RegisterAsync(string email, string password, string? secretKey = null)
+    public async Task<RegisterResult> RegisterAsync(string email, string password, string? secretKey = null, bool rememberSecretKey = true)
     {
         secretKey = !string.IsNullOrWhiteSpace(secretKey) ? secretKey.Trim() : CryptoUtils.GenerateSecretKeyString();
         var regData = CryptoUtils.PrepareClientRegistration(password, secretKey);
@@ -52,21 +52,28 @@ public class AuthClientService : IAuthClientService
 
             userPrivateKey = CryptoUtils.AesGcmDecrypt(regData.MasterKey, regData.KeyEnvelope.EncryptedPrivateKey);
 
-            var sessionUnlockSalt = CryptoUtils.GenerateRandomBytes(32);
-            var encryptedSecretKey = CryptoUtils.EncryptSecretKeyForSession(regData.SecretKey, password, sessionUnlockSalt);
-            var sessionLock = new SessionLockInfo
+            if (rememberSecretKey)
             {
-                FormatVersion = SessionLockInfo.CurrentFormatVersion,
-                Email = email,
-                AuthSaltBase64 = Convert.ToBase64String(regData.AuthSalt),
-                EncryptedSecretKeyBase64 = Convert.ToBase64String(encryptedSecretKey),
-                SessionUnlockSaltBase64 = Convert.ToBase64String(sessionUnlockSalt),
-                Iterations = regData.KdfParams.Iterations,
-                MemorySize = regData.KdfParams.MemorySize,
-                Parallelism = regData.KdfParams.Parallelism,
-                IsLocked = false
-            };
-            await _sessionLockStorage.SetSessionLockInfoAsync(sessionLock);
+                var sessionUnlockSalt = CryptoUtils.GenerateRandomBytes(32);
+                var encryptedSecretKey = CryptoUtils.EncryptSecretKeyForSession(regData.SecretKey, password, sessionUnlockSalt);
+                var sessionLock = new SessionLockInfo
+                {
+                    FormatVersion = SessionLockInfo.CurrentFormatVersion,
+                    Email = email,
+                    AuthSaltBase64 = Convert.ToBase64String(regData.AuthSalt),
+                    EncryptedSecretKeyBase64 = Convert.ToBase64String(encryptedSecretKey),
+                    SessionUnlockSaltBase64 = Convert.ToBase64String(sessionUnlockSalt),
+                    Iterations = regData.KdfParams.Iterations,
+                    MemorySize = regData.KdfParams.MemorySize,
+                    Parallelism = regData.KdfParams.Parallelism,
+                    IsLocked = false
+                };
+                await _sessionLockStorage.SetSessionLockInfoAsync(sessionLock);
+            }
+            else
+            {
+                await _sessionLockStorage.ClearAllSessionDataAsync();
+            }
 
             succeeded = true;
             return new RegisterResult(response, secretKey, userPrivateKey, regData.KeyEnvelope.PublicKey);
@@ -84,13 +91,13 @@ public class AuthClientService : IAuthClientService
         }
     }
 
-    public async Task<LoginResult> LoginAsync(string email, string password, string secretKey)
+    public async Task<LoginResult> LoginAsync(string email, string password, string secretKey, bool rememberSecretKey = true)
     {
         var secretKeyBytes = CryptoUtils.ParseSecretKey(secretKey);
-        return await LoginAsync(email, password, secretKeyBytes);
+        return await LoginAsync(email, password, secretKeyBytes, rememberSecretKey);
     }
 
-    public async Task<LoginResult> LoginAsync(string email, string password, byte[] secretKeyBytes)
+    public async Task<LoginResult> LoginAsync(string email, string password, byte[] secretKeyBytes, bool rememberSecretKey = true)
     {
         var loginParams = await _apiService.GetLoginParamsAsync(email);
         if (loginParams == null || string.IsNullOrEmpty(loginParams.AuthSalt))
@@ -101,6 +108,12 @@ public class AuthClientService : IAuthClientService
         int iterations = loginParams.KdfParams?.Iterations ?? CryptoUtils.DefaultKdfIterations;
         int memorySize = loginParams.KdfParams?.MemorySize ?? CryptoUtils.DefaultKdfMemorySize;
         int parallelism = loginParams.KdfParams?.Parallelism ?? CryptoUtils.DefaultKdfParallelism;
+
+        // Protect client from malicious server params (Client-Side DoS / OOM)
+        if (iterations is < 1 or > 20 || memorySize is < 1024 or > 262144 || parallelism is < 1 or > 8)
+        {
+            throw new InvalidOperationException("Invalid or unsafe KDF parameters received for this account.");
+        }
 
         var authSaltBytes = Convert.FromBase64String(loginParams.AuthSalt);
         byte[]? masterKey = null;
@@ -135,21 +148,29 @@ public class AuthClientService : IAuthClientService
                 userPublicKey = Convert.FromBase64String(authResponse.UserPublicKey);
             }
 
-            var sessionUnlockSalt = CryptoUtils.GenerateRandomBytes(32);
-            var encryptedSecretKey = CryptoUtils.EncryptSecretKeyForSession(secretKeyBytes, password, sessionUnlockSalt);
-            var sessionLock = new SessionLockInfo
+            if (rememberSecretKey)
             {
-                FormatVersion = SessionLockInfo.CurrentFormatVersion,
-                Email = email,
-                AuthSaltBase64 = loginParams.AuthSalt,
-                EncryptedSecretKeyBase64 = Convert.ToBase64String(encryptedSecretKey),
-                SessionUnlockSaltBase64 = Convert.ToBase64String(sessionUnlockSalt),
-                Iterations = iterations,
-                MemorySize = memorySize,
-                Parallelism = parallelism,
-                IsLocked = false
-            };
-            await _sessionLockStorage.SetSessionLockInfoAsync(sessionLock);
+                var sessionUnlockSalt = CryptoUtils.GenerateRandomBytes(32);
+                var encryptedSecretKey = CryptoUtils.EncryptSecretKeyForSession(secretKeyBytes, password, sessionUnlockSalt);
+                var sessionLock = new SessionLockInfo
+                {
+                    FormatVersion = SessionLockInfo.CurrentFormatVersion,
+                    Email = email,
+                    AuthSaltBase64 = loginParams.AuthSalt,
+                    EncryptedSecretKeyBase64 = Convert.ToBase64String(encryptedSecretKey),
+                    SessionUnlockSaltBase64 = Convert.ToBase64String(sessionUnlockSalt),
+                    Iterations = iterations,
+                    MemorySize = memorySize,
+                    Parallelism = parallelism,
+                    IsLocked = false,
+                    FailedAttempts = 0
+                };
+                await _sessionLockStorage.SetSessionLockInfoAsync(sessionLock);
+            }
+            else
+            {
+                await _sessionLockStorage.ClearAllSessionDataAsync();
+            }
 
             succeeded = true;
             return new LoginResult(authResponse, userPrivateKey, userPublicKey);
@@ -194,12 +215,22 @@ public class AuthClientService : IAuthClientService
         }
         catch
         {
+            sessionLock.FailedAttempts++;
+            if (sessionLock.FailedAttempts >= 3)
+            {
+                await _sessionLockStorage.ClearAllSessionDataAsync();
+                throw new InvalidOperationException("Too many failed attempts. Session lock cleared. Please sign in with your Secret Key.");
+            }
+            await _sessionLockStorage.SetSessionLockInfoAsync(sessionLock);
             throw new InvalidOperationException("Invalid Master Password.");
         }
 
         try
         {
-            return await LoginAsync(sessionLock.Email, password, secretKeyBytes);
+            var result = await LoginAsync(sessionLock.Email, password, secretKeyBytes, rememberSecretKey: true);
+            sessionLock.FailedAttempts = 0;
+            await _sessionLockStorage.SetSessionLockInfoAsync(sessionLock);
+            return result;
         }
         finally
         {

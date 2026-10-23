@@ -26,6 +26,16 @@ public class RegisterRequestHandler : IAsyncRequestHandler<RegisterRequest, Auth
 
     public async Task<AuthResponse> ExecuteAsync(RegisterRequest request)
     {
+        if (request.KdfParams != null)
+        {
+            if (request.KdfParams.Iterations < KdfParamsRequest.MinIterations || request.KdfParams.Iterations > KdfParamsRequest.MaxIterations ||
+                request.KdfParams.MemorySize < KdfParamsRequest.MinMemorySizeKb || request.KdfParams.MemorySize > KdfParamsRequest.MaxMemorySizeKb ||
+                request.KdfParams.Parallelism < KdfParamsRequest.MinParallelism || request.KdfParams.Parallelism > KdfParamsRequest.MaxParallelism)
+            {
+                throw new PassKee.Business.Common.Exceptions.Common.ValidationException("Invalid KDF parameters provided.");
+            }
+        }
+
         var kdfParams = request.KdfParams != null
             ? new KdfParameters(request.KdfParams.Iterations, request.KdfParams.MemorySize, request.KdfParams.Parallelism)
             : null;

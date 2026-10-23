@@ -93,7 +93,7 @@ public partial class Register : BaseReactiveComponent
     {
         try
         {
-            await Js.InvokeVoidAsync("navigator.clipboard.writeText", SecretKeyDisplay);
+            await Js.InvokeVoidAsync("PassKeeInterop.copyToClipboard", SecretKeyDisplay, 60);
             IsCopied = true;
             StateHasChanged();
             await Task.Delay(2500);

@@ -7,13 +7,10 @@ namespace PassKee.Business.Common.Utils
         private static readonly string BASE_58_ALBHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
         private static readonly string FULL_ALBHABET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
 
-        private static readonly int SALT_SIZE = 499;
+        private static readonly int SALT_SIZE = 32;
         private static readonly int PASSWORD_SIZE = 12;
-        private static readonly int HASH_SIZE = 1023;
-        private static readonly int HASH_ITERATIONS = 300;
-        
-        private static readonly object TimeBasedRandomizerLock = new {};
-        private static readonly Random Randomizer = new Random();
+        private static readonly int HASH_SIZE = 32;
+        private static readonly int HASH_ITERATIONS = 100_000;
 
         public static byte[] GenerateSalt(int? size = null)
         {
@@ -98,7 +95,7 @@ namespace PassKee.Business.Common.Utils
 
         public static byte[] GeneratePasswordHash(string password, byte[] salt, int iterations)
         {
-            return Rfc2898DeriveBytes.Pbkdf2(password, salt, iterations, HashAlgorithmName.SHA1, HASH_SIZE);
+            return Rfc2898DeriveBytes.Pbkdf2(password, salt, iterations, HashAlgorithmName.SHA256, HASH_SIZE);
         }
 
         public static string GetBase58RandomString(int length)
@@ -118,25 +115,24 @@ namespace PassKee.Business.Common.Utils
         
         public static string GetTimeBasedToken(bool isShort = false)
         {
-            lock (TimeBasedRandomizerLock)
+            var ticksBytes = BitConverter.GetBytes(DateTime.UtcNow.Ticks);
+            byte[] randomBytes;
+            if (isShort)
             {
-                IEnumerable<byte> ticksBytes = BitConverter.GetBytes(DateTime.UtcNow.Ticks);
-                if (isShort)
-                {
-                    var guidBytes = Guid.NewGuid().ToByteArray();
-                    ticksBytes = ticksBytes.Concat(guidBytes);
-                }
-                else
-                {
-                    ticksBytes = ticksBytes.Concat(BitConverter.GetBytes(Randomizer.NextInt64(0, 1000_000)));
-                }
-
-                return Convert.ToBase64String(ticksBytes.ToArray())
-                    .Replace('+', 'H')
-                    .Replace('/', 'k')
-                    .Replace('#', 's')
-                    .Replace('=', 'i');
+                randomBytes = Guid.CreateVersion7().ToByteArray();
             }
+            else
+            {
+                randomBytes = new byte[8];
+                RandomNumberGenerator.Fill(randomBytes);
+            }
+
+            var combined = ticksBytes.Concat(randomBytes).ToArray();
+            return Convert.ToBase64String(combined)
+                .Replace('+', 'H')
+                .Replace('/', 'k')
+                .Replace('#', 's')
+                .Replace('=', 'i');
         }
     }
 }

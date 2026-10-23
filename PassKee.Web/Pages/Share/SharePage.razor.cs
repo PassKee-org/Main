@@ -68,43 +68,50 @@ public partial class SharePage : ComponentBase
             return;
         }
 
-        CredentialShareResponse? shareResponse;
         try
         {
-            shareResponse = await ApiService.GetShareAsync(Token);
-        }
-        catch (Exception)
-        {
-            HasError = true;
-            ErrorMessage = "This item is no longer available. The link may have expired or reached its view limit.";
-            IsLoading = false;
-            return;
-        }
+            CredentialShareResponse? shareResponse;
+            try
+            {
+                shareResponse = await ApiService.GetShareAsync(Token);
+            }
+            catch (Exception)
+            {
+                HasError = true;
+                ErrorMessage = "This item is no longer available. The link may have expired or reached its view limit.";
+                IsLoading = false;
+                return;
+            }
 
-        if (shareResponse == null)
-        {
-            HasError = true;
-            ErrorMessage = "This item is no longer available. The link was deleted or has reached its view limit.";
-            IsLoading = false;
-            return;
-        }
+            if (shareResponse == null)
+            {
+                HasError = true;
+                ErrorMessage = "This item is no longer available. The link was deleted or has reached its view limit.";
+                IsLoading = false;
+                return;
+            }
 
-        try
-        {
-            DecryptedPayload = VaultCryptoService.DecryptCredentialPayload(
-                shareResponse.EncryptedBody,
-                shareResponse.Type,
-                shareKey);
+            try
+            {
+                DecryptedPayload = VaultCryptoService.DecryptCredentialPayload(
+                    shareResponse.EncryptedBody,
+                    shareResponse.Type,
+                    shareKey);
 
-            CredentialType = shareResponse.Type;
-            ExpiresAt = shareResponse.ExpiresAt;
+                CredentialType = shareResponse.Type;
+                ExpiresAt = shareResponse.ExpiresAt;
+            }
+            catch (Exception)
+            {
+                HasError = true;
+                ErrorMessage = "Failed to decrypt data. The key in the link may be corrupted or incorrect.";
+                IsLoading = false;
+                return;
+            }
         }
-        catch (Exception)
+        finally
         {
-            HasError = true;
-            ErrorMessage = "Failed to decrypt data. The key in the link may be corrupted or incorrect.";
-            IsLoading = false;
-            return;
+            System.Security.Cryptography.CryptographicOperations.ZeroMemory(shareKey);
         }
 
         IsLoading = false;
@@ -121,7 +128,7 @@ public partial class SharePage : ComponentBase
 
         try
         {
-            var hash = await Js.InvokeAsync<string>("eval", "window.location.hash");
+            var hash = await Js.InvokeAsync<string>("PassKeeInterop.getLocationHash");
             return (hash ?? string.Empty).TrimStart('#');
         }
         catch

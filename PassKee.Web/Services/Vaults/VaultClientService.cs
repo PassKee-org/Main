@@ -31,14 +31,21 @@ public class VaultClientService : IVaultClientService
     public async Task<VaultDto?> CreateVaultAsync(string name, byte[] userPublicKey)
     {
         var vaultKey = CryptoUtils.GenerateRandomBytes(32);
-        var encryptedVaultKey = _vaultCrypto.EncryptVaultKey(vaultKey, userPublicKey);
-        var request = new CreateVaultRequest
+        try
         {
-            Name = name,
-            EncryptedVaultKey = encryptedVaultKey
-        };
+            var encryptedVaultKey = _vaultCrypto.EncryptVaultKey(vaultKey, userPublicKey);
+            var request = new CreateVaultRequest
+            {
+                Name = name,
+                EncryptedVaultKey = encryptedVaultKey
+            };
 
-        return await _apiService.CreateVaultAsync(request);
+            return await _apiService.CreateVaultAsync(request);
+        }
+        finally
+        {
+            System.Security.Cryptography.CryptographicOperations.ZeroMemory(vaultKey);
+        }
     }
 
     public async Task<VaultDetailsResult> GetVaultDetailsAsync(Guid vaultId, byte[] userPrivateKey)
@@ -106,6 +113,7 @@ public class VaultClientService : IVaultClientService
 
     public async Task<CredentialDto?> CreateCredentialAsync(Guid vaultId, Guid? directoryId, CredentialType type, BaseCredentialPayload payload, byte[] vaultKey)
     {
+        payload.PayloadType = type;
         var encryptedBody = _vaultCrypto.EncryptCredentialPayload(payload, vaultKey);
         var request = new CreateCredentialRequest
         {
@@ -120,6 +128,7 @@ public class VaultClientService : IVaultClientService
 
     public async Task<CredentialDto?> UpdateCredentialAsync(Guid credentialId, Guid? directoryId, CredentialType type, BaseCredentialPayload payload, byte[] vaultKey)
     {
+        payload.PayloadType = type;
         var encryptedBody = _vaultCrypto.EncryptCredentialPayload(payload, vaultKey);
         var request = new UpdateCredentialRequest
         {

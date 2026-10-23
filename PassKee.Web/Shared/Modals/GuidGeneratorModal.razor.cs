@@ -129,7 +129,7 @@ public partial class GuidGeneratorModal : ComponentBase
 
         try
         {
-            await Js.InvokeVoidAsync("navigator.clipboard.writeText", text);
+            await Js.InvokeVoidAsync("PassKeeInterop.copyToClipboard", text, 60);
             _copiedValue = text;
             _isCopied = true;
             ToastService.ShowSuccess("Copied to clipboard");

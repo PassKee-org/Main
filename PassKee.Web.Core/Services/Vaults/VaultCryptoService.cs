@@ -42,7 +42,14 @@ public class VaultCryptoService : IVaultCryptoService
         ArgumentNullException.ThrowIfNull(vaultKey);
 
         var decryptedBytes = CryptoUtils.AesGcmDecrypt(vaultKey, encryptedName);
-        return Encoding.UTF8.GetString(decryptedBytes);
+        try
+        {
+            return Encoding.UTF8.GetString(decryptedBytes);
+        }
+        finally
+        {
+            System.Security.Cryptography.CryptographicOperations.ZeroMemory(decryptedBytes);
+        }
     }
 
     public List<DecryptedDirectory> DecryptDirectories(IEnumerable<DirectoryDto> directories, byte[] vaultKey)
@@ -74,7 +81,14 @@ public class VaultCryptoService : IVaultCryptoService
         ArgumentNullException.ThrowIfNull(vaultKey);
 
         var decryptedBytes = CryptoUtils.AesGcmDecrypt(vaultKey, encryptedName);
-        return Encoding.UTF8.GetString(decryptedBytes);
+        try
+        {
+            return Encoding.UTF8.GetString(decryptedBytes);
+        }
+        finally
+        {
+            System.Security.Cryptography.CryptographicOperations.ZeroMemory(decryptedBytes);
+        }
     }
 
     public List<DecryptedTag> DecryptTags(IEnumerable<TagDto> tags, byte[] vaultKey)
@@ -107,20 +121,35 @@ public class VaultCryptoService : IVaultCryptoService
         ArgumentNullException.ThrowIfNull(vaultKey);
 
         var decryptedBytes = CryptoUtils.AesGcmDecrypt(vaultKey, encryptedBody);
-        var json = Encoding.UTF8.GetString(decryptedBytes);
-
-        return type switch
+        try
         {
-            CredentialType.Login => JsonHelper.DeserializeObject<LoginCredentialPayload>(json) ?? new LoginCredentialPayload(),
-            CredentialType.Password => JsonHelper.DeserializeObject<PasswordCredentialPayload>(json) ?? new PasswordCredentialPayload(),
-            CredentialType.SecureNote => JsonHelper.DeserializeObject<SecureNoteCredentialPayload>(json) ?? new SecureNoteCredentialPayload(),
-            CredentialType.Card => JsonHelper.DeserializeObject<CardCredentialPayload>(json) ?? new CardCredentialPayload(),
-            CredentialType.File => JsonHelper.DeserializeObject<FileCredentialPayload>(json) ?? new FileCredentialPayload(),
-            CredentialType.Database => JsonHelper.DeserializeObject<DatabaseCredentialPayload>(json) ?? new DatabaseCredentialPayload(),
-            CredentialType.SshKey => JsonHelper.DeserializeObject<SshKeyCredentialPayload>(json) ?? new SshKeyCredentialPayload(),
-            CredentialType.Server => JsonHelper.DeserializeObject<ServerCredentialPayload>(json) ?? new ServerCredentialPayload(),
-            _ => new LoginCredentialPayload { Title = "Unknown Type" }
-        };
+            var json = Encoding.UTF8.GetString(decryptedBytes);
+
+            BaseCredentialPayload payload = type switch
+            {
+                CredentialType.Login => (BaseCredentialPayload)(JsonHelper.DeserializeObject<LoginCredentialPayload>(json) ?? new LoginCredentialPayload()),
+                CredentialType.Password => JsonHelper.DeserializeObject<PasswordCredentialPayload>(json) ?? new PasswordCredentialPayload(),
+                CredentialType.SecureNote => JsonHelper.DeserializeObject<SecureNoteCredentialPayload>(json) ?? new SecureNoteCredentialPayload(),
+                CredentialType.Card => JsonHelper.DeserializeObject<CardCredentialPayload>(json) ?? new CardCredentialPayload(),
+                CredentialType.File => JsonHelper.DeserializeObject<FileCredentialPayload>(json) ?? new FileCredentialPayload(),
+                CredentialType.Database => JsonHelper.DeserializeObject<DatabaseCredentialPayload>(json) ?? new DatabaseCredentialPayload(),
+                CredentialType.SshKey => JsonHelper.DeserializeObject<SshKeyCredentialPayload>(json) ?? new SshKeyCredentialPayload(),
+                CredentialType.Server => JsonHelper.DeserializeObject<ServerCredentialPayload>(json) ?? new ServerCredentialPayload(),
+                _ => new LoginCredentialPayload { Title = "Unknown Type" }
+            };
+
+            // Authenticate credential type inside the encrypted envelope to prevent ciphertext transplanting
+            if (payload.PayloadType.HasValue && payload.PayloadType.Value != type)
+            {
+                throw new InvalidOperationException($"Credential type mismatch. Expected {type}, but payload indicates {payload.PayloadType.Value}.");
+            }
+
+            return payload;
+        }
+        finally
+        {
+            System.Security.Cryptography.CryptographicOperations.ZeroMemory(decryptedBytes);
+        }
     }
 
     public List<DecryptedCredential> DecryptCredentials(IEnumerable<CredentialDto> credentials, byte[] vaultKey)

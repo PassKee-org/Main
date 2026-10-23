@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net;
 
 namespace Domain.Abstractions.Api;
@@ -16,6 +16,8 @@ public interface IBaseApiRequestService: IDomainService
     Guid? GetAccessTokenIdFromJwt();
 
     Guid GetCurrentUserId();
+
+    Guid? GetCurrentUserIdOrDefault();
 
     bool IsAuthorized();
     

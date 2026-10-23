@@ -46,7 +46,7 @@ public partial class CredentialViewFieldBlock : ComponentBase
 
         try
         {
-            await Js.InvokeVoidAsync("navigator.clipboard.writeText", Value);
+            await Js.InvokeVoidAsync("PassKeeInterop.copyToClipboard", Value, 60);
             _isCopied = true;
             ToastService.ShowSuccess($"{(string.IsNullOrWhiteSpace(Label) ? "Value" : Label)} copied to clipboard");
             StateHasChanged();
