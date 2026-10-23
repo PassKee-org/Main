@@ -30,7 +30,13 @@ public static class VaultsReducers
 
     [ReducerMethod]
     public static VaultsState ReduceSelectVaultAction(VaultsState state, SelectVaultAction action)
-        => state with { ActiveVaultId = action.VaultId, SelectedDirectoryId = null, IsArchiveSelected = false, SearchQuery = string.Empty, ArchivedCredentials = [] };
+    {
+        if (state.ActiveVaultKey != null && state.ActiveVaultId != action.VaultId)
+        {
+            System.Security.Cryptography.CryptographicOperations.ZeroMemory(state.ActiveVaultKey);
+        }
+        return state with { ActiveVaultId = action.VaultId, ActiveVaultKey = state.ActiveVaultId == action.VaultId ? state.ActiveVaultKey : null, SelectedDirectoryId = null, IsArchiveSelected = false, SearchQuery = string.Empty, ArchivedCredentials = [] };
+    }
 
     [ReducerMethod]
     public static VaultsState ReduceSelectDirectoryAction(VaultsState state, SelectDirectoryAction action)
@@ -285,5 +291,11 @@ public static class VaultsReducers
 
     [ReducerMethod]
     public static VaultsState ReduceResetVaultsStateAction(VaultsState state, ResetVaultsStateAction action)
-        => new();
+    {
+        if (state.ActiveVaultKey != null)
+        {
+            System.Security.Cryptography.CryptographicOperations.ZeroMemory(state.ActiveVaultKey);
+        }
+        return new();
+    }
 }

@@ -55,14 +55,21 @@ public class LoginParamsTest : BaseTest
     }
 
     [Fact]
-    public async Task ShouldFailWhenEmailDoesNotExist()
+    public async Task ShouldReturnFakeLoginParamsWhenEmailDoesNotExist()
     {
         var response = await GetRequestAsAnonymousAsync(ApiUrl.AuthLoginParams, new Dictionary<string, string?>
         {
             { "email", $"unknown_{Guid.NewGuid():N}@example.com" }
         });
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var content = await response.Content.ReadFromJsonAsync<LoginParamsResponse>();
+        Assert.NotNull(content);
+        Assert.False(string.IsNullOrEmpty(content!.AuthSalt));
+        Assert.NotNull(content.KdfParams);
+        Assert.Equal(CryptoUtils.DefaultKdfIterations, content.KdfParams.Iterations);
+        Assert.Equal(CryptoUtils.DefaultKdfMemorySize, content.KdfParams.MemorySize);
+        Assert.Equal(CryptoUtils.DefaultKdfParallelism, content.KdfParams.Parallelism);
     }
 }
 

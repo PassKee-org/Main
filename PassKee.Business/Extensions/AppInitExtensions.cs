@@ -34,9 +34,6 @@ namespace PassKee.Business.Extensions
                     
                     options.InvalidModelStateResponseFactory = context =>
                     {
-                        // Get an instance of ILogger (see below) and log accordingly.
-                        var body = context.HttpContext.Request.ReadBodyAsync().Result;
-                        Log.Logger.Error($"Request data: {body}");
                         foreach (var value in context.ModelState.Values)
                         {
                             foreach (var error in value.Errors)
@@ -44,7 +41,7 @@ namespace PassKee.Business.Extensions
                                 var errorMessage = !string.IsNullOrEmpty(error.ErrorMessage)
                                     ? error.ErrorMessage
                                     : error.Exception?.Message ?? "Validation error";
-                                Log.Logger.Error(errorMessage);
+                                Log.Logger.Warning("Invalid model state: {ErrorMessage}", errorMessage);
                             }
                         }
                         return new BadRequestObjectResult(context.ModelState);

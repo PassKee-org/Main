@@ -46,6 +46,11 @@ public class ExceptionHandlerActionFilter : ActionFilterAttribute
                 response.ErrorCode = exception.GetType().Name;
                 response.Message = exception.Message;
             }
+            else if (exception is System.ComponentModel.DataAnnotations.ValidationException)
+            {
+                response.ErrorCode = "ValidationException";
+                response.Message = exception.Message;
+            }
             else
             {
                 _logger.LogError(

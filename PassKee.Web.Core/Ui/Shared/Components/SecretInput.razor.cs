@@ -211,7 +211,7 @@ public partial class SecretInput : ComponentBase
 
         try
         {
-            await Js.InvokeVoidAsync("navigator.clipboard.writeText", Value);
+            await Js.InvokeVoidAsync("PassKeeInterop.copyToClipboard", Value, 60);
             _isCopied = true;
             StateHasChanged();
 

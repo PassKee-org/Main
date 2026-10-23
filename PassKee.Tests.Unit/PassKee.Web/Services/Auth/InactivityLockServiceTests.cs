@@ -45,11 +45,11 @@ public class InactivityLockServiceTests
         _modalDialogServiceMock.Object);
 
     [Fact]
-    public void DefaultInactivityTimeout_IsSixtyMinutes()
+    public void DefaultInactivityTimeout_IsFifteenMinutes()
     {
         var service = CreateService();
 
-        Assert.Equal(TimeSpan.FromMinutes(60), service.InactivityTimeout);
+        Assert.Equal(TimeSpan.FromMinutes(15), service.InactivityTimeout);
     }
 
     [Fact]

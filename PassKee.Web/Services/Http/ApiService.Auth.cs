@@ -34,4 +34,16 @@ public partial class ApiService
             return false;
         }
     }
+
+    public async Task LogoutAsync()
+    {
+        try
+        {
+            await PostAsync<object>(ApiUrl.AuthLogout, new LogoutRequest());
+        }
+        catch (Exception)
+        {
+            // Best effort logout on server
+        }
+    }
 }

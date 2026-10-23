@@ -146,33 +146,41 @@ public partial class ShareCredentialModal : ComponentBase
 
             // 2. Generate per-share AES-256 key
             var shareKey = CryptoUtils.GenerateRandomBytes(32);
-
-            // 3. Encrypt payload with per-share key
-            var encryptedBody = VaultCryptoService.EncryptCredentialPayload(cleanPayload, shareKey);
-
-            // 4. Send API request to create share
-            var request = new CreateCredentialShareRequest
+            try
             {
-                CredentialId = Credential.Id,
-                Type = Credential.Type,
-                EncryptedBody = encryptedBody,
-                ExpiresInSeconds = SelectedExpirySeconds,
-                MaxViews = IsOneTimeView ? 1 : null
-            };
+                cleanPayload.PayloadType = Credential.Type;
 
-            var response = await ApiService.CreateShareAsync(request);
-            if (response == null || string.IsNullOrWhiteSpace(response.Token))
-            {
-                ToastService.ShowError("Failed to create share link");
-                return;
+                // 3. Encrypt payload with per-share key
+                var encryptedBody = VaultCryptoService.EncryptCredentialPayload(cleanPayload, shareKey);
+
+                // 4. Send API request to create share
+                var request = new CreateCredentialShareRequest
+                {
+                    CredentialId = Credential.Id,
+                    Type = Credential.Type,
+                    EncryptedBody = encryptedBody,
+                    ExpiresInSeconds = SelectedExpirySeconds,
+                    MaxViews = IsOneTimeView ? 1 : null
+                };
+
+                var response = await ApiService.CreateShareAsync(request);
+                if (response == null || string.IsNullOrWhiteSpace(response.Token))
+                {
+                    ToastService.ShowError("Failed to create share link");
+                    return;
+                }
+
+                // 5. Construct URL with token and AES key in hash fragment
+                var keyFragment = Convert.ToHexString(shareKey).ToLowerInvariant();
+                GeneratedShareUrl = $"{NavigationManager.BaseUri}share/{response.Token}#{keyFragment}";
+
+                // 6. Copy to clipboard
+                await CopyLinkToClipboardAsync();
             }
-
-            // 5. Construct URL with token and AES key in hash fragment
-            var keyFragment = Convert.ToHexString(shareKey).ToLowerInvariant();
-            GeneratedShareUrl = $"{NavigationManager.BaseUri}share/{response.Token}#{keyFragment}";
-
-            // 6. Copy to clipboard
-            await CopyLinkToClipboardAsync();
+            finally
+            {
+                System.Security.Cryptography.CryptographicOperations.ZeroMemory(shareKey);
+            }
         }
         catch (Exception ex)
         {
@@ -191,7 +199,7 @@ public partial class ShareCredentialModal : ComponentBase
 
         try
         {
-            await Js.InvokeVoidAsync("navigator.clipboard.writeText", GeneratedShareUrl);
+            await Js.InvokeVoidAsync("PassKeeInterop.copyToClipboard", GeneratedShareUrl, 30);
             IsCopied = true;
             ToastService.ShowSuccess("Link copied to clipboard");
             StateHasChanged();

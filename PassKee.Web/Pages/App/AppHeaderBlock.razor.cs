@@ -90,6 +90,7 @@ public partial class AppHeaderBlock : BaseReactiveComponent
 
     private async Task LogoutAsync()
     {
+        await ApiService.LogoutAsync();
         await SessionLockStorage.ClearAllSessionDataAsync();
         await LockVaultAsync();
     }

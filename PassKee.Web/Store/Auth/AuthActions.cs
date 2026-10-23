@@ -8,7 +8,7 @@ public record struct RegisterSuccessAction(AuthResponse Response, string SecretK
 
 public record struct RegisterFailureAction(string ErrorMessage);
 
-public record struct LoginAction(string Email, string Password, string SecretKey);
+public record struct LoginAction(string Email, string Password, string SecretKey, bool RememberSecretKey = true);
 
 public record struct LoginSuccessAction(AuthResponse Response, byte[]? UserPrivateKey, byte[]? UserPublicKey);
 

@@ -56,7 +56,8 @@ public class Startup
                         if (Uri.TryCreate(origin, UriKind.Absolute, out var uri))
                         {
                             return uri.Host is "localhost" or "127.0.0.1"
-                                   || uri.Host.EndsWith("passkee.org");
+                                   || uri.Host == "passkee.org"
+                                   || uri.Host.EndsWith(".passkee.org");
                         }
                         return false;
                     });
@@ -78,6 +79,8 @@ public class Startup
         services.Configure<ForwardedHeadersOptions>(options =>
         {
             options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            options.KnownIPNetworks.Clear();
+            options.KnownProxies.Clear();
         });
         services.InitControllers(assembly);
         services.InitApiAuthServices(Configuration);

@@ -16,6 +16,7 @@ public class SessionLockInfo
     public int MemorySize { get; set; } = CryptoUtils.DefaultKdfMemorySize;
     public int Parallelism { get; set; } = CryptoUtils.DefaultKdfParallelism;
     public bool IsLocked { get; set; }
+    public int FailedAttempts { get; set; }
 }
 
 public interface ISessionLockStorageService

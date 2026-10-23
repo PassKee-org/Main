@@ -1,7 +1,25 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+
 namespace PassKee.Api.Middleware
 {
     public class RequestResponseLoggerMiddleware
     {
+        private static readonly HashSet<string> SensitiveHeaders = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "Authorization",
+            "Cookie",
+            "Set-Cookie",
+            "X-Jwt-Token",
+            "X-Access-Token"
+        };
+
         private readonly RequestDelegate _next;
         private readonly ILogger<RequestResponseLoggerMiddleware> _logger;
         
@@ -25,10 +43,20 @@ namespace PassKee.Api.Middleware
             await _next(httpContext);
         }
 
-        private static string FormatHeaders(IHeaderDictionary headers) => string.Join(", ", headers.Select(kvp => $"{{{kvp.Key}: {kvp.Value.ToString()}}}"));
+        private static string FormatHeaders(IHeaderDictionary headers) =>
+            string.Join(", ", headers.Select(kvp =>
+                SensitiveHeaders.Contains(kvp.Key)
+                    ? $"{{{kvp.Key}: [REDACTED]}}"
+                    : $"{{{kvp.Key}: {kvp.Value.ToString()}}}"));
 
         private static async Task<string> ReadBodyFromRequest(HttpRequest request)
         {
+            var path = request.Path.Value?.ToLowerInvariant() ?? string.Empty;
+            if (path.Contains("/auth/") || path.Contains("/shares") || path.Contains("/vaults") || path.Contains("/storage"))
+            {
+                return "[REDACTED SENSITIVE PAYLOAD]";
+            }
+
             // Ensure the request's body can be read multiple times (for the next middlewares in the pipeline).
             request.EnableBuffering();
 

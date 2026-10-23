@@ -14,7 +14,7 @@ namespace PassKee.Web.Services.Auth;
 
 public class InactivityLockService : IInactivityLockService
 {
-    private static readonly TimeSpan DefaultTimeout = TimeSpan.FromMinutes(60);
+    private static readonly TimeSpan DefaultTimeout = TimeSpan.FromMinutes(15);
     private static readonly TimeSpan DefaultCheckInterval = TimeSpan.FromSeconds(10);
 
     private readonly IJSRuntime _jsRuntime;
@@ -112,6 +112,13 @@ public class InactivityLockService : IInactivityLockService
     {
         Volatile.Write(ref _lastActivityTicks, DateTime.UtcNow.Ticks);
         return Task.CompletedTask;
+    }
+
+    [JSInvokable]
+    public Task OnTabHiddenActivity()
+    {
+        // When tab is hidden, check immediately if session exceeded timeout
+        return CheckInactivityAsync();
     }
 
     public Task RecordActivityAsync()

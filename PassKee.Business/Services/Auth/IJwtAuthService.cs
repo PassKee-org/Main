@@ -11,10 +11,10 @@ public interface IJwtAuthService : IDomainService
         DateTime? expirationTime = null,
         DateTime? notBeforeTime = null    
     );
-    public Guid GetUserId(string jwtString);
+    public Guid GetUserId(string jwtString, bool isValidateLifeTime = true);
     bool IsValidJwt(string jwtString, bool isValidateLifeTime = true);
     bool IsJwt(string token);
-    Guid? GetAccessTokenId(string jwtString);
+    Guid? GetAccessTokenId(string jwtString, bool isValidateLifeTime = true);
     bool IsTokenExpired(string token, TimeSpan? delayBefore = null);
     DateTime GetTokenExpirationTime(string token);
 }
