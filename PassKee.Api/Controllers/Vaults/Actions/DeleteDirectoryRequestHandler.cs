@@ -33,7 +33,6 @@ public class DeleteDirectoryRequestHandler : IAsyncRequestHandler<DeleteDirector
         var (deletedDirIds, archivedCredIds) = await _directoryDao.DeleteWithDescendantsAsync(dir!);
         return new DeleteDirectoryResponse
         {
-            Success = true,
             DirectoryId = request.DirectoryId,
             DeletedDirectoryIds = deletedDirIds,
             ArchivedCredentialIds = archivedCredIds

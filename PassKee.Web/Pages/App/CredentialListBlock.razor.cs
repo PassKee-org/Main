@@ -41,6 +41,21 @@ public partial class CredentialListBlock : BaseReactiveComponent
     private List<DecryptedDirectory>? _cachedDirsRef;
     private IReadOnlyList<DecryptedDirectory>? _cachedFilteredDirectories;
 
+    private readonly HashSet<Guid> _selectedArchivedCredentialIds = [];
+    private bool _isDeletingArchived;
+
+    private bool HasArchivedSelection => VaultsState.Value.IsArchiveSelected && _selectedArchivedCredentialIds.Count > 0;
+
+    private bool AreAllArchivedSelected =>
+        VaultsState.Value.IsArchiveSelected &&
+        FilteredCredentials.Count > 0 &&
+        FilteredCredentials.All(c => _selectedArchivedCredentialIds.Contains(c.Id));
+
+    private bool IsArchivedIndeterminate =>
+        VaultsState.Value.IsArchiveSelected &&
+        _selectedArchivedCredentialIds.Count > 0 &&
+        !AreAllArchivedSelected;
+
     private string SearchQuery => VaultsState.Value.SearchQuery;
     private bool IsSearchActive => !string.IsNullOrWhiteSpace(SearchQuery);
     private bool IsReorderEnabled => !IsSearchActive && !VaultsState.Value.IsArchiveSelected;
@@ -90,6 +105,15 @@ public partial class CredentialListBlock : BaseReactiveComponent
             _cachedCredsQuery = query;
             _cachedSelectedDirId = selectedDirId;
             _cachedIsArchiveSelected = isArchive;
+
+            if (!isArchive && _selectedArchivedCredentialIds.Count > 0)
+            {
+                _selectedArchivedCredentialIds.Clear();
+            }
+            else if (isArchive && _selectedArchivedCredentialIds.Count > 0)
+            {
+                _selectedArchivedCredentialIds.RemoveWhere(id => credentials.All(c => c.Id != id));
+            }
 
             if (!string.IsNullOrWhiteSpace(query))
             {
@@ -349,6 +373,80 @@ public partial class CredentialListBlock : BaseReactiveComponent
         if (confirm)
         {
             Dispatcher.Dispatch(new ArchiveCredentialAction(vaultId, cred.Id));
+        }
+    }
+
+    private void ToggleSelectAllArchived(bool selectAll)
+    {
+        if (selectAll)
+        {
+            foreach (var cred in FilteredCredentials)
+            {
+                _selectedArchivedCredentialIds.Add(cred.Id);
+            }
+        }
+        else
+        {
+            _selectedArchivedCredentialIds.Clear();
+        }
+    }
+
+    private void ToggleArchivedCredential(Guid id, bool isSelected)
+    {
+        if (isSelected)
+        {
+            _selectedArchivedCredentialIds.Add(id);
+        }
+        else
+        {
+            _selectedArchivedCredentialIds.Remove(id);
+        }
+    }
+
+    private void ClearArchivedSelection()
+    {
+        _selectedArchivedCredentialIds.Clear();
+    }
+
+    private async Task DeleteSingleArchivedCredentialAsync(DecryptedCredential cred)
+    {
+        if (!VaultsState.Value.ActiveVaultId.HasValue) return;
+        var vaultId = VaultsState.Value.ActiveVaultId.Value;
+
+        var confirm = await ModalService.ShowConfirmationAsync($"Are you sure you want to permanently delete '{cred.Payload.Title}'? This action cannot be undone.");
+        if (confirm)
+        {
+            _selectedArchivedCredentialIds.Remove(cred.Id);
+            Dispatcher.Dispatch(new DeleteCredentialAction(vaultId, cred.Id));
+        }
+    }
+
+    private async Task DeleteSelectedArchivedCredentialsAsync()
+    {
+        if (!VaultsState.Value.ActiveVaultId.HasValue || _selectedArchivedCredentialIds.Count == 0 || _isDeletingArchived)
+        {
+            return;
+        }
+
+        var count = _selectedArchivedCredentialIds.Count;
+        var entryWord = count == 1 ? "entry" : "entries";
+        var confirm = await ModalService.ShowConfirmationAsync($"Are you sure you want to permanently delete {count} archived {entryWord}? This action cannot be undone.");
+        if (!confirm)
+        {
+            return;
+        }
+
+        _isDeletingArchived = true;
+        try
+        {
+            var vaultId = VaultsState.Value.ActiveVaultId.Value;
+            var idsToDelete = _selectedArchivedCredentialIds.ToList();
+            _selectedArchivedCredentialIds.Clear();
+            Dispatcher.Dispatch(new DeleteCredentialsAction(vaultId, idsToDelete));
+        }
+        finally
+        {
+            _isDeletingArchived = false;
         }
     }
 }

@@ -66,6 +66,12 @@ public class StorageControllerTests : BaseTest
         var deleteRes = await DeleteRequestAsync(ApiUrl.StorageFile(storedFile.Id), jwtToken);
         Assert.Equal(HttpStatusCode.OK, deleteRes.StatusCode);
         Assert.Null(await GetVaultFileFromDbAsync(storedFile.Id));
+
+        var softDeletedFile = await DbSessionProvider.CurrentSession.Query<VaultFileStorageEntity>()
+            .FirstOrDefaultAsync(x => x.Id == storedFile.Id);
+        Assert.NotNull(softDeletedFile);
+        Assert.NotNull(softDeletedFile.DeletedAt);
+
         await Assert.ThrowsAsync<RecordNotFoundException>(() => _garage.GetAsStreamAsync(dbFile.CloudFilePath));
     }
 
@@ -238,7 +244,7 @@ public class StorageControllerTests : BaseTest
     {
         DbSessionProvider.CurrentSession.Clear();
         return await DbSessionProvider.CurrentSession.Query<VaultFileStorageEntity>()
-            .FirstOrDefaultAsync(x => x.Id == fileId);
+            .FirstOrDefaultAsync(x => x.Id == fileId && x.DeletedAt == null);
     }
 
     private static async Task AssertNoAccessAsync(HttpResponseMessage response)

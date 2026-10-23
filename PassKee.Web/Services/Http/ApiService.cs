@@ -42,4 +42,9 @@ public partial class ApiService
     {
         return await _httpClient.RequestAsync<TResponse>(requestUri, null, HttpMethod.Delete);
     }
+
+    public async Task DeleteAsync(string requestUri)
+    {
+        await _httpClient.RequestAsync(requestUri, null, HttpMethod.Delete);
+    }
 }

@@ -36,6 +36,21 @@ public partial class CredentialItemBlock : ComponentBase
     public EventCallback<DecryptedCredential> OnArchive { get; set; }
 
     [Parameter]
+    public EventCallback<DecryptedCredential> OnDelete { get; set; }
+
+    [Parameter]
+    public bool IsSelectable { get; set; }
+
+    [Parameter]
+    public bool IsSelected { get; set; }
+
+    [Parameter]
+    public bool HasActiveSelection { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnSelectionChanged { get; set; }
+
+    [Parameter]
     public string? DirectoryPath { get; set; }
 
     [Parameter]
@@ -54,6 +69,12 @@ public partial class CredentialItemBlock : ComponentBase
 
     private async Task HandleRowClick()
     {
+        if (IsSelectable && HasActiveSelection)
+        {
+            await OnSelectionChanged.InvokeAsync(!IsSelected);
+            return;
+        }
+
         if (OnView.HasDelegate)
         {
             await OnView.InvokeAsync(Credential);

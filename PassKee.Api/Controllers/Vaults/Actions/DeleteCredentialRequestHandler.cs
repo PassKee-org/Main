@@ -33,7 +33,6 @@ public class DeleteCredentialRequestHandler : IAsyncRequestHandler<DeleteCredent
         await _credentialDao.DeleteAsync(cred!);
         return new DeleteCredentialResponse
         {
-            Success = true,
             CredentialId = request.CredentialId
         };
     }

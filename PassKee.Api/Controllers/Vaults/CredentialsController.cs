@@ -37,6 +37,12 @@ public class CredentialsController : MainApiControllerBase
             .For<DeleteCredentialResponse>()
             .With(new DeleteCredentialRequest { CredentialId = credentialId });
 
+    [HttpPost("batch-delete")]
+    public Task<IActionResult> BatchDelete([FromBody] DeleteCredentialsRequest request)
+        => this.RequestAsync()
+            .For<DeleteCredentialsResponse>()
+            .With(request);
+
     [HttpPost("{credentialId:guid}/archive")]
     public Task<IActionResult> Archive([FromRoute] System.Guid credentialId)
         => this.RequestAsync()

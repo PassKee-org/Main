@@ -146,6 +146,11 @@ public class VaultClientService : IVaultClientService
         return _apiService.DeleteCredentialAsync(credentialId);
     }
 
+    public Task<DeleteCredentialsResponse?> DeleteCredentialsAsync(List<Guid> credentialIds)
+    {
+        return _apiService.DeleteCredentialsAsync(credentialIds);
+    }
+
     public Task<CredentialDto?> ArchiveCredentialAsync(Guid credentialId)
     {
         return _apiService.ArchiveCredentialAsync(credentialId);

@@ -67,7 +67,8 @@ public class FileStorageService : IFileStorageService
     public async Task DeleteFileAsync(FileStorageEntity file, CancellationToken cancellationToken = default)
     {
         await _storageClient.DeleteAsync(file.CloudFilePath, cancellationToken);
-        await _dbSessionProvider.CurrentSession.DeleteAsync(file, cancellationToken);
+        file.Delete();
+        await _dbSessionProvider.CurrentSession.UpdateAsync(file, cancellationToken);
     }
 
     private static void ValidateFile(IFormFile formFile)

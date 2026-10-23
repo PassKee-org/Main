@@ -225,6 +225,31 @@ public class VaultsReducersTests
     }
 
     [Fact]
+    public void ReduceDeleteCredentialsSuccessAction_RemovesMultipleCredentials()
+    {
+        var vaultId = Guid.NewGuid();
+        var id1 = Guid.NewGuid();
+        var id2 = Guid.NewGuid();
+        var id3 = Guid.NewGuid();
+
+        var cred1 = new DecryptedCredential(id1, vaultId, null, CredentialType.Login, new LoginCredentialPayload { Title = "Active 1" });
+        var cred2 = new DecryptedCredential(id2, vaultId, null, CredentialType.Login, new LoginCredentialPayload { Title = "Active 2" });
+        var cred3 = new DecryptedCredential(id3, vaultId, null, CredentialType.Login, new LoginCredentialPayload { Title = "Archived 1" }, DateTime.UtcNow);
+
+        var state = new VaultsState
+        {
+            Credentials = [cred1, cred2],
+            ArchivedCredentials = [cred3]
+        };
+
+        var nextState = VaultsReducers.ReduceDeleteCredentialsSuccessAction(state, new DeleteCredentialsSuccessAction(vaultId, [id1, id3]));
+
+        Assert.Single(nextState.Credentials);
+        Assert.Equal(id2, nextState.Credentials[0].Id);
+        Assert.Empty(nextState.ArchivedCredentials);
+    }
+
+    [Fact]
     public void ReduceUpdateCredentialPositionsAction_UpdatesOrderAndSortsCredentials()
     {
         var vaultId = Guid.NewGuid();

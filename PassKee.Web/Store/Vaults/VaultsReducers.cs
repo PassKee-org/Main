@@ -175,6 +175,17 @@ public static class VaultsReducers
         };
 
     [ReducerMethod]
+    public static VaultsState ReduceDeleteCredentialsSuccessAction(VaultsState state, DeleteCredentialsSuccessAction action)
+    {
+        var idSet = action.CredentialIds.ToHashSet();
+        return state with
+        {
+            Credentials = state.Credentials.Where(c => !idSet.Contains(c.Id)).ToList(),
+            ArchivedCredentials = state.ArchivedCredentials.Where(c => !idSet.Contains(c.Id)).ToList()
+        };
+    }
+
+    [ReducerMethod]
     public static VaultsState ReduceArchiveCredentialSuccessAction(VaultsState state, ArchiveCredentialSuccessAction action)
     {
         var archivedCred = action.Credential ?? state.Credentials.FirstOrDefault(c => c.Id == action.CredentialId);
