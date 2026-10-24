@@ -25,6 +25,11 @@ public partial class ApiService
         return res?.Vault;
     }
 
+    public async Task<DeleteVaultResponse?> DeleteVaultAsync(Guid vaultId)
+    {
+        return await DeleteAsync<DeleteVaultResponse>(ApiUrl.Vault(vaultId));
+    }
+
     public async Task<DirectoryDto?> CreateDirectoryAsync(CreateDirectoryRequest request)
     {
         var res = await PostAsync<DirectoryResponse>(ApiUrl.VaultDirectories, request);

@@ -1,10 +1,12 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Domain.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using NHibernate.Linq;
 using PassKee.Business.Common.Constants;
 using PassKee.Business.Common.Exceptions.Api;
 using PassKee.Business.Services.Storage.Client;
@@ -69,6 +71,23 @@ public class FileStorageService : IFileStorageService
         await _storageClient.DeleteAsync(file.CloudFilePath, cancellationToken);
         file.Delete();
         await _dbSessionProvider.CurrentSession.UpdateAsync(file, cancellationToken);
+    }
+
+    public async Task DeleteVaultFilesAsync(Guid vaultId, CancellationToken cancellationToken = default)
+    {
+        var files = await _dbSessionProvider.CurrentSession.Query<VaultFileStorageEntity>()
+            .Where(x => x.VaultId == vaultId)
+            .ToListAsync(cancellationToken);
+
+        foreach (var file in files)
+        {
+            await _storageClient.DeleteAsync(file.CloudFilePath, cancellationToken);
+            if (file.DeletedAt == null)
+            {
+                file.Delete();
+                await _dbSessionProvider.CurrentSession.UpdateAsync(file, cancellationToken);
+            }
+        }
     }
 
     private static void ValidateFile(IFormFile formFile)

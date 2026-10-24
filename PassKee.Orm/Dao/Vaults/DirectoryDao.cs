@@ -107,5 +107,17 @@ public class DirectoryDao : BaseDao, IDirectoryDao
 
         return (dirIds, credIds);
     }
+
+    public async Task DeleteByVaultIdAsync(Guid vaultId, CancellationToken cancellationToken = default)
+    {
+        var directories = await Session.Query<DirectoryEntity>()
+            .Where(x => x.VaultId == vaultId && x.DeletedAt == null)
+            .ToListAsync(cancellationToken);
+
+        if (directories.Count > 0)
+        {
+            await DeleteAsync(directories, cancellationToken);
+        }
+    }
 }
 

@@ -39,4 +39,10 @@ public class VaultsController : MainApiControllerBase
         => this.RequestAsync()
             .For<VaultResponse>()
             .With(request);
+
+    [HttpDelete("{vaultId:guid}")]
+    public Task<IActionResult> DeleteVault([FromRoute] System.Guid vaultId)
+        => this.RequestAsync()
+            .For<DeleteVaultResponse>()
+            .With(new DeleteVaultRequest { VaultId = vaultId });
 }
