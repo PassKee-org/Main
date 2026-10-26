@@ -60,6 +60,58 @@ app.UseAntiforgery();
 
 app.MapStaticAssets();
 
+app.MapGet("/robots.txt", (HttpContext httpContext) =>
+{
+    var baseUrl = httpContext.Request.Host.HasValue
+        ? $"{httpContext.Request.Scheme}://{httpContext.Request.Host.Value}"
+        : "https://passkee.org";
+
+    var content = $"""
+        User-agent: *
+        Allow: /
+        Allow: /security
+        Allow: /help
+        Disallow: /app
+        Disallow: /share/
+        Disallow: /Error
+        Disallow: /not-found
+
+        Sitemap: {baseUrl}/sitemap.xml
+        """;
+
+    return Results.Text(content, "text/plain; charset=utf-8");
+});
+
+app.MapGet("/sitemap.xml", (HttpContext httpContext) =>
+{
+    var baseUrl = httpContext.Request.Host.HasValue
+        ? $"{httpContext.Request.Scheme}://{httpContext.Request.Host.Value}"
+        : "https://passkee.org";
+
+    var xml = $"""
+        <?xml version="1.0" encoding="UTF-8"?>
+        <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+          <url>
+            <loc>{baseUrl}/</loc>
+            <changefreq>weekly</changefreq>
+            <priority>1.0</priority>
+          </url>
+          <url>
+            <loc>{baseUrl}/security</loc>
+            <changefreq>monthly</changefreq>
+            <priority>0.9</priority>
+          </url>
+          <url>
+            <loc>{baseUrl}/help</loc>
+            <changefreq>weekly</changefreq>
+            <priority>0.8</priority>
+          </url>
+        </urlset>
+        """;
+
+    return Results.Text(xml, "application/xml; charset=utf-8");
+});
+
 app.MapRazorComponents<App>()
     .AddAdditionalAssemblies(typeof(PassKee.Web.App).Assembly)
     .AddInteractiveWebAssemblyRenderMode();

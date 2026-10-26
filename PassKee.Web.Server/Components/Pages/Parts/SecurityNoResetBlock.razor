@@ -1,0 +1,76 @@
+<section id="no-remote-reset" aria-labelledby="no-reset-heading" class="content-defer border-b border-slate-200/80 bg-white py-16 sm:py-24">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="rounded-3xl border border-amber-200 bg-amber-50/60 p-6 sm:p-10 lg:p-12">
+            <div class="max-w-3xl">
+                <div class="inline-flex items-center gap-2 rounded-full bg-amber-100 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-amber-900">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-700" aria-hidden="true"></i>
+                    <span>03 • Honest Risk Management &amp; Your Responsibility</span>
+                </div>
+
+                <h2 id="no-reset-heading" class="mt-4 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
+                    Why PassKee Has No "Forgot Password" Button
+                </h2>
+
+                <p class="mt-4 text-base leading-relaxed text-slate-700">
+                    If an online service can reset your password by sending a link to your email, it means that service holds the cryptographic capability to unlock your account without you. Because PassKee never stores your Master Password or Secret Key, <strong>we cannot reset your credentials, issue a temporary password, or decrypt your vault upon request.</strong>
+                </p>
+            </div>
+
+            <div class="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
+                <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-2xs">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-700">Scenario A</span>
+                        <span class="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800">Recoverable</span>
+                    </div>
+                    <h3 class="mt-2 text-base font-bold text-slate-900">New Device, Have Emergency Kit</h3>
+                    <p class="mt-1.5 text-xs leading-relaxed text-slate-600">
+                        Enter your Master Password and copy the 128-bit Secret Key from your saved Emergency Kit to unlock and sync your vault immediately.
+                    </p>
+                </article>
+
+                <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-2xs">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-700">Scenario B</span>
+                        <span class="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-900">Action Required</span>
+                    </div>
+                    <h3 class="mt-2 text-base font-bold text-slate-900">Lost Secret Key, Active Session Open</h3>
+                    <p class="mt-1.5 text-xs leading-relaxed text-slate-600">
+                        If you still have an unlocked session on an authorized device, immediately export your vault to an encrypted <code class="font-mono">.kdbx</code> backup and create a fresh account.
+                    </p>
+                </article>
+
+                <article class="rounded-2xl border border-rose-200 bg-white p-5 shadow-2xs">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-rose-700">Scenario C</span>
+                        <span class="rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-bold text-rose-800">Unrecoverable</span>
+                    </div>
+                    <h3 class="mt-2 text-base font-bold text-slate-900">Lost Both Password &amp; Secret Key</h3>
+                    <p class="mt-1.5 text-xs leading-relaxed text-slate-600">
+                        If you lose both your Master Password and your Emergency Kit with no signed-in devices remaining, your encrypted data is permanently inaccessible to everyone.
+                    </p>
+                </article>
+            </div>
+
+            <div class="mt-8 rounded-2xl border border-amber-300/80 bg-white p-5 sm:p-6">
+                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-900">
+                    3 Golden Rules for Storing Your Emergency Kit
+                </h3>
+                <ul class="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-3 text-xs sm:text-sm text-slate-700">
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-print text-blue-600 mt-1 shrink-0" aria-hidden="true"></i>
+                        <span><strong>Print a physical copy:</strong> Keep your Secret Key on paper inside a home safe or locked drawer alongside important documents.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-brands fa-usb text-emerald-600 mt-1 shrink-0" aria-hidden="true"></i>
+                        <span><strong>Save on an offline USB drive:</strong> Store a backup copy on an encrypted flash drive separate from your primary laptop.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <i class="fa-solid fa-ban text-rose-600 mt-1 shrink-0" aria-hidden="true"></i>
+                        <span><strong>Never store both together in plaintext:</strong> Do not paste both your Master Password and Secret Key into an unencrypted email draft.</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
