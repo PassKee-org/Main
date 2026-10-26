@@ -3,10 +3,17 @@
 <div class="min-h-screen flex flex-col bg-slate-100 text-slate-900 font-sans">
     <header class="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
         <div class="mx-auto flex max-w-7xl items-center justify-between px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3.5">
-            <a href="/" class="flex items-center gap-2 sm:gap-2.5 font-bold text-lg sm:text-xl text-blue-600 hover:text-blue-700 transition">
-                <i class="fa-solid fa-shield-halved text-xl sm:text-2xl text-blue-600"></i>
-                <span class="tracking-tight text-slate-900 font-extrabold">Pass<span class="text-blue-600">Kee</span></span>
-            </a>
+            <div class="flex items-center gap-6">
+                <a href="/" class="flex items-center gap-2 sm:gap-2.5 font-bold text-lg sm:text-xl text-blue-600 hover:text-blue-700 transition">
+                    <i class="fa-solid fa-shield-halved text-xl sm:text-2xl text-blue-600"></i>
+                    <span class="tracking-tight text-slate-900 font-extrabold">Pass<span class="text-blue-600">Kee</span></span>
+                </a>
+                <nav aria-label="Main navigation" class="hidden md:flex items-center gap-1">
+                    <a href="/" class="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors">Overview</a>
+                    <a href="/security" class="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors">Security</a>
+                    <a href="/help" class="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors">Help &amp; FAQ</a>
+                </nav>
+            </div>
 
             <div class="flex items-center gap-2 sm:gap-3">
                 <a href="/login" class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-xs sm:text-sm font-semibold text-slate-700 shadow-xs transition hover:border-slate-300 hover:bg-slate-50">

@@ -1,29 +1,142 @@
 @inherits LayoutComponentBase
 
-<div class="min-h-screen flex flex-col bg-white text-slate-900 font-sans">
-    <header class="border-b border-slate-200 bg-white/90 backdrop-blur sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <a href="/" class="flex items-center gap-2 font-bold text-xl text-blue-600 hover:text-blue-700 transition-colors">
-                    <i class="fa-solid fa-shield-halved text-2xl text-blue-600"></i>
-                    <span>PassKee</span>
+<div class="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-xl focus:bg-blue-600 focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lg">
+        Skip to main content
+    </a>
+
+    <header class="sticky top-0 z-40 border-b border-slate-200/90 bg-white/95 backdrop-blur-md">
+        <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center gap-6 lg:gap-8">
+                <a href="/" class="flex items-center gap-2.5 text-xl font-extrabold tracking-tight text-slate-900 hover:opacity-90 transition-opacity">
+                    <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm shadow-blue-600/25">
+                        <i class="fa-solid fa-shield-halved text-base" aria-hidden="true"></i>
+                    </span>
+                    <span>Pass<span class="text-blue-600">Kee</span></span>
                 </a>
+
+                <nav aria-label="Main navigation" class="hidden md:flex items-center gap-1">
+                    <a href="/" class="@GetNavLinkClass("/")" aria-current="@GetAriaCurrent("/")">
+                        <span>Overview</span>
+                    </a>
+                    <a href="/security" class="@GetNavLinkClass("/security")" aria-current="@GetAriaCurrent("/security")">
+                        <i class="fa-solid fa-lock text-xs opacity-75" aria-hidden="true"></i>
+                        <span>Security</span>
+                    </a>
+                    <a href="/help" class="@GetNavLinkClass("/help")" aria-current="@GetAriaCurrent("/help")">
+                        <i class="fa-regular fa-circle-question text-xs opacity-75" aria-hidden="true"></i>
+                        <span>Help &amp; FAQ</span>
+                    </a>
+                </nav>
             </div>
-            <nav class="flex items-center gap-4">
-                <a href="/login" class="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors">Sign In</a>
-                <a href="/registration" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors">Get Started</a>
-            </nav>
+
+            <div class="flex items-center gap-2.5 sm:gap-3">
+                <a href="/login" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs sm:text-sm font-semibold text-slate-700 shadow-2xs hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 transition-colors">
+                    <i class="fa-solid fa-right-to-bracket text-xs text-slate-400" aria-hidden="true"></i>
+                    <span>Sign In</span>
+                </a>
+                <a href="/registration" class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-3.5 sm:px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm shadow-blue-600/20 hover:bg-blue-700 transition-colors">
+                    <i class="fa-solid fa-user-plus text-xs" aria-hidden="true"></i>
+                    <span>Create Free Vault</span>
+                </a>
+
+                <details class="relative md:hidden group">
+                    <summary class="list-none inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50" aria-label="Toggle navigation menu">
+                        <i class="fa-solid fa-bars text-sm" aria-hidden="true"></i>
+                    </summary>
+                    <nav aria-label="Mobile navigation" class="absolute right-0 mt-2 w-56 rounded-2xl border border-slate-200 bg-white p-2 shadow-xl">
+                        <a href="/" class="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                            <i class="fa-solid fa-house text-xs text-blue-600 w-4 text-center" aria-hidden="true"></i>
+                            <span>Overview</span>
+                        </a>
+                        <a href="/security" class="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                            <i class="fa-solid fa-shield-halved text-xs text-emerald-600 w-4 text-center" aria-hidden="true"></i>
+                            <span>Security &amp; Privacy</span>
+                        </a>
+                        <a href="/help" class="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                            <i class="fa-solid fa-circle-question text-xs text-blue-600 w-4 text-center" aria-hidden="true"></i>
+                            <span>Help Center &amp; FAQ</span>
+                        </a>
+                    </nav>
+                </details>
+            </div>
         </div>
     </header>
 
-    <main class="flex-1">
+    <main id="main-content" class="flex-1">
         @Body
     </main>
 
-    <footer class="border-t border-slate-200 bg-slate-50 py-8 text-center text-sm text-slate-500">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <p>&copy; @DateTime.UtcNow.Year PassKee. Zero-knowledge password management.</p>
+    <footer class="border-t border-slate-200 bg-slate-950 text-slate-300">
+        <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+            <div class="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-5">
+                <div class="lg:col-span-2 space-y-4">
+                    <a href="/" class="inline-flex items-center gap-2.5 text-xl font-extrabold tracking-tight text-white">
+                        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-600 text-white">
+                            <i class="fa-solid fa-shield-halved text-base" aria-hidden="true"></i>
+                        </span>
+                        <span>Pass<span class="text-blue-400">Kee</span></span>
+                    </a>
+                    <p class="max-w-sm text-sm leading-relaxed text-slate-400">
+                        Cloud password and secrets manager built on a strict Zero-Knowledge architecture. Everything is encrypted on your device with your Master Password and 128-bit Secret Key before reaching our servers.
+                    </p>
+                    <div class="flex flex-wrap items-center gap-2 pt-1">
+                        <span class="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
+                            <i class="fa-solid fa-check-circle text-[11px]" aria-hidden="true"></i>
+                            <span>AES-256-GCM</span>
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-300">
+                            <i class="fa-solid fa-key text-[11px]" aria-hidden="true"></i>
+                            <span>Argon2id KDF</span>
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-xs font-medium text-slate-300">
+                            <i class="fa-solid fa-file-shield text-[11px]" aria-hidden="true"></i>
+                            <span>KeePass .kdbx Ready</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-white">Product</h2>
+                    <ul class="mt-4 space-y-2.5 text-sm">
+                        <li><a href="/" class="text-slate-400 hover:text-white transition-colors">Overview</a></li>
+                        <li><a href="/#password-generator" class="text-slate-400 hover:text-white transition-colors">Password Generator</a></li>
+                        <li><a href="/#dual-lock" class="text-slate-400 hover:text-white transition-colors">Dual-Lock Protection</a></li>
+                        <li><a href="/#comparison" class="text-slate-400 hover:text-white transition-colors">PassKee vs. Alternatives</a></li>
+                        <li><a href="/#migration" class="text-slate-400 hover:text-white transition-colors">KeePass (.kdbx) Import</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-white">Security &amp; Privacy</h2>
+                    <ul class="mt-4 space-y-2.5 text-sm">
+                        <li><a href="/security" class="text-slate-400 hover:text-white transition-colors">Security Architecture</a></li>
+                        <li><a href="/security#zero-knowledge" class="text-slate-400 hover:text-white transition-colors">Zero-Knowledge Model</a></li>
+                        <li><a href="/security#emergency-kit" class="text-slate-400 hover:text-white transition-colors">Secret Key &amp; Emergency Kit</a></li>
+                        <li><a href="/security#no-remote-reset" class="text-slate-400 hover:text-white transition-colors">Why No Password Reset</a></li>
+                        <li><a href="/security#encrypted-sharing" class="text-slate-400 hover:text-white transition-colors">One-Time Link Sharing</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-white">Help &amp; Account</h2>
+                    <ul class="mt-4 space-y-2.5 text-sm">
+                        <li><a href="/help" class="text-slate-400 hover:text-white transition-colors">Help Center &amp; FAQ</a></li>
+                        <li><a href="/help#quick-start" class="text-slate-400 hover:text-white transition-colors">3-Step Quick Start</a></li>
+                        <li><a href="/help?category=secret-key" class="text-slate-400 hover:text-white transition-colors">Secret Key Guide</a></li>
+                        <li><a href="/login" class="text-slate-400 hover:text-white transition-colors">Sign In to Vault</a></li>
+                        <li><a href="/registration" class="text-slate-400 hover:text-white transition-colors">Create Free Vault</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="mt-10 flex flex-col items-center justify-between gap-4 border-t border-slate-800/80 pt-8 text-xs text-slate-400 sm:flex-row">
+                <p>&copy; @DateTime.UtcNow.Year PassKee. Zero-knowledge password &amp; secrets management.</p>
+                <p class="flex items-center gap-2">
+                    <span class="h-2 w-2 rounded-full bg-emerald-400" aria-hidden="true"></span>
+                    <span>Client-side encryption active by design — servers never see your keys.</span>
+                </p>
+            </div>
         </div>
     </footer>
 </div>
-

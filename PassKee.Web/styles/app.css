@@ -50,3 +50,8 @@
         background-color: var(--color-gray-400, #9ca3af);
     }
 }
+
+@utility content-defer {
+    content-visibility: auto;
+    contain-intrinsic-size: auto none auto 520px;
+}

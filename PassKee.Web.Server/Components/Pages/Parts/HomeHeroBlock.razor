@@ -1,0 +1,49 @@
+<section aria-labelledby="home-hero-heading" class="relative overflow-hidden border-b border-slate-200/80 bg-gradient-to-b from-slate-100/70 via-white to-slate-50 pt-12 pb-16 sm:pt-16 sm:pb-24">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-4xl text-center">
+            <div class="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-blue-800 shadow-2xs">
+                <i class="fa-solid fa-shield-halved text-blue-600" aria-hidden="true"></i>
+                <span>Zero-Knowledge Cloud Password &amp; Secrets Manager</span>
+            </div>
+
+            <h1 id="home-hero-heading" class="mt-6 text-4xl font-extrabold tracking-tight text-slate-950 sm:text-5xl lg:text-6xl leading-[1.12]">
+                Your Passwords Under Reliable Protection. <span class="text-blue-600">Always Within Reach.</span>
+            </h1>
+
+            <p class="mx-auto mt-5 max-w-3xl text-base sm:text-lg lg:text-xl leading-relaxed text-slate-600">
+                PassKee safely stores your logins, payment cards, SSH keys, and private notes. Synchronize seamlessly across all your devices with complete client-side privacy—unlocked only by your Master Password and 128-bit Secret Key.
+            </p>
+
+            <div class="mt-8 flex flex-wrap items-center justify-center gap-3.5 sm:gap-4">
+                <a href="/registration" class="inline-flex items-center justify-center gap-2.5 rounded-xl bg-blue-600 px-6 py-3.5 text-sm sm:text-base font-semibold text-white shadow-lg shadow-blue-600/20 hover:bg-blue-700 transition-all">
+                    <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+                    <span>Create Free Vault</span>
+                </a>
+                <a href="/login" class="inline-flex items-center justify-center gap-2.5 rounded-xl border border-slate-300 bg-white px-6 py-3.5 text-sm sm:text-base font-semibold text-slate-800 shadow-2xs hover:border-slate-400 hover:bg-slate-50 transition-all">
+                    <i class="fa-solid fa-right-to-bracket text-slate-500" aria-hidden="true"></i>
+                    <span>Sign In to Vault</span>
+                </a>
+            </div>
+
+            <ul class="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs sm:text-sm font-medium text-slate-600" aria-label="Core security guarantees">
+                <li class="flex items-center gap-2">
+                    <i class="fa-solid fa-check-circle text-emerald-600" aria-hidden="true"></i>
+                    <span>Dual-Lock (Password + 128-bit Secret Key)</span>
+                </li>
+                <li class="flex items-center gap-2">
+                    <i class="fa-solid fa-check-circle text-emerald-600" aria-hidden="true"></i>
+                    <span>Client-Side Argon2id &amp; AES-256-GCM</span>
+                </li>
+                <li class="flex items-center gap-2">
+                    <i class="fa-solid fa-check-circle text-emerald-600" aria-hidden="true"></i>
+                    <span>Native KeePass (.kdbx) Import &amp; Export</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="mt-12 sm:mt-14">
+            <HomeVaultPreviewBlock />
+        </div>
+    </div>
+</section>
+
