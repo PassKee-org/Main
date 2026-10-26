@@ -293,6 +293,32 @@ public static class VaultsReducers
         => state with { IsCreating = false };
 
     [ReducerMethod]
+    public static VaultsState ReduceDeleteVaultSuccessAction(VaultsState state, DeleteVaultSuccessAction action)
+    {
+        var updatedVaults = state.Vaults.Where(v => v.Id != action.VaultId).ToList();
+        var wasActive = state.ActiveVaultId == action.VaultId;
+
+        if (wasActive && state.ActiveVaultKey != null)
+        {
+            System.Security.Cryptography.CryptographicOperations.ZeroMemory(state.ActiveVaultKey);
+        }
+
+        return state with
+        {
+            Vaults = updatedVaults,
+            ActiveVaultId = wasActive ? null : state.ActiveVaultId,
+            ActiveVaultKey = wasActive ? null : state.ActiveVaultKey,
+            Directories = wasActive ? [] : state.Directories,
+            Credentials = wasActive ? [] : state.Credentials,
+            Tags = wasActive ? [] : state.Tags,
+            SelectedDirectoryId = wasActive ? null : state.SelectedDirectoryId,
+            IsArchiveSelected = wasActive ? false : state.IsArchiveSelected,
+            ArchivedCredentials = wasActive ? [] : state.ArchivedCredentials,
+            SearchQuery = wasActive ? string.Empty : state.SearchQuery
+        };
+    }
+
+    [ReducerMethod]
     public static VaultsState ReduceSetSearchQueryAction(VaultsState state, SetSearchQueryAction action)
         => state with { SearchQuery = action.Query };
 

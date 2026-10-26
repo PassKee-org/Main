@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,4 +25,6 @@ public interface IFileStorageService : IDomainService
     Task<Stream> GetFileStreamAsync(FileStorageEntity file, CancellationToken cancellationToken = default);
 
     Task DeleteFileAsync(FileStorageEntity file, CancellationToken cancellationToken = default);
+
+    Task DeleteVaultFilesAsync(Guid vaultId, CancellationToken cancellationToken = default);
 }

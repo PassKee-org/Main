@@ -275,4 +275,41 @@ public class VaultsReducersTests
         Assert.Equal([cred3.Id, cred1.Id, cred2.Id], nextState.Credentials.Select(c => c.Id).ToArray());
         Assert.Equal([0, 1, 2], nextState.Credentials.Select(c => c.Order).ToArray());
     }
+
+    [Fact]
+    public void ReduceDeleteVaultSuccessAction_RemovesVaultAndClearsActiveVaultState()
+    {
+        var vaultId1 = Guid.NewGuid();
+        var vaultId2 = Guid.NewGuid();
+        var vault1 = new PassKee.Api.Shared.Models.Vaults.VaultDto { Id = vaultId1, Name = "Vault 1" };
+        var vault2 = new PassKee.Api.Shared.Models.Vaults.VaultDto { Id = vaultId2, Name = "Vault 2" };
+
+        var state = new VaultsState
+        {
+            Vaults = [vault1, vault2],
+            ActiveVaultId = vaultId1,
+            ActiveVaultKey = new byte[] { 1, 2, 3 },
+            Directories = [new DecryptedDirectory(Guid.NewGuid(), vaultId1, null, "Dir")],
+            Credentials = [new DecryptedCredential(Guid.NewGuid(), vaultId1, null, CredentialType.Login, new LoginCredentialPayload())],
+            Tags = [new DecryptedTag(Guid.NewGuid(), vaultId1, "Tag")],
+            SelectedDirectoryId = Guid.NewGuid(),
+            IsArchiveSelected = true,
+            ArchivedCredentials = [new DecryptedCredential(Guid.NewGuid(), vaultId1, null, CredentialType.Login, new LoginCredentialPayload())],
+            SearchQuery = "test"
+        };
+
+        var nextState = VaultsReducers.ReduceDeleteVaultSuccessAction(state, new DeleteVaultSuccessAction(vaultId1));
+
+        Assert.Single(nextState.Vaults);
+        Assert.Equal(vaultId2, nextState.Vaults[0].Id);
+        Assert.Null(nextState.ActiveVaultId);
+        Assert.Null(nextState.ActiveVaultKey);
+        Assert.Empty(nextState.Directories);
+        Assert.Empty(nextState.Credentials);
+        Assert.Empty(nextState.Tags);
+        Assert.Null(nextState.SelectedDirectoryId);
+        Assert.False(nextState.IsArchiveSelected);
+        Assert.Empty(nextState.ArchivedCredentials);
+        Assert.Empty(nextState.SearchQuery);
+    }
 }

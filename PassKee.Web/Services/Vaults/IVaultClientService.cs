@@ -19,6 +19,7 @@ public interface IVaultClientService
 {
     Task<List<VaultDto>> GetVaultsAsync();
     Task<VaultDto?> CreateVaultAsync(string name, byte[] userPublicKey);
+    Task<DeleteVaultResponse?> DeleteVaultAsync(Guid vaultId);
     Task<VaultDetailsResult> GetVaultDetailsAsync(Guid vaultId, byte[] userPrivateKey);
     Task<DirectoryDto?> CreateDirectoryAsync(Guid vaultId, Guid? parentId, string name, byte[] vaultKey);
     Task<DirectoryDto?> UpdateDirectoryAsync(Guid directoryId, Guid? parentId, string name, byte[] vaultKey);

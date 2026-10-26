@@ -123,5 +123,17 @@ public class CredentialDao : BaseDao, ICredentialDao
 
         return (maxOrder ?? -1) + 1;
     }
+
+    public async Task DeleteByVaultIdAsync(Guid vaultId, CancellationToken cancellationToken = default)
+    {
+        var credentials = await Session.Query<CredentialEntity>()
+            .Where(x => x.VaultId == vaultId && x.DeletedAt == null)
+            .ToListAsync(cancellationToken);
+
+        if (credentials.Count > 0)
+        {
+            await DeleteAsync(credentials, cancellationToken);
+        }
+    }
 }
 

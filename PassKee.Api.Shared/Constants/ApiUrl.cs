@@ -12,6 +12,7 @@ public class ApiUrl
     public const string AuthLogout = "api/auth/logout";
 
     public const string Vaults = "api/vaults";
+    public static string Vault(Guid vaultId) => $"api/vaults/{vaultId}";
     public static string VaultDetails(Guid vaultId) => $"api/vaults/{vaultId}";
     public const string VaultDirectories = "api/vaults/directories";
     public static string VaultDirectory(Guid directoryId) => $"api/vaults/directories/{directoryId}";

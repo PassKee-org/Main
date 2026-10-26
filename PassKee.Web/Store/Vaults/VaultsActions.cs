@@ -32,6 +32,9 @@ public record UpdateTagSuccessAction(DecryptedTag Tag);
 public record CreateVaultAction(string Name, string Description);
 public record CreateVaultSuccessAction(VaultDto Vault);
 public record CreateVaultFailureAction;
+public record DeleteVaultAction(Guid VaultId);
+public record DeleteVaultSuccessAction(Guid VaultId);
+public record DeleteVaultFailureAction;
 public record ResetVaultsStateAction;
 
 // Directory CRUD
