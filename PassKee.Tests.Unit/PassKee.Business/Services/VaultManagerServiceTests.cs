@@ -8,7 +8,7 @@ using PassKee.Orm.Dao.Vaults;
 using PassKee.Orm.Entities.Vaults;
 using Xunit;
 
-namespace PassKee.Tests.Unit.PassKee.Business.Services;
+namespace PassKee.Tests.Unit.Business.Services;
 
 public class VaultManagerServiceTests
 {
