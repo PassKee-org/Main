@@ -2,58 +2,78 @@
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 gap-10 lg:grid-cols-12 items-center">
             <div class="lg:col-span-6 space-y-4">
-                <p class="text-xs font-bold uppercase tracking-[0.2em] text-blue-600">02 • Two-Tier Access Model</p>
+                <p class="text-xs font-bold uppercase tracking-[0.2em] text-blue-600">02 • Two-Key Protection Model</p>
                 <h2 id="emergency-kit-heading" class="text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
-                    How Your Secret Key and Emergency Kit Protect New Devices
+                    How Your Emergency Secret Key Protects New Devices
                 </h2>
                 <p class="text-base leading-relaxed text-slate-600">
-                    When you create a PassKee vault, your browser generates a high-entropy 128-bit <strong>Secret Key</strong> alongside your Master Password. Together, they form a mathematical dual lock:
+                    When you create a PassKee account, your browser generates a high-entropy 128-bit <strong>Emergency Secret Key</strong> alongside your Master Password. Together, they form a mathematical dual lock:
                 </p>
 
-                <ul class="space-y-3 pt-2 text-sm text-slate-700">
+                <ul class="space-y-3.5 pt-2 text-sm text-slate-700">
                     <li class="flex items-start gap-3">
                         <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-700 text-xs font-bold">1</span>
-                        <span><strong>First Sign-In on a New Device:</strong> Requires both your Master Password and your Secret Key from your Emergency Kit. Even if someone steals your password via phishing, they cannot sign in from their computer.</span>
+                        <span><strong>Sign In on a New Device (<code class="font-mono text-xs text-slate-800">Sign In to PassKee</code>):</strong> Requires your Email Address, Master Password, and your 128-bit Emergency Secret Key (<code class="font-mono text-xs text-slate-800">PK-XXXX-...</code>). Even if someone steals your password via phishing, they cannot sign in from their device without your Secret Key.</span>
                     </li>
                     <li class="flex items-start gap-3">
                         <span class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-700 text-xs font-bold">2</span>
-                        <span><strong>Daily Unlock on Your Trusted Device:</strong> Once signed in, you can allow PassKee to keep your Secret Key encrypted in session storage so unlocking after an inactivity timeout requires only your Master Password.</span>
+                        <span><strong>Quick Unlock in Active Session (<code class="font-mono text-xs text-slate-800">Unlock Session</code>):</strong> When signing in, check <em>"Remember Secret Key for quick unlock in this session"</em>. PassKee encrypts your Secret Key in isolated <code class="font-mono text-xs text-slate-800">sessionStorage</code> using Argon2id, so unlocking after a 15-minute inactivity lock requires only your Master Password.</span>
                     </li>
                 </ul>
             </div>
 
             <div class="lg:col-span-6">
-                <div class="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-lg">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
-                        <div class="flex items-center gap-3">
-                            <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
-                                <i class="fa-solid fa-kit-medical" aria-hidden="true"></i>
-                            </span>
-                            <div>
-                                <h3 class="text-base font-bold text-slate-900">PassKee Emergency Kit</h3>
-                                <p class="text-xs text-slate-500">Generated once on your client at registration</p>
-                            </div>
+                @* Exact visual replica of the "Save Your Emergency Secret Key" step from Register.razor *@
+                <div class="rounded-2xl sm:rounded-[2rem] border border-slate-200 bg-white p-5 sm:p-8 shadow-xl">
+                    <div class="flex items-start justify-between gap-4 mb-5">
+                        <div>
+                            <p class="text-[11px] sm:text-xs font-semibold uppercase tracking-[0.25em] text-blue-600">GET STARTED</p>
+                            <h3 class="mt-1 text-xl font-bold text-slate-900">Create PassKee Account</h3>
                         </div>
-                        <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-900">Keep Offline</span>
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md shadow-blue-500/20 shrink-0">
+                            <i class="fa-solid fa-user-plus text-base" aria-hidden="true"></i>
+                        </div>
                     </div>
 
-                    <div class="mt-5 space-y-3">
-                        <div class="rounded-xl border border-slate-200 bg-slate-50 p-3.5">
-                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Account Email</p>
-                            <p class="mt-1 font-mono text-xs sm:text-sm font-semibold text-slate-900">alex.mercer@example.com</p>
+                    <div class="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4 sm:p-6 space-y-3.5">
+                        <div class="flex items-center gap-2.5 text-emerald-800">
+                            <i class="fa-solid fa-circle-check text-lg sm:text-xl text-emerald-600 shrink-0" aria-hidden="true"></i>
+                            <h4 class="font-bold text-base sm:text-lg">Save Your Emergency Secret Key</h4>
                         </div>
-                        <div class="rounded-xl border border-emerald-300 bg-emerald-50/60 p-3.5">
-                            <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-800">Emergency 128-Bit Secret Key</p>
-                            <p class="mt-1 font-mono text-xs sm:text-sm font-bold tracking-wider text-slate-900 break-all">PK-7N4Q-9X2M-K8V3-L5P1-W6R9-T2Y4</p>
+                        <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                            PassKee has generated your unique <strong>Emergency Secret Key</strong> on this device. You will need both your Master Password and this Secret Key to sign in.
+                        </p>
+                        <div class="space-y-2">
+                            <div class="p-3 sm:p-3.5 bg-white rounded-xl border border-emerald-300/80 font-mono text-xs sm:text-sm text-slate-900 break-all font-semibold shadow-inner">
+                                PK-NFT6-G4F7-LNRY-TJPU-V7GV-8K2M
+                            </div>
+                            <div class="inline-flex w-full items-center justify-center rounded-xl bg-white/90 border border-slate-200/80 px-3 py-2 text-xs font-medium text-slate-700">
+                                <i class="fa-regular fa-copy mr-1.5" aria-hidden="true"></i>
+                                <span>Copy Secret Key</span>
+                            </div>
                         </div>
-                        <div class="rounded-xl border border-slate-200 bg-slate-50 p-3.5">
-                            <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Master Password Hint / Space to Write</p>
-                            <p class="mt-1 text-xs italic text-slate-500">[ Write down on printed copy and store in a physical safe ]</p>
+
+                        <div class="rounded-xl border border-amber-200 bg-amber-50/80 p-3 text-xs text-amber-800 flex items-start gap-2.5">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-600 mt-0.5 shrink-0" aria-hidden="true"></i>
+                            <span><strong>Keep this safe!</strong> PassKee cannot recover or reset your Secret Key. If lost, your vault cannot be unlocked on new devices.</span>
                         </div>
+
+                        <div class="pt-1 flex items-center gap-2.5">
+                            <span class="flex h-4 w-4 shrink-0 items-center justify-center rounded bg-blue-600 text-white text-[10px]">
+                                <i class="fa-solid fa-check" aria-hidden="true"></i>
+                            </span>
+                            <span class="text-xs font-medium text-slate-700">
+                                I have saved my Secret Key and understand PassKee cannot recover it.
+                            </span>
+                        </div>
+
+                        <a href="/registration" class="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-xs sm:text-sm font-semibold text-white hover:bg-blue-700 transition-colors">
+                            <i class="fa-solid fa-arrow-right-to-bracket mr-2" aria-hidden="true"></i>
+                            <span>Continue to Sign In</span>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
-

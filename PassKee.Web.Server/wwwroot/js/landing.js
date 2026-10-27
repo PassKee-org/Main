@@ -291,16 +291,38 @@
         }
     }
 
+    function initSecretKeyCopyDemo() {
+        var btn = document.querySelector("[data-copy-secret-demo]");
+        if (!btn) return;
+        var label = btn.querySelector("[data-copy-secret-label]");
+        btn.addEventListener("click", function () {
+            var sampleKey = "PK-NFT6-G4F7-LNRY-TJPU-V7GV-8K2M";
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(sampleKey).then(function () {
+                    if (label) {
+                        var prev = label.textContent;
+                        label.textContent = "Copied!";
+                        setTimeout(function () {
+                            label.textContent = prev;
+                        }, 1800);
+                    }
+                });
+            }
+        });
+    }
+
     if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", function () {
             initVaultPreview();
             initPasswordGenerator();
             initHelpSearch();
+            initSecretKeyCopyDemo();
         });
     } else {
         initVaultPreview();
         initPasswordGenerator();
         initHelpSearch();
+        initSecretKeyCopyDemo();
     }
 })();
 

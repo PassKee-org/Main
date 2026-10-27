@@ -22,11 +22,11 @@ public static class LandingContentData
     public static readonly IReadOnlyList<FaqCategoryModel> FaqCategories =
     [
         new("all", "All Topics", "fa-solid fa-layer-group"),
-        new("secret-key", "Secret Key & Emergency Kit", "fa-solid fa-key"),
-        new("device-login", "New Device Sign-In", "fa-solid fa-laptop-medical"),
-        new("sharing", "Secure Sharing", "fa-solid fa-share-nodes"),
-        new("keepass-import", "KeePass (.kdbx) Import", "fa-solid fa-file-import"),
-        new("session-security", "Auto-Lock & Privacy", "fa-solid fa-shield-halved")
+        new("secret-key", "Emergency Secret Key", "fa-solid fa-key"),
+        new("device-login", "Sign-In & Quick Unlock", "fa-solid fa-laptop-medical"),
+        new("sharing", "Encrypted Link Sharing", "fa-solid fa-share-nodes"),
+        new("keepass-import", "KeePass (.kdbx) Import & Backup", "fa-solid fa-file-import"),
+        new("session-security", "Auto-Lock & Zero-Knowledge", "fa-solid fa-shield-halved")
     ];
 
     public static readonly IReadOnlyList<FaqItemModel> FaqItems =
@@ -34,73 +34,73 @@ public static class LandingContentData
         new(
             Id: "what-is-secret-key",
             CategoryId: "secret-key",
-            CategoryLabel: "Secret Key & Emergency Kit",
-            Question: "What is the Secret Key and where do I find it?",
-            Answer: "Your Secret Key is a unique 128-bit cryptographic code (formatted like PK-XXXX-XXXX-...) generated directly on your device when you create your PassKee account. It combines with your Master Password via Argon2id so no one can unlock your vault on a new device with your password alone. You can find your Secret Key in the Emergency Kit you saved during registration.",
-            Keywords: ["secret key", "emergency kit", "128-bit", "pk-", "where to find", "registration"],
+            CategoryLabel: "Emergency Secret Key",
+            Question: "What is the Emergency Secret Key and when is it generated?",
+            Answer: "Your Emergency Secret Key is a unique 128-bit cryptographic code (formatted as PK-XXXX-XXXX-XXXX-XXXX-XXXX-XXXX) generated directly in your browser when you create your PassKee account. It combines with your Master Password via Argon2id so no one can sign in to your vault from a new device using your password alone. During registration, you copy and confirm that you have saved this Secret Key before proceeding to sign in.",
+            Keywords: ["secret key", "emergency secret key", "128-bit", "pk-", "registration", "copy secret key"],
             ShowOnHome: true),
 
         new(
             Id: "lost-password-or-secret-key",
             CategoryId: "secret-key",
-            CategoryLabel: "Secret Key & Emergency Kit",
+            CategoryLabel: "Emergency Secret Key",
             Question: "What should I do if I forgot my Master Password or lost my Secret Key?",
-            Answer: "First, check the printed or saved Emergency Kit from when you registered—your 128-bit Secret Key is stored there. Second, if you are still signed in on another authorized browser tab or device, export your vault backup immediately. Because PassKee is built on strict zero-knowledge encryption, our servers never store your keys and cannot reset your Master Password or recover a lost Secret Key. If both your Master Password and Secret Key are permanently lost, the vault cannot be decrypted.",
-            Keywords: ["forgot password", "lost secret key", "recovery", "reset password", "emergency kit", "locked out"],
+            Answer: "Because PassKee is built on strict zero-knowledge encryption, our servers never store your Master Password or Secret Key and cannot reset or recover them. If you lost your Secret Key but still have an unlocked session on an authorized device, immediately open Vault Actions (⋮) -> Backup -> Export to KeePass (.kdbx) to save your data, then create a new account. If both your Master Password and Secret Key are lost with no active session, your encrypted vault cannot be decrypted by anyone.",
+            Keywords: ["forgot password", "lost secret key", "recovery", "reset password", "no remote reset", "backup", "kdbx"],
             ShowOnHome: true),
 
         new(
             Id: "enter-secret-key-every-time",
             CategoryId: "device-login",
-            CategoryLabel: "New Device Sign-In",
-            Question: "Do I need to enter my Secret Key every time I sign in?",
-            Answer: "No. You only enter your Secret Key when signing in from a new browser or unrecognized device. If you enable quick session unlock on your trusted device, PassKee keeps your Secret Key encrypted in isolated session storage so you only need your Master Password to unlock your vault after an inactivity lock.",
-            Keywords: ["every time", "new device", "quick unlock", "session storage", "remember secret key"],
+            CategoryLabel: "Sign-In & Quick Unlock",
+            Question: "Do I have to enter my Emergency Secret Key every time I unlock my vault?",
+            Answer: "No. When signing in, check 'Remember Secret Key for quick unlock in this session'. PassKee encrypts your Secret Key in isolated browser sessionStorage using a key derived from your Master Password and Auth Salt via Argon2id. When your session locks after inactivity, the 'Unlock Session' screen only asks for your Master Password.",
+            Keywords: ["every time", "new device", "quick unlock", "sessionstorage", "remember secret key", "unlock session"],
             ShowOnHome: true),
 
         new(
             Id: "inactivity-auto-lock",
             CategoryId: "session-security",
-            CategoryLabel: "Auto-Lock & Privacy",
-            Question: "What happens if I close my browser tab or step away from my computer?",
-            Answer: "For your protection, PassKee automatically locks your vault after 15 minutes of inactivity and wipes decrypted keys from volatile memory (RAM). Closing the browser tab immediately clears session storage. To resume work after an inactivity lock, simply enter your Master Password.",
-            Keywords: ["auto-lock", "15 minutes", "inactivity", "close tab", "session lock", "ram", "timeout"],
+            CategoryLabel: "Auto-Lock & Zero-Knowledge",
+            Question: "What happens after 15 minutes of inactivity or when I click Lock?",
+            Answer: "After 15 minutes of inactivity—or immediately when you click the Lock button in the header—PassKee closes all open modals, zeroes out your decrypted Private Key and active Vault AES Key in memory (RAM), and navigates to the Unlock Session screen. If you close the browser tab or click Logout, sessionStorage is completely cleared.",
+            Keywords: ["auto-lock", "15 minutes", "inactivity", "close tab", "lock", "logout", "ram", "timeout"],
             ShowOnHome: false),
 
         new(
             Id: "one-time-link-sharing",
             CategoryId: "sharing",
-            CategoryLabel: "Secure Sharing",
-            Question: "Is it safe to share a password or note using a PassKee link?",
-            Answer: "Yes. When you create a shareable link in PassKee, the item is encrypted in your browser with a one-time key placed after the URL hash fragment (#). By HTTP specification, browsers never send the # fragment to any server. You can also set an expiration timer and a single-view burn limit so the ciphertext is permanently deleted after the recipient views it.",
-            Keywords: ["share link", "url fragment", "hash", "one-time link", "burn after reading", "sharing"],
+            CategoryLabel: "Encrypted Link Sharing",
+            Question: "How does 'Share a link to this item' protect my shared credentials?",
+            Answer: "When you share an item, your browser strips any file attachments, generates a fresh 256-bit AES-GCM key, encrypts the item locally, and places the 64-character hex decryption key after the URL hash fragment (/share/{token}#{hexKey}). Browsers never send the # fragment to the server. You can set expiration to 1 hour, 1 day, 7 days, or 30 days, and optionally enable 'Can be viewed only once'.",
+            Keywords: ["share link", "url fragment", "hash", "one-time view", "can be viewed only once", "expires after", "files attached"],
             ShowOnHome: false),
 
         new(
             Id: "keepass-kdbx-migration",
             CategoryId: "keepass-import",
-            CategoryLabel: "KeePass (.kdbx) Import",
-            Question: "How does KeePass (.kdbx) import and export protect my data?",
-            Answer: "PassKee parses and decrypts your KeePass (.kdbx) file locally inside your browser using WebAssembly. Your KDBX master password and unencrypted entries never travel over the network in plaintext—each folder, login, note, and attachment is re-encrypted locally with your PassKee Vault AES-256-GCM key before syncing.",
-            Keywords: ["keepass", "kdbx", "import", "export", "migration", "bitwarden", "1password", "local"],
+            CategoryLabel: "KeePass (.kdbx) Import & Backup",
+            Question: "Which formats are supported for KeePass (.kdbx) Import and Backup?",
+            Answer: "From the Vault Actions (⋮) menu in the sidebar, you can import KeePass KDBX 3 and KDBX 4 databases (up to 100 MB) unlocked with a database password. All decrypting happens locally in your browser via WebAssembly, preserving directories, entries, tags, and file attachments. You can also choose Backup -> Export to KeePass (.kdbx) at any time to download an encrypted KDBX 4 archive (with archived items placed in a dedicated Archive directory).",
+            Keywords: ["keepass", "kdbx", "kdbx 3", "kdbx 4", "import", "backup", "export", "100 mb", "archive"],
             ShowOnHome: false),
 
         new(
             Id: "server-breach-protection",
             CategoryId: "session-security",
-            CategoryLabel: "Auto-Lock & Privacy",
-            Question: "Can PassKee administrators read my vault or hand over my passwords?",
-            Answer: "No. PassKee servers act strictly as blind storage for AES-256-GCM ciphertext and wrapped key envelopes. Key derivation (Argon2id), encryption, and decryption happen exclusively on your client device. Even if our database were inspected, there are no plaintext usernames, passwords, folder names, or decryption keys on the server.",
-            Keywords: ["administrators", "breach", "zero-knowledge", "server", "encryption", "aes-256-gcm", "argon2id"],
+            CategoryLabel: "Auto-Lock & Zero-Knowledge",
+            Question: "Can PassKee servers or administrators read my vault or folder names?",
+            Answer: "No. PassKee servers store only raw binary ciphertext (PostgreSQL bytea). Each vault has its own 256-bit AES-GCM key wrapped with your Curve25519 (X25519) keypair, and both directory names and credential payloads are encrypted on your device before transmission.",
+            Keywords: ["administrators", "breach", "zero-knowledge", "server", "encryption", "aes-256-gcm", "x25519", "argon2id"],
             ShowOnHome: false),
 
         new(
             Id: "supported-credential-types",
             CategoryId: "device-login",
-            CategoryLabel: "New Device Sign-In",
-            Question: "What types of credentials and secrets can I store in PassKee?",
-            Answer: "PassKee supports website Logins, Payment Cards, Secure Notes, standalone Passwords, SSH Keys, Database Connections, Server Credentials, and encrypted File Attachments—organized across multiple vaults, nested folders, and custom tags.",
-            Keywords: ["types", "ssh key", "database", "cards", "notes", "files", "folders", "tags"],
+            CategoryLabel: "Sign-In & Quick Unlock",
+            Question: "What credential types and generators are built into PassKee?",
+            Answer: "PassKee supports 8 credential types: Login, Secure Note, Card, Password, File, Database, SSH Key, and Server—complete with custom icons, custom fields, sections, tags, file attachments, and an Archive folder. The top header also provides instant generators for random Passwords, PIN codes, and developer GUID/UUID v4/v7, Hex, and Base64 tokens.",
+            Keywords: ["types", "login", "secure note", "card", "password", "file", "database", "ssh key", "server", "guid", "uuid"],
             ShowOnHome: false)
     ];
 
@@ -124,15 +124,16 @@ public static class LandingContentData
                 operatingSystem = "All",
                 applicationCategory = "SecurityApplication",
                 applicationSubCategory = "Password Manager",
-                description = "Zero-knowledge cloud password and secrets manager with Dual-Key protection (Master Password + 128-bit Secret Key), client-side Argon2id and AES-256-GCM encryption, local KeePass (.kdbx) import/export, and encrypted link sharing.",
+                description = "Zero-knowledge cloud password and secrets manager with Two-Key protection (Master Password + 128-bit Emergency Secret Key), client-side Argon2id, Curve25519 (X25519), and AES-256-GCM encryption, local KeePass (.kdbx) import/backup, and encrypted #fragment link sharing.",
                 featureList = new[]
                 {
-                    "Zero-Knowledge Client-Side AES-256-GCM Encryption",
-                    "Dual-Key Security Model (Master Password + 128-bit Secret Key)",
-                    "Argon2id Key Derivation Function",
-                    "3-Panel Vault, Folder, and Tag Organization",
-                    "Local In-Browser KeePass (.kdbx) Import and Export",
-                    "Zero-Knowledge One-Time Link Sharing via URL Fragment",
+                    "Zero-Knowledge Client-Side AES-256-GCM & X25519 Encryption",
+                    "Two-Key Protection (Master Password + 128-bit Emergency Secret Key)",
+                    "Argon2id Key Derivation & Session Quick Unlock",
+                    "8 Credential Types: Login, Secure Note, Card, Password, File, Database, SSH Key, Server",
+                    "Local In-Browser KeePass (.kdbx) KDBX 3/4 Import and KDBX 4 Backup",
+                    "Zero-Knowledge Link Sharing via URL Fragment (#)",
+                    "Built-in Password, PIN, UUID v4/v7, Hex & Base64 Generators",
                     "Automatic 15-Minute Inactivity Session Lock"
                 },
                 offers = new
@@ -170,8 +171,8 @@ public static class LandingContentData
             {
                 @context = "https://schema.org",
                 @type = "TechArticle",
-                headline = "PassKee Security Architecture — Zero-Knowledge & Dual-Key Protection",
-                description = "Detailed explanation of PassKee's Zero-Knowledge architecture, Dual-Key protection (Master Password + 128-bit Secret Key), Emergency Kit risk management, and URL fragment encrypted sharing.",
+                headline = "PassKee Security Architecture — Zero-Knowledge & Two-Key Protection",
+                description = "Detailed explanation of PassKee's Zero-Knowledge architecture, Two-Key protection (Master Password + 128-bit Emergency Secret Key), Curve25519 + AES-256-GCM encryption, and URL fragment encrypted sharing.",
                 url = $"{baseUrl}/security",
                 author = new
                 {
@@ -223,30 +224,30 @@ public static class LandingContentData
             {
                 @context = "https://schema.org",
                 @type = "HowTo",
-                name = "How to Set Up Your Encrypted PassKee Vault in 3 Steps",
-                description = "Step-by-step quick start guide from creating your account and saving your Emergency Kit to storing or importing your first encrypted passwords.",
+                name = "How to Create and Set Up Your Encrypted PassKee Vault in 3 Steps",
+                description = "Step-by-step quick start guide from creating your account and saving your Emergency Secret Key to storing or importing your first encrypted credentials.",
                 step = new[]
                 {
                     new
                     {
                         @type = "HowToStep",
                         position = 1,
-                        name = "Create Your Account & Master Password",
-                        text = "Register with your email and choose a strong Master Password. Your cryptographic keys are derived locally in your browser."
+                        name = "Create PassKee Account & Master Password",
+                        text = "Enter your Email Address and create a Master Password (at least 10 characters with uppercase, lowercase Latin letters, and digits). PassKee generates your 128-bit Emergency Secret Key on your device."
                     },
                     new
                     {
                         @type = "HowToStep",
                         position = 2,
-                        name = "Save Your Emergency Kit (Secret Key)",
-                        text = "Copy and safely store your 128-bit Secret Key (PK-XXXX-...). You will need it alongside your Master Password when signing in from a new device."
+                        name = "Copy & Confirm Your Emergency Secret Key",
+                        text = "On the 'Save Your Emergency Secret Key' screen, click Copy Secret Key, store it in a safe place, and check 'I have saved my Secret Key and understand PassKee cannot recover it'."
                     },
                     new
                     {
                         @type = "HowToStep",
                         position = 3,
-                        name = "Create a Vault or Import KeePass (.kdbx)",
-                        text = "Add logins, cards, SSH keys, and notes into organized folders, or import an existing .kdbx database locally inside your browser."
+                        name = "Sign In & Add Items or Import KeePass (.kdbx)",
+                        text = "Sign in to your vault, organize directories, create items across 8 credential types, or import an existing KeePass (.kdbx) file locally in your browser."
                     }
                 }
             },
@@ -265,4 +266,3 @@ public static class LandingContentData
         return JsonSerializer.Serialize(graph, JsonOptions);
     }
 }
-
