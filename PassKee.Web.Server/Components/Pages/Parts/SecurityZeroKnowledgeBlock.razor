@@ -3,10 +3,10 @@
         <div class="mx-auto max-w-3xl text-center">
             <p class="text-xs font-bold uppercase tracking-[0.2em] text-blue-600">01 • Principle of Complete Privacy</p>
             <h2 id="zk-architecture-heading" class="mt-2 text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">
-                We Cannot Read Your Passwords. And That Is Great News.
+                We Cannot Read Your Passwords. And That Is by Design.
             </h2>
             <p class="mt-4 text-base leading-relaxed text-slate-600">
-                PassKee is built on strict <strong>Zero-Knowledge</strong> end-to-end encryption. Your logins, cards, SSH keys, and notes are encrypted and decrypted exclusively inside your browser on your phone or computer. Data arrives on our servers as a sealed cryptographic safe—and we never hold the key.
+                PassKee is built on strict <strong>Zero-Knowledge</strong> end-to-end encryption. Your logins, cards, SSH keys, database credentials, and notes are encrypted and decrypted exclusively inside your browser. Data arrives on our servers as raw binary ciphertext (<code class="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs text-slate-800">bytea</code>) for which we never hold the key.
             </p>
         </div>
 
@@ -15,9 +15,9 @@
                 <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 text-white text-base font-bold">
                     01
                 </div>
-                <h3 class="mt-4 text-base font-bold text-slate-900">Key Derivation on Device</h3>
+                <h3 class="mt-4 text-base font-bold text-slate-900">Argon2id Client KDF</h3>
                 <p class="mt-2 text-xs sm:text-sm leading-relaxed text-slate-600">
-                    When you sign in, your browser combines your <strong>Master Password</strong> and <strong>128-bit Secret Key</strong> using <strong>Argon2id</strong> to derive your 256-bit Master Key in RAM.
+                    Your browser combines your <strong>Master Password</strong> and <strong>128-bit Emergency Secret Key</strong> with your 32-byte salt using <strong>Argon2id</strong> to derive a 256-bit Master Key in RAM.
                 </p>
             </article>
 
@@ -27,7 +27,7 @@
                 </div>
                 <h3 class="mt-4 text-base font-bold text-slate-900">Zero-Leak Authentication</h3>
                 <p class="mt-2 text-xs sm:text-sm leading-relaxed text-slate-600">
-                    To prove your identity without exposing your Master Key, your client computes a one-way <code class="rounded bg-white px-1 py-0.5 font-mono text-xs">HMAC-SHA256</code> auth hash, which the server hashes a second time with Argon2id.
+                    Your Master Key never leaves your device. To authenticate, the client computes <code class="rounded bg-white px-1 py-0.5 font-mono text-xs">HMAC-SHA256(MasterKey, "auth_login")</code>, which the server hashes a second time with Argon2id.
                 </p>
             </article>
 
@@ -35,9 +35,9 @@
                 <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-600 text-white text-base font-bold">
                     03
                 </div>
-                <h3 class="mt-4 text-base font-bold text-slate-900">AES-256-GCM Envelope</h3>
+                <h3 class="mt-4 text-base font-bold text-slate-900">X25519 + AES-256-GCM</h3>
                 <p class="mt-2 text-xs sm:text-sm leading-relaxed text-slate-600">
-                    Each vault uses a dedicated random 256-bit AES-GCM key wrapped by your key pair. Folder names, secret payloads, and file attachments are individually sealed with 12-byte random nonces.
+                    Each user has a <strong>Curve25519 (X25519)</strong> keypair and a 256-bit Vault Key encrypted with AES-256-GCM. Every vault key is wrapped via ephemeral ECDH + AES-256-GCM with 12-byte random nonces.
                 </p>
             </article>
 
@@ -45,12 +45,11 @@
                 <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-900 text-white text-base font-bold">
                     04
                 </div>
-                <h3 class="mt-4 text-base font-bold text-slate-900">15-Minute RAM Auto-Lock</h3>
+                <h3 class="mt-4 text-base font-bold text-slate-900">15-Minute RAM Zeroing</h3>
                 <p class="mt-2 text-xs sm:text-sm leading-relaxed text-slate-600">
-                    Decrypted items exist only in volatile browser memory while you work. After 15 minutes of inactivity—or the instant you close the tab—keys are purged from memory.
+                    After 15 minutes of inactivity—or when you click <strong>Lock</strong>—PassKee executes <code class="rounded bg-white px-1 py-0.5 font-mono text-xs">CryptographicOperations.ZeroMemory</code> on your Private Key and Vault Key in RAM.
                 </p>
             </article>
         </div>
     </div>
 </section>
-

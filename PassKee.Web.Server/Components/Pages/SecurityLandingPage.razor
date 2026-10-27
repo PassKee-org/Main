@@ -4,14 +4,14 @@
 <PageTitle>PassKee Security Architecture — Protection &amp; Zero-Knowledge</PageTitle>
 
 <HeadContent>
-    <meta name="description" content="Learn how PassKee protects your data with the Dual-Lock security model (Master Password + 128-bit Secret Key), why our servers cannot read your passwords, and how to store your Emergency Kit." />
+    <meta name="description" content="Learn how PassKee protects your data with the Dual-Lock security model (Master Password + Emergency Secret Key), Curve25519 (X25519) + AES-256-GCM encryption, and #fragment link sharing." />
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     <link rel="canonical" href="@CanonicalUrl" />
 
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="PassKee" />
     <meta property="og:title" content="PassKee Security Architecture — Protection &amp; Zero-Knowledge" />
-    <meta property="og:description" content="Your data belongs only to you. Detailed breakdown of PassKee's Zero-Knowledge encryption, Emergency Kit, and #fragment link sharing." />
+    <meta property="og:description" content="Your data belongs only to you. Detailed breakdown of PassKee's Zero-Knowledge encryption, Emergency Secret Key, and #fragment link sharing." />
     <meta property="og:url" content="@CanonicalUrl" />
     <meta property="og:image" content="@($"{BaseUrl}/icon-192.png")" />
 
@@ -27,4 +27,3 @@
 <SecurityDualKeyBlock />
 <SecurityNoResetBlock />
 <SecurityLinkSharingBlock />
-
