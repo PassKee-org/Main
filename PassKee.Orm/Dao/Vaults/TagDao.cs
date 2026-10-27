@@ -49,4 +49,16 @@ public class TagDao : BaseDao, ITagDao
         await Session.UpdateAsync(tag, cancellationToken);
         return tag;
     }
+
+    public async Task DeleteByVaultIdAsync(Guid vaultId, CancellationToken cancellationToken = default)
+    {
+        var tags = await Session.Query<TagEntity>()
+            .Where(x => x.VaultId == vaultId && x.DeletedAt == null)
+            .ToListAsync(cancellationToken);
+
+        if (tags.Count > 0)
+        {
+            await DeleteAsync(tags, cancellationToken);
+        }
+    }
 }

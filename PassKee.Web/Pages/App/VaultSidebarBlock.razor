@@ -48,6 +48,14 @@
                                 Description="Export to KeePass (.kdbx)"
                                 Disabled="@(!CanImportOrExport)"
                                 OnClick="@OpenExportModal" />
+                            <AppDropdownItem
+                                Icon="fa-solid fa-trash text-rose-500"
+                                Color="@ComponentColor.Danger"
+                                ShowDivider="true"
+                                Text="Delete Vault"
+                                Description="Delete current vault"
+                                Disabled="@(!CanDeleteVault)"
+                                OnClick="@DeleteVault" />
                         </Menu>
                     </AppDropdown>
                 </div>

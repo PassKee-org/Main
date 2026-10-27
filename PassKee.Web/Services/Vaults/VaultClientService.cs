@@ -28,6 +28,11 @@ public class VaultClientService : IVaultClientService
         return vaults ?? new List<VaultDto>();
     }
 
+    public Task<DeleteVaultResponse?> DeleteVaultAsync(Guid vaultId)
+    {
+        return _apiService.DeleteVaultAsync(vaultId);
+    }
+
     public async Task<VaultDto?> CreateVaultAsync(string name, byte[] userPublicKey)
     {
         var vaultKey = CryptoUtils.GenerateRandomBytes(32);

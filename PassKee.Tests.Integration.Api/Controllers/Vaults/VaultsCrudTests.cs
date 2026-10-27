@@ -1,10 +1,21 @@
 using System;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
+using NHibernate.Linq;
 using PassKee.Api.Shared.Constants;
+using PassKee.Api.Shared.Models.Storage;
+using PassKee.Api.Shared.Models.Storage.Requests;
 using PassKee.Api.Shared.Models.Vaults;
 using PassKee.Business.Common.Constants;
+using PassKee.Business.Common.Exceptions.Api;
+using PassKee.Business.Services.Storage.Client;
+using PassKee.Orm.Entities.Storage;
+using PassKee.Orm.Entities.Vaults;
 using PassKee.Tests.Integration.Api.Core;
 using Xunit;
 
@@ -357,5 +368,166 @@ public class VaultsCrudTests : BaseTest
         var remainingIds = details!.Credentials.Select(c => c.Id).ToList();
         Assert.Single(remainingIds);
         Assert.Contains(cred3Id, remainingIds);
+    }
+
+    [Fact]
+    public async Task Can_Delete_Vault_And_Clean_Attachments_And_Soft_Delete_Entries()
+    {
+        var garage = ServiceProvider.GetRequiredService<IFileStorageGarageClient>();
+        var (jwtToken, _) = await UserSeeder.CreateAuthorizedAsync();
+
+        // 1. Create Vault
+        var createVaultRes = await PostRequestAsync(ApiUrl.Vaults, jwtToken, new CreateVaultRequest
+        {
+            Name = "Vault To Delete",
+            EncryptedVaultKey = new byte[] { 1, 2, 3 }
+        });
+        var vaultId = (await createVaultRes.Content.ReadFromJsonAsync<VaultResponse>())!.Vault.Id;
+
+        // 2. Create Active Credential
+        var credActiveRes = await PostRequestAsync(ApiUrl.VaultCredentials, jwtToken, new CreateCredentialRequest
+        {
+            VaultId = vaultId,
+            Type = CredentialType.Password,
+            EncryptedBody = new byte[] { 10, 20 }
+        });
+        var activeCredId = (await credActiveRes.Content.ReadFromJsonAsync<CredentialResponse>())!.Credential.Id;
+
+        // 3. Create Archived Credential
+        var credArchivedRes = await PostRequestAsync(ApiUrl.VaultCredentials, jwtToken, new CreateCredentialRequest
+        {
+            VaultId = vaultId,
+            Type = CredentialType.Login,
+            EncryptedBody = new byte[] { 30, 40 }
+        });
+        var archivedCredId = (await credArchivedRes.Content.ReadFromJsonAsync<CredentialResponse>())!.Credential.Id;
+        var archiveRes = await PostRequestAsync(ApiUrl.VaultCredentialArchive(archivedCredId), jwtToken, new ArchiveCredentialRequest
+        {
+            CredentialId = archivedCredId
+        });
+        Assert.Equal(HttpStatusCode.OK, archiveRes.StatusCode);
+
+        // 4. Create Directory and Tag
+        var dirRes = await PostRequestAsync(ApiUrl.VaultDirectories, jwtToken, new CreateDirectoryRequest
+        {
+            VaultId = vaultId,
+            EncryptedName = new byte[] { 50 }
+        });
+        var dirId = (await dirRes.Content.ReadFromJsonAsync<DirectoryResponse>())!.Directory.Id;
+
+        var tagRes = await PostRequestAsync(ApiUrl.VaultTags, jwtToken, new CreateTagRequest
+        {
+            VaultId = vaultId,
+            EncryptedName = new byte[] { 60 }
+        });
+        var tagId = (await tagRes.Content.ReadFromJsonAsync<TagResponse>())!.Tag.Id;
+
+        // 5. Check if external Garage storage is online
+        bool isGarageAvailable = false;
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(500));
+            await garage.GetAsStreamAsync("probe-health-check", cts.Token);
+        }
+        catch (RecordNotFoundException)
+        {
+            isGarageAvailable = true;
+        }
+        catch
+        {
+            isGarageAvailable = false;
+        }
+
+        StoredFileDto? storedFile = null;
+        string? cloudFilePath = null;
+
+        if (isGarageAvailable)
+        {
+            var fileBytes = new byte[] { 99, 100, 101, 102 };
+            var form = new MultipartFormDataContent
+            {
+                { new StringContent(vaultId.ToString()), nameof(UploadRequest.EntityId) },
+                { new StringContent(((int)StorageEntityType.Vault).ToString()), nameof(UploadRequest.EntityType) }
+            };
+            var fileContent = new ByteArrayContent(fileBytes);
+            fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("application/octet-stream");
+            form.Add(fileContent, nameof(UploadRequest.File), "attachment.bin");
+
+            var uploadReq = new HttpRequestMessage(HttpMethod.Post, ApiUrl.StorageUpload) { Content = form };
+            uploadReq.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+            var uploadRes = await HttpClient.SendAsync(uploadReq);
+            Assert.Equal(HttpStatusCode.OK, uploadRes.StatusCode);
+
+            storedFile = (await uploadRes.Content.ReadFromJsonAsync<StoredFileDto>())!;
+            var dbFile = await DbSessionProvider.CurrentSession.Query<VaultFileStorageEntity>()
+                .FirstOrDefaultAsync(x => x.Id == storedFile.Id && x.DeletedAt == null);
+            Assert.NotNull(dbFile);
+            cloudFilePath = dbFile.CloudFilePath;
+
+            // Verify attachment is present physically in Garage storage
+            using var s3Stream = await garage.GetAsStreamAsync(dbFile.CloudFilePath);
+            Assert.NotNull(s3Stream);
+        }
+
+        // 6. Another user cannot delete the vault
+        var (otherToken, _) = await UserSeeder.CreateAuthorizedAsync();
+        var unauthorizedDelete = await DeleteRequestAsync(ApiUrl.Vault(vaultId), otherToken);
+        Assert.Equal(HttpStatusCode.BadRequest, unauthorizedDelete.StatusCode);
+
+        // 7. Delete Vault as owner
+        var deleteRes = await DeleteRequestAsync(ApiUrl.Vault(vaultId), jwtToken);
+        Assert.Equal(HttpStatusCode.OK, deleteRes.StatusCode);
+        var deleteResponse = await deleteRes.Content.ReadFromJsonAsync<DeleteVaultResponse>();
+        Assert.NotNull(deleteResponse);
+        Assert.Equal(vaultId, deleteResponse.VaultId);
+
+        // 8. Verify DB State: Vault is soft-deleted
+        DbSessionProvider.CurrentSession.Clear();
+
+        var vaultInDb = await DbSessionProvider.CurrentSession.Query<VaultEntity>()
+            .FirstOrDefaultAsync(x => x.Id == vaultId);
+        Assert.NotNull(vaultInDb);
+        Assert.NotNull(vaultInDb.DeletedAt);
+
+        // 9. Verify Active Credential is soft-deleted
+        var activeCredInDb = await DbSessionProvider.CurrentSession.Query<CredentialEntity>()
+            .FirstOrDefaultAsync(x => x.Id == activeCredId);
+        Assert.NotNull(activeCredInDb);
+        Assert.NotNull(activeCredInDb.DeletedAt);
+
+        // 10. Verify Archived Credential is soft-deleted (has both ArchivedAt and DeletedAt)
+        var archivedCredInDb = await DbSessionProvider.CurrentSession.Query<CredentialEntity>()
+            .FirstOrDefaultAsync(x => x.Id == archivedCredId);
+        Assert.NotNull(archivedCredInDb);
+        Assert.NotNull(archivedCredInDb.ArchivedAt);
+        Assert.NotNull(archivedCredInDb.DeletedAt);
+
+        // 11. Verify Directory and Tag are soft-deleted
+        var dirInDb = await DbSessionProvider.CurrentSession.Query<DirectoryEntity>()
+            .FirstOrDefaultAsync(x => x.Id == dirId);
+        Assert.NotNull(dirInDb);
+        Assert.NotNull(dirInDb.DeletedAt);
+
+        var tagInDb = await DbSessionProvider.CurrentSession.Query<TagEntity>()
+            .FirstOrDefaultAsync(x => x.Id == tagId);
+        Assert.NotNull(tagInDb);
+        Assert.NotNull(tagInDb.DeletedAt);
+
+        // 12. Verify Attachment is physically deleted from storage and soft-deleted in DB if Garage was tested
+        if (isGarageAvailable && storedFile != null && cloudFilePath != null)
+        {
+            await Assert.ThrowsAsync<RecordNotFoundException>(() => garage.GetAsStreamAsync(cloudFilePath));
+
+            var fileInDb = await DbSessionProvider.CurrentSession.Query<VaultFileStorageEntity>()
+                .FirstOrDefaultAsync(x => x.Id == storedFile.Id);
+            Assert.NotNull(fileInDb);
+            Assert.NotNull(fileInDb.DeletedAt);
+        }
+
+        // 14. Verify Vault is no longer returned in GetVaults
+        var vaultsRes = await GetRequestAsync(ApiUrl.Vaults, jwtToken);
+        var vaultsResponse = await vaultsRes.Content.ReadFromJsonAsync<VaultsResponse>();
+        Assert.NotNull(vaultsResponse);
+        Assert.DoesNotContain(vaultsResponse.Vaults, v => v.Id == vaultId);
     }
 }

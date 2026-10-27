@@ -13,4 +13,5 @@ public interface ITagDao : IBaseDao
     Task<IList<TagEntity>> GetByVaultId(Guid vaultId, CancellationToken cancellationToken = default);
     Task<TagEntity> CreateAsync(Guid vaultId, byte[] encryptedName, CancellationToken cancellationToken = default);
     Task<TagEntity> UpdateAsync(TagEntity tag, byte[] encryptedName, CancellationToken cancellationToken = default);
+    Task DeleteByVaultIdAsync(Guid vaultId, CancellationToken cancellationToken = default);
 }

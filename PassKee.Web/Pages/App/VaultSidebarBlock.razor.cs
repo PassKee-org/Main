@@ -26,6 +26,31 @@ public partial class VaultSidebarBlock : BaseReactiveComponent
         !ImportState.Value.IsRunning &&
         !ExportState.Value.IsRunning;
 
+    private bool CanDeleteVault =>
+        VaultsState.Value.ActiveVaultId.HasValue &&
+        !VaultsState.Value.IsLoading &&
+        !ImportState.Value.IsRunning &&
+        !ExportState.Value.IsRunning;
+
+    private async Task DeleteVault()
+    {
+        if (!CanDeleteVault) return;
+        var vaultId = VaultsState.Value.ActiveVaultId!.Value;
+        var vaultName = GetVaultName(vaultId);
+
+        var confirm = await ModalService.ShowConfirmationAsync(
+            $"Are you sure you want to delete vault '{vaultName}'? All entries and attachments will be deleted. This action cannot be undone.",
+            title: "Delete Vault",
+            confirmText: "Delete",
+            cancelText: "Cancel",
+            type: AppConfirmationType.Danger);
+
+        if (confirm)
+        {
+            Dispatcher.Dispatch(new DeleteVaultAction(vaultId));
+        }
+    }
+
     private async Task OpenImportModal()
     {
         if (!CanImportOrExport) return;
