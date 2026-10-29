@@ -1,0 +1,116 @@
+@namespace PassKee.Web.Pages.App.Desktop.Parts
+@using PassKee.Web.Models.Vaults
+@using PassKee.Web.Core.Ui.Shared.Components
+@using PassKee.Web.Core.Ui.Shared.Components.Dropdown
+@using PassKee.Web.Core.Ui.Shared.Components.Enums
+
+<div class="flex flex-col @(IsDragged ? "opacity-50" : "")">
+    <div class="group flex items-center justify-between py-1.5 px-2 rounded-md cursor-pointer transition-colors
+                @(Directory.Id == SelectedDirectoryId ? "bg-blue-50 text-blue-700 font-medium" : "text-slate-600 hover:bg-slate-100")
+                @(IsDragTarget ? "ring-2 ring-blue-500 bg-blue-50" : "")"
+         draggable="true"
+         @ondragstart="HandleDragStart"
+         @ondragend="HandleDragEnd"
+         @ondragover="HandleDragOver"
+         @ondragover:preventDefault="true"
+         @ondragleave="HandleDragLeave"
+         @ondrop="HandleDrop"
+         @ondrop:preventDefault="true">
+
+        <div class="flex items-center gap-2 overflow-hidden flex-1 min-w-0"
+             @onclick="HandleSelect">
+            @if (HasChildren)
+            {
+                <i class="fa-solid fa-chevron-right text-[10px] w-3 text-center transition-transform @(IsExpanded ? "rotate-90" : "") text-slate-400"
+                   @onclick="ToggleExpand"
+                   @onclick:stopPropagation="true"></i>
+            }
+            else
+            {
+                <span class="w-3"></span>
+            }
+            <i class="fa-regular @(IsExpanded && HasChildren ? "fa-folder-open text-blue-500" : "fa-folder text-slate-400 group-hover:text-slate-500")"></i>
+            <span class="text-sm truncate select-none">@Directory.Name</span>
+        </div>
+
+        <div class="flex items-center gap-1.5 shrink-0 ml-1.5">
+            @if (ItemCount > 0)
+            {
+                <span class="text-[11px] tabular-nums font-normal select-none transition-colors @(Directory.Id == SelectedDirectoryId ? "text-blue-600/80 font-medium" : "text-slate-400 group-hover:text-slate-500")"
+                      @onclick="HandleSelect">
+                    @ItemCount
+                </span>
+            }
+            <div class="flex items-center transition-opacity @(IsMenuOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100")"
+                 @onclick:stopPropagation="true">
+                <AppDropdown
+                    Alignment="@DropdownAlignment.Right"
+                    IsDropUp="@IsDropUp"
+                    OnOpenChanged="@((isOpen) => IsMenuOpen = isOpen)">
+                    <Trigger>
+                        <button type="button"
+                                class="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 rounded touch-manipulation cursor-pointer transition-colors"
+                                title="Directory options">
+                            <i class="fa-solid fa-ellipsis-vertical text-xs"></i>
+                        </button>
+                    </Trigger>
+                    <Menu>
+                        <AppDropdownItem OnClick="() => OnAddSubdirectory.InvokeAsync(Directory)">
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-plus w-4 text-center text-slate-500" aria-hidden="true"></i>
+                                <span class="font-medium">Add Subdirectory</span>
+                            </div>
+                        </AppDropdownItem>
+                        <AppDropdownItem OnClick="() => OnOpenMove.InvokeAsync(Directory)">
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-folder-tree w-4 text-center text-slate-500" aria-hidden="true"></i>
+                                <span class="font-medium">Move...</span>
+                            </div>
+                        </AppDropdownItem>
+                        <AppDropdownItem OnClick="() => OnEdit.InvokeAsync(Directory)">
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-pen w-4 text-center text-slate-500" aria-hidden="true"></i>
+                                <span class="font-medium">Edit</span>
+                            </div>
+                        </AppDropdownItem>
+                        <AppDropdownItem
+                            OnClick="() => OnDelete.InvokeAsync(Directory)"
+                            Color="@ComponentColor.Danger"
+                            ShowDivider="true">
+                            <div class="flex items-center gap-2.5 text-rose-600">
+                                <i class="fa-solid fa-trash w-4 text-center text-rose-500" aria-hidden="true"></i>
+                                <span class="font-medium">Delete</span>
+                            </div>
+                        </AppDropdownItem>
+                    </Menu>
+                </AppDropdown>
+            </div>
+        </div>
+    </div>
+
+    @if (IsExpanded && HasChildren)
+    {
+        <div class="ml-3 pl-1.5 border-l border-slate-200/80 flex flex-col gap-0.5 mt-0.5">
+            @for (var i = 0; i < Children.Count; i++)
+            {
+                var child = Children[i];
+                var isChildDropUp = IsDropUp || (i >= Math.Max(1, Children.Count / 2));
+                <DesktopDirectoryNodeBlock
+                    Directory="child"
+                    ChildrenMap="ChildrenMap"
+                    DirectoryMap="DirectoryMap"
+                    DirectoryCounts="DirectoryCounts"
+                    SelectedDirectoryId="SelectedDirectoryId"
+                    ExpandedAncestorIds="ExpandedAncestorIds"
+                    IsDropUp="@isChildDropUp"
+                    OnSelect="OnSelect"
+                    OnAddSubdirectory="OnAddSubdirectory"
+                    OnMove="OnMove"
+                    OnOpenMove="OnOpenMove"
+                    OnEdit="OnEdit"
+                    OnDelete="OnDelete" />
+            }
+        </div>
+    }
+</div>
+

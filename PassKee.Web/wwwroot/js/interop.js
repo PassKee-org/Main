@@ -69,5 +69,38 @@ window.PassKeeInterop = {
             }
             this._dotNetHelper = null;
         }
+    },
+    viewportTracker: {
+        _dotNetHelper: null,
+        _mediaQuery: null,
+        _changeHandler: null,
+        init: function (dotNetHelper) {
+            this.dispose();
+            this._dotNetHelper = dotNetHelper;
+            this._mediaQuery = window.matchMedia('(max-width: 768px)');
+            this._changeHandler = (e) => {
+                if (this._dotNetHelper) {
+                    this._dotNetHelper.invokeMethodAsync('OnMediaQueryChanged', e.matches);
+                }
+            };
+            if (this._mediaQuery.addEventListener) {
+                this._mediaQuery.addEventListener('change', this._changeHandler);
+            } else if (this._mediaQuery.addListener) {
+                this._mediaQuery.addListener(this._changeHandler);
+            }
+            return this._mediaQuery.matches;
+        },
+        dispose: function () {
+            if (this._mediaQuery && this._changeHandler) {
+                if (this._mediaQuery.removeEventListener) {
+                    this._mediaQuery.removeEventListener('change', this._changeHandler);
+                } else if (this._mediaQuery.removeListener) {
+                    this._mediaQuery.removeListener(this._changeHandler);
+                }
+            }
+            this._changeHandler = null;
+            this._mediaQuery = null;
+            this._dotNetHelper = null;
+        }
     }
 };

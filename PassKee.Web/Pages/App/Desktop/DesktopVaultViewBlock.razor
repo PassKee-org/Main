@@ -1,0 +1,36 @@
+@namespace PassKee.Web.Pages.App.Desktop
+@using PassKee.Web.Pages.App.Shared
+@using PassKee.Web.Core.Ui.Shared.Components.Enums
+@inherits VaultOperationsComponentBase
+
+<div class="h-dvh bg-slate-50 flex flex-col font-sans overflow-hidden">
+    <DesktopHeaderBlock />
+
+    <main class="flex-1 max-w-[1600px] w-full mx-auto p-5 flex flex-row gap-5 items-stretch min-h-0 overflow-hidden">
+        @if (VaultsState.Value.IsLoading && !VaultsState.Value.Vaults.Any())
+        {
+            <div class="flex-1 flex items-center justify-center w-full">
+                <AppSpinner
+                    Color="@ComponentColor.Primary"
+                    Size="@ComponentSize.Large" />
+            </div>
+        }
+        else if (!VaultsState.Value.Vaults.Any())
+        {
+            <div class="flex-1 overflow-y-auto">
+                <VaultWelcomeBlock />
+            </div>
+        }
+        else
+        {
+            <aside class="flex w-80 flex-shrink-0 flex-col h-full min-h-0">
+                <DesktopSidebarBlock />
+            </aside>
+
+            <div class="flex-1 w-full flex flex-col min-w-0 h-full min-h-0">
+                <DesktopCredentialListBlock />
+            </div>
+        }
+    </main>
+</div>
+

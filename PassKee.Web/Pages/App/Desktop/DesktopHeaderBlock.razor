@@ -1,0 +1,97 @@
+@namespace PassKee.Web.Pages.App.Desktop
+@using PassKee.Web.Pages.App.Shared
+@using PassKee.Web.Core.Ui.Shared.Components
+@using PassKee.Web.Core.Ui.Shared.Components.Enums
+@inherits VaultOperationsComponentBase
+
+<header class="sticky top-0 z-30 shrink-0 border-b border-slate-200 bg-white/95 backdrop-blur">
+    <div class="mx-auto flex max-w-[1600px] items-center justify-between px-6 lg:px-8 py-3">
+        <div class="flex items-center gap-6">
+            <a href="/app" class="flex items-center gap-2.5 font-bold text-xl text-blue-600">
+                <i class="fa-solid fa-shield-halved text-2xl text-blue-600"></i>
+                <span class="tracking-tight text-slate-900 font-extrabold">Pass<span class="text-blue-600">Kee</span></span>
+            </a>
+        </div>
+
+        @if (VaultsState.Value.ActiveVaultId.HasValue && VaultsState.Value.Vaults.Any())
+        {
+            <div class="flex-1 max-w-md mx-6 min-w-0">
+                <div class="relative flex items-center w-full">
+                    <div class="absolute left-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass text-sm"></i>
+                    </div>
+                    <input type="text"
+                           value="@_localSearchQuery"
+                           @oninput="HandleSearchInput"
+                           @onkeydown="HandleSearchKeyDown"
+                           disabled="@VaultsState.Value.IsLoading"
+                           placeholder="Search all items..."
+                           aria-label="Search all items"
+                           class="w-full bg-slate-100 hover:bg-slate-100/90 focus:bg-white border border-transparent focus:border-blue-500 rounded-xl pl-9 pr-8 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-3 focus:ring-blue-500/15 disabled:opacity-50 transition" />
+
+                    @if (!string.IsNullOrEmpty(_localSearchQuery))
+                    {
+                        <button type="button"
+                                @onclick="HandleClearSearch"
+                                class="absolute right-2.5 h-5 w-5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200/80 flex items-center justify-center transition text-xs"
+                                title="Clear search">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+
+        <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1.5">
+                <AppButton
+                    Color="@ComponentColor.Default"
+                    Variant="@ButtonVariant.Light"
+                    Radius="@ButtonRadius.Medium"
+                    Size="@ComponentSize.Small"
+                    OnClick="@OpenPasswordGeneratorAsync"
+                    Title="Generate password or PIN"
+                    aria-label="Generate password or PIN">
+                    <i class="fa-solid fa-key mr-1.5 text-blue-600"></i>
+                    <span>Password</span>
+                </AppButton>
+                <AppButton
+                    Color="@ComponentColor.Default"
+                    Variant="@ButtonVariant.Light"
+                    Radius="@ButtonRadius.Medium"
+                    Size="@ComponentSize.Small"
+                    OnClick="@OpenGuidGeneratorAsync"
+                    Title="Generate GUID, UUID, or token"
+                    aria-label="Generate GUID, UUID, or token">
+                    <i class="fa-solid fa-fingerprint mr-1.5 text-indigo-600"></i>
+                    <span>GUID</span>
+                </AppButton>
+                <div class="h-4 w-px bg-slate-200 mx-0.5"></div>
+            </div>
+
+            <AppButton
+                Color="@ComponentColor.Default"
+                Variant="@ButtonVariant.Outlined"
+                Radius="@ButtonRadius.Medium"
+                Size="@ComponentSize.Small"
+                OnClick="@LockVaultAsync"
+                Title="Lock vault"
+                aria-label="Lock vault">
+                <i class="fa-solid fa-lock"></i>
+                <span class="ml-1.5">Lock</span>
+            </AppButton>
+            <AppButton
+                Color="@ComponentColor.Default"
+                Variant="@ButtonVariant.Outlined"
+                Radius="@ButtonRadius.Medium"
+                Size="@ComponentSize.Small"
+                OnClick="@LogoutAsync"
+                Title="Log out"
+                aria-label="Log out">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span class="ml-1.5">Logout</span>
+            </AppButton>
+        </div>
+    </div>
+</header>
+
