@@ -72,9 +72,12 @@ public class BrowserViewportService(IJSRuntime jsRuntime) : IViewportService
         OnViewportChanged?.Invoke();
     }
 
+<<<<<<< HEAD
     [JSInvokable]
     public void OnMediaQueryChanged(bool isMobile) => OnBrowserResize(isMobile);
 
+=======
+>>>>>>> 7685e9e (PR-10973 feat: Add Mobile Directory Row Block and Credential Empty State Block (#61))
     public async ValueTask DisposeAsync()
     {
         if (_isDisposed)
