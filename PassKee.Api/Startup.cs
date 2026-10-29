@@ -37,30 +37,7 @@ public class Startup
             {
                 if (ApplicationHelper.HostingEnvironment == "Development")
                 {
-                    policy.WithOrigins(
-                        // API
-                        "https://dev.passkee.org",
-                        "https://dev-api.passkee.org",
-                        "https://localhost:7108",
-                        "http://localhost:5265",
-                        
-                        // Web
-                        "https://localhost:7230",
-                        "http://localhost:5254",
-                        "https://localhost:7091",
-                        "http://localhost:5148",
-                        "http://localhost:5000"
-                    );
-                    policy.SetIsOriginAllowed(origin =>
-                    {
-                        if (Uri.TryCreate(origin, UriKind.Absolute, out var uri))
-                        {
-                            return uri.Host is "localhost" or "127.0.0.1"
-                                   || uri.Host == "passkee.org"
-                                   || uri.Host.EndsWith(".passkee.org");
-                        }
-                        return false;
-                    });
+                    policy.SetIsOriginAllowed(origin => true);
                 }
                 else
                 {

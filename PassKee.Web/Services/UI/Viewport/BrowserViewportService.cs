@@ -72,6 +72,9 @@ public class BrowserViewportService(IJSRuntime jsRuntime) : IViewportService
         OnViewportChanged?.Invoke();
     }
 
+    [JSInvokable]
+    public void OnMediaQueryChanged(bool isMobile) => OnBrowserResize(isMobile);
+
     public async ValueTask DisposeAsync()
     {
         if (_isDisposed)

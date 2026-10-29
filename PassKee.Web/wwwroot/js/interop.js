@@ -80,7 +80,7 @@ window.PassKeeInterop = {
             this._mediaQuery = window.matchMedia('(max-width: 768px)');
             this._changeHandler = (e) => {
                 if (this._dotNetHelper) {
-                    this._dotNetHelper.invokeMethodAsync('OnMediaQueryChanged', e.matches);
+                    this._dotNetHelper.invokeMethodAsync('OnBrowserResize', e.matches);
                 }
             };
             if (this._mediaQuery.addEventListener) {
@@ -102,5 +102,11 @@ window.PassKeeInterop = {
             this._mediaQuery = null;
             this._dotNetHelper = null;
         }
+    },
+    initViewportListener: function (dotNetHelper) {
+        return this.viewportTracker.init(dotNetHelper);
+    },
+    disposeViewportListener: function () {
+        this.viewportTracker.dispose();
     }
 };
