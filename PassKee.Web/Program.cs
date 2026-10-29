@@ -63,5 +63,6 @@ builder.Services.AddScoped<PassKee.Web.Services.Export.VaultExportSession>();
 // UI Services
 builder.Services.AddScoped<PassKee.Web.Core.Services.UI.Toast.IToastService, PassKee.Web.Core.Services.UI.Toast.ToastService>();
 builder.Services.AddScoped<PassKee.Web.Core.Services.UI.Modal.IAppModalDialogService, PassKee.Web.Core.Services.UI.Modal.AppModalDialogService>();
+builder.Services.AddScoped<PassKee.Web.Services.UI.Viewport.IViewportService, PassKee.Web.Services.UI.Viewport.BrowserViewportService>();
 
 await builder.Build().RunAsync();

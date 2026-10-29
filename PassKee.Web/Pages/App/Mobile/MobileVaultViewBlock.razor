@@ -1,0 +1,53 @@
+@namespace PassKee.Web.Pages.App.Mobile
+@using PassKee.Web.Pages.App.Shared
+@using PassKee.Web.Constants.Navigation
+@using PassKee.Web.Core.Ui.Shared.Components.Enums
+@inherits VaultOperationsComponentBase
+
+<div class="h-dvh bg-slate-50 flex flex-col font-sans overflow-hidden">
+    <MobileTopBarBlock
+        IsSelectionMode="@_isSelectionMode"
+        OnToggleSelectionMode="@ToggleSelectionMode" />
+
+    <main class="flex-1 overflow-y-auto min-h-0 pb-24">
+        @if (VaultsState.Value.IsLoading && !VaultsState.Value.Vaults.Any())
+        {
+            <div class="h-full flex items-center justify-center w-full p-12">
+                <AppSpinner
+                    Color="@ComponentColor.Primary"
+                    Size="@ComponentSize.Large" />
+            </div>
+        }
+        else if (!VaultsState.Value.Vaults.Any())
+        {
+            <VaultWelcomeBlock />
+        }
+        else
+        {
+            @switch (UiState.Value.ActiveMobileTab)
+            {
+                case MobileNavigationTab.Home:
+                    <MobileHomeViewBlock />
+                    break;
+                case MobileNavigationTab.Entries:
+                    <MobileEntriesViewBlock
+                        IsSelectionMode="@_isSelectionMode"
+                        IsSelectionModeChanged="@OnSelectionModeChanged" />
+                    break;
+                default:
+                    <MobileGroupsViewBlock
+                        IsSelectionMode="@_isSelectionMode"
+                        IsSelectionModeChanged="@OnSelectionModeChanged" />
+                    break;
+            }
+        }
+    </main>
+
+    @if (VaultsState.Value.Vaults.Any())
+    {
+        <MobileBottomNavBlock
+            ActiveTab="@UiState.Value.ActiveMobileTab"
+            OnTabSelected="@HandleTabSelected" />
+    }
+</div>
+

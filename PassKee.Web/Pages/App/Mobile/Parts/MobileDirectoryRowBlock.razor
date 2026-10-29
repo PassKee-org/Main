@@ -1,0 +1,74 @@
+@namespace PassKee.Web.Pages.App.Mobile.Parts
+@using PassKee.Web.Models.Vaults
+@using PassKee.Web.Core.Ui.Shared.Components
+@using PassKee.Web.Core.Ui.Shared.Components.Dropdown
+@using PassKee.Web.Core.Ui.Shared.Components.Enums
+
+<div class="px-4 py-3.5 flex items-center justify-between bg-white hover:bg-slate-50 active:bg-slate-100/80 transition cursor-pointer select-none border-b border-slate-100 last:border-b-0"
+     @onclick="HandleClick">
+    <div class="flex items-center gap-3.5 min-w-0 flex-1">
+        <div class="h-10 w-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-folder text-lg"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+            <div class="text-[15px] font-semibold text-slate-900 truncate">@Directory.Name</div>
+            @if (SubdirectoryCount > 0)
+            {
+                <div class="text-xs text-slate-400 truncate">
+                    @SubdirectoryCount @(SubdirectoryCount == 1 ? "subfolder" : "subfolders")
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="flex items-center gap-2 shrink-0 ml-2">
+        <span class="text-sm tabular-nums text-slate-400 font-medium">(@ItemCount)</span>
+
+        <div @onclick:stopPropagation="true">
+            <AppDropdown
+                Alignment="@DropdownAlignment.Right"
+                IsDropUp="@IsDropUp">
+                <Trigger>
+                    <button type="button"
+                            class="h-8 w-8 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 active:bg-slate-200 flex items-center justify-center transition touch-manipulation"
+                            title="Directory options"
+                            aria-label="Directory options">
+                        <i class="fa-solid fa-ellipsis text-xs"></i>
+                    </button>
+                </Trigger>
+                <Menu>
+                    <AppDropdownItem OnClick="() => OnAddSubdirectory.InvokeAsync(Directory)">
+                        <div class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-folder-plus w-4 text-center text-blue-600" aria-hidden="true"></i>
+                            <span class="font-medium">Add Subfolder</span>
+                        </div>
+                    </AppDropdownItem>
+                    <AppDropdownItem OnClick="() => OnEdit.InvokeAsync(Directory)">
+                        <div class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-pen w-4 text-center text-slate-500" aria-hidden="true"></i>
+                            <span class="font-medium">Rename</span>
+                        </div>
+                    </AppDropdownItem>
+                    <AppDropdownItem OnClick="() => OnMove.InvokeAsync(Directory)">
+                        <div class="flex items-center gap-2.5">
+                            <i class="fa-solid fa-folder-tree w-4 text-center text-slate-500" aria-hidden="true"></i>
+                            <span class="font-medium">Move...</span>
+                        </div>
+                    </AppDropdownItem>
+                    <AppDropdownItem
+                        OnClick="() => OnDelete.InvokeAsync(Directory)"
+                        Color="@ComponentColor.Danger"
+                        ShowDivider="true">
+                        <div class="flex items-center gap-2.5 text-rose-600">
+                            <i class="fa-solid fa-trash w-4 text-center text-rose-500" aria-hidden="true"></i>
+                            <span class="font-medium">Delete</span>
+                        </div>
+                    </AppDropdownItem>
+                </Menu>
+            </AppDropdown>
+        </div>
+
+        <i class="fa-solid fa-chevron-right text-xs text-slate-300 ml-0.5"></i>
+    </div>
+</div>
+

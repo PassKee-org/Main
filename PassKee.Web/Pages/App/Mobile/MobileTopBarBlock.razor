@@ -1,0 +1,312 @@
+@namespace PassKee.Web.Pages.App.Mobile
+@using PassKee.Web.Pages.App.Shared
+@using PassKee.Web.Constants
+@using PassKee.Web.Constants.Navigation
+@using PassKee.Web.Core.Ui.Shared.Components
+@using PassKee.Web.Core.Ui.Shared.Components.Dropdown
+@using PassKee.Web.Core.Ui.Shared.Components.Enums
+@inherits VaultOperationsComponentBase
+
+<header class="sticky top-0 z-30 shrink-0 bg-white/95 backdrop-blur-md border-b border-slate-200/80">
+    @if (VaultsState.Value.Vaults.Any())
+    {
+        <div class="px-4 pt-2 pb-1 flex items-center justify-between">
+            <div class="w-16 flex items-center">
+                <a href="/app" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500">
+                    <i class="fa-solid fa-shield-halved text-blue-600"></i>
+                    <span>PassKee</span>
+                </a>
+            </div>
+
+            <AppDropdown Alignment="@DropdownAlignment.Left">
+                <Trigger>
+                    <button type="button"
+                            class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 active:scale-95 transition">
+                        <span class="truncate max-w-[140px]">@(string.IsNullOrWhiteSpace(ActiveVaultName) ? "Vault" : ActiveVaultName)</span>
+                        <i class="fa-solid fa-chevron-down text-[9px] text-slate-400"></i>
+                    </button>
+                </Trigger>
+                <Menu>
+                    @foreach (var vault in VaultsState.Value.Vaults)
+                    {
+                        var isCurrent = vault.Id == VaultsState.Value.ActiveVaultId;
+                        <AppDropdownItem
+                            IsActive="@isCurrent"
+                            OnClick="() => SelectVault(vault.Id)">
+                            <div class="flex items-center justify-between gap-3 w-full">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <i class="fa-solid fa-vault text-xs @(isCurrent ? "text-blue-600" : "text-slate-400")"></i>
+                                    <span class="font-medium truncate">@vault.Name</span>
+                                </div>
+                                @if (isCurrent)
+                                {
+                                    <i class="fa-solid fa-check text-xs text-blue-600"></i>
+                                }
+                            </div>
+                        </AppDropdownItem>
+                    }
+                    <AppDropdownItem
+                        ShowDivider="true"
+                        OnClick="@OpenCreateVaultModalAsync">
+                        <div class="flex items-center gap-2 text-blue-600">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                            <span class="font-medium">New Vault...</span>
+                        </div>
+                    </AppDropdownItem>
+                </Menu>
+            </AppDropdown>
+
+            <div class="w-16 flex items-center justify-end gap-1">
+                <button type="button"
+                        @onclick="ToggleSearchBar"
+                        class="h-7 w-7 rounded-full flex items-center justify-center transition @(IsSearchVisible ? "bg-blue-50 text-blue-600" : "text-slate-500 hover:bg-slate-100")"
+                        title="Search"
+                        aria-label="Toggle search">
+                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                </button>
+                <button type="button"
+                        @onclick="LockVaultAsync"
+                        class="h-7 w-7 rounded-full text-slate-500 hover:text-slate-800 hover:bg-slate-100 flex items-center justify-center transition"
+                        title="Lock vault"
+                        aria-label="Lock vault">
+                    <i class="fa-solid fa-lock text-xs"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="px-3.5 py-2 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 shrink-0">
+                <button type="button"
+                        @onclick="HandleBackClick"
+                        disabled="@(!CanNavigateBack)"
+                        class="h-9 w-9 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200/80 active:scale-95 disabled:opacity-35 disabled:pointer-events-none flex items-center justify-center transition touch-manipulation"
+                        title="Back"
+                        aria-label="Back">
+                    <i class="fa-solid fa-chevron-left text-sm"></i>
+                </button>
+
+                <AppDropdown Alignment="@DropdownAlignment.Left">
+                    <Trigger>
+                        <button type="button"
+                                class="h-9 w-9 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200/80 active:scale-95 flex items-center justify-center transition touch-manipulation"
+                                title="Folder and vault settings"
+                                aria-label="Folder and vault settings">
+                            <i class="fa-solid fa-gear text-sm"></i>
+                        </button>
+                    </Trigger>
+                    <Menu>
+                        @if (SelectedDirectory != null && UiState.Value.ActiveMobileTab == MobileNavigationTab.Groups)
+                        {
+                            <AppDropdownItem OnClick="() => OpenEditDirectoryModalAsync(SelectedDirectory)">
+                                <div class="flex items-center gap-2.5">
+                                    <i class="fa-solid fa-pen w-4 text-center text-blue-600"></i>
+                                    <span class="font-medium">Rename "@SelectedDirectory.Name"</span>
+                                </div>
+                            </AppDropdownItem>
+                            <AppDropdownItem OnClick="() => OpenCreateSubDirectoryModalAsync(SelectedDirectory)">
+                                <div class="flex items-center gap-2.5">
+                                    <i class="fa-solid fa-folder-plus w-4 text-center text-blue-600"></i>
+                                    <span class="font-medium">Add Subfolder</span>
+                                </div>
+                            </AppDropdownItem>
+                            <AppDropdownItem OnClick="() => OpenMoveDirectoryModalAsync(SelectedDirectory)">
+                                <div class="flex items-center gap-2.5">
+                                    <i class="fa-solid fa-folder-tree w-4 text-center text-slate-500"></i>
+                                    <span class="font-medium">Move Folder...</span>
+                                </div>
+                            </AppDropdownItem>
+                            <AppDropdownItem
+                                OnClick="() => DeleteDirectoryAsync(SelectedDirectory)"
+                                Color="@ComponentColor.Danger">
+                                <div class="flex items-center gap-2.5 text-rose-600">
+                                    <i class="fa-solid fa-trash w-4 text-center text-rose-500"></i>
+                                    <span class="font-medium">Delete Folder</span>
+                                </div>
+                            </AppDropdownItem>
+                        }
+                        <AppDropdownItem
+                            ShowDivider="@(SelectedDirectory != null && UiState.Value.ActiveMobileTab == MobileNavigationTab.Groups)"
+                            OnClick="@OpenPasswordGeneratorAsync">
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-key w-4 text-center text-blue-600"></i>
+                                <span class="font-medium">Password Generator</span>
+                            </div>
+                        </AppDropdownItem>
+                        <AppDropdownItem OnClick="@OpenGuidGeneratorAsync">
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-fingerprint w-4 text-center text-indigo-600"></i>
+                                <span class="font-medium">GUID & Tokens</span>
+                            </div>
+                        </AppDropdownItem>
+                        <AppDropdownItem
+                            ShowDivider="true"
+                            Disabled="@(!CanImportOrExport)"
+                            OnClick="@OpenImportModalAsync">
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-file-import w-4 text-center text-slate-500"></i>
+                                <span class="font-medium">Import (.kdbx)</span>
+                            </div>
+                        </AppDropdownItem>
+                        <AppDropdownItem
+                            Disabled="@(!CanImportOrExport)"
+                            OnClick="@OpenExportModalAsync">
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-file-export w-4 text-center text-slate-500"></i>
+                                <span class="font-medium">Backup (.kdbx)</span>
+                            </div>
+                        </AppDropdownItem>
+                        <AppDropdownItem
+                            ShowDivider="true"
+                            OnClick="@LogoutAsync">
+                            <div class="flex items-center gap-2.5 text-rose-600">
+                                <i class="fa-solid fa-arrow-right-from-bracket w-4 text-center text-rose-500"></i>
+                                <span class="font-medium">Log Out</span>
+                            </div>
+                        </AppDropdownItem>
+                    </Menu>
+                </AppDropdown>
+            </div>
+
+            <div class="flex items-center justify-center gap-2 min-w-0 flex-1 px-1">
+                <i class="@HeaderIcon text-base shrink-0"></i>
+                <h1 class="text-base font-bold text-slate-900 truncate">@HeaderTitle</h1>
+            </div>
+
+            <div class="inline-flex items-center rounded-full bg-slate-100 border border-slate-200/70 p-0.5 gap-0.5 shrink-0">
+                <AppDropdown Alignment="@DropdownAlignment.Right">
+                    <Trigger>
+                        <button type="button"
+                                class="h-8 w-9 rounded-full text-slate-700 hover:bg-white active:scale-95 flex items-center justify-center transition touch-manipulation @(UiState.Value.SortOrder != CredentialSortOrder.Custom ? "text-blue-600 bg-white shadow-2xs" : "")"
+                                title="Sort items"
+                                aria-label="Sort items">
+                            <i class="fa-solid fa-arrow-up-arrow-down text-xs"></i>
+                        </button>
+                    </Trigger>
+                    <Menu>
+                        <AppDropdownItem
+                            IsActive="@(UiState.Value.SortOrder == CredentialSortOrder.Custom)"
+                            OnClick="() => SetSortOrder(CredentialSortOrder.Custom)">
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-grip-lines w-4 text-center text-slate-500"></i>
+                                <span class="font-medium">Custom Order</span>
+                            </div>
+                        </AppDropdownItem>
+                        <AppDropdownItem
+                            IsActive="@(UiState.Value.SortOrder == CredentialSortOrder.TitleAsc)"
+                            OnClick="() => SetSortOrder(CredentialSortOrder.TitleAsc)">
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-arrow-down-a-z w-4 text-center text-slate-500"></i>
+                                <span class="font-medium">Title (A → Z)</span>
+                            </div>
+                        </AppDropdownItem>
+                        <AppDropdownItem
+                            IsActive="@(UiState.Value.SortOrder == CredentialSortOrder.TitleDesc)"
+                            OnClick="() => SetSortOrder(CredentialSortOrder.TitleDesc)">
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-arrow-up-z-a w-4 text-center text-slate-500"></i>
+                                <span class="font-medium">Title (Z → A)</span>
+                            </div>
+                        </AppDropdownItem>
+                    </Menu>
+                </AppDropdown>
+
+                <AppDropdown Alignment="@DropdownAlignment.Right">
+                    <Trigger>
+                        <button type="button"
+                                class="h-8 w-9 rounded-full text-slate-700 hover:bg-white active:scale-95 flex items-center justify-center transition touch-manipulation"
+                                title="Actions and create"
+                                aria-label="Actions and create">
+                            <i class="fa-solid fa-ellipsis text-xs border border-slate-400 rounded-full h-4 w-4 inline-flex items-center justify-center text-[9px]"></i>
+                        </button>
+                    </Trigger>
+                    <Menu>
+                        <AppDropdownItem OnClick="() => OpenCredentialModalAsync(null, startInEditMode: true)">
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-plus w-4 text-center text-blue-600"></i>
+                                <span class="font-medium">New Item</span>
+                            </div>
+                        </AppDropdownItem>
+                        <AppDropdownItem OnClick="() => OpenCreateDirectoryModalAsync(VaultsState.Value.SelectedDirectoryId)">
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-folder-plus w-4 text-center text-blue-600"></i>
+                                <span class="font-medium">New Folder</span>
+                            </div>
+                        </AppDropdownItem>
+                        @if (OnToggleSelectionMode.HasDelegate)
+                        {
+                            <AppDropdownItem OnClick="@OnToggleSelectionMode">
+                                <div class="flex items-center gap-2.5">
+                                    <i class="fa-regular fa-square-check w-4 text-center text-slate-500"></i>
+                                    <span class="font-medium">@(IsSelectionMode ? "Exit Selection" : "Select Items")</span>
+                                </div>
+                            </AppDropdownItem>
+                        }
+                        <AppDropdownItem
+                            ShowDivider="true"
+                            OnClick="NavigateToArchive">
+                            <div class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-box-archive w-4 text-center text-amber-500"></i>
+                                <span class="font-medium">Archive</span>
+                            </div>
+                        </AppDropdownItem>
+                    </Menu>
+                </AppDropdown>
+            </div>
+        </div>
+
+        @if (IsSearchVisible)
+        {
+            <div class="px-3.5 pb-2.5">
+                <div class="relative flex items-center w-full">
+                    <div class="absolute left-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                    </div>
+                    <input type="text"
+                           value="@_localSearchQuery"
+                           @oninput="HandleSearchInput"
+                           @onkeydown="HandleSearchKeyDown"
+                           disabled="@VaultsState.Value.IsLoading"
+                           placeholder="Search items and folders..."
+                           aria-label="Search items and folders"
+                           class="w-full bg-slate-100 focus:bg-white border border-transparent focus:border-blue-500 rounded-xl pl-9 pr-8 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition" />
+                    <button type="button"
+                            @onclick="CloseAndClearSearch"
+                            class="absolute right-2.5 h-6 w-6 rounded-full text-slate-400 hover:text-slate-600 flex items-center justify-center transition text-xs"
+                            title="Close search">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="px-4 py-3 flex items-center justify-between">
+            <a href="/app" class="flex items-center gap-2 font-bold text-lg text-blue-600">
+                <i class="fa-solid fa-shield-halved text-xl text-blue-600"></i>
+                <span class="tracking-tight text-slate-900 font-extrabold">Pass<span class="text-blue-600">Kee</span></span>
+            </a>
+            <div class="flex items-center gap-1.5">
+                <AppButton
+                    Color="@ComponentColor.Default"
+                    Variant="@ButtonVariant.Outlined"
+                    Radius="@ButtonRadius.Medium"
+                    Size="@ComponentSize.Small"
+                    OnClick="@LockVaultAsync"
+                    Title="Lock vault">
+                    <i class="fa-solid fa-lock"></i>
+                </AppButton>
+                <AppButton
+                    Color="@ComponentColor.Default"
+                    Variant="@ButtonVariant.Outlined"
+                    Radius="@ButtonRadius.Medium"
+                    Size="@ComponentSize.Small"
+                    OnClick="@LogoutAsync"
+                    Title="Log out">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                </AppButton>
+            </div>
+        </div>
+    }
+</header>
+
