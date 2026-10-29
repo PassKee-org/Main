@@ -44,7 +44,10 @@ public class BaseTest : IClassFixture<ApiCustomWebApplicationFactory>, IDisposab
     public BaseTest(ApiCustomWebApplicationFactory factory)
     {
         _factory = factory;
-        HttpClient = _factory.CreateClient();
+        HttpClient = _factory.CreateClient(new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactoryClientOptions
+        {
+            HandleCookies = false
+        });
         
         ServiceScope = _factory.Services.CreateScope();
         ServiceProvider = ServiceScope.ServiceProvider;

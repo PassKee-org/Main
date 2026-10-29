@@ -129,7 +129,7 @@ public class HttpCookiesService: IHttpCookiesService
     public string PrepareName(string name, HttpContext? context)
     {
         var host = context?.Request.Host.Host ?? _httpContextAccessor.HttpContext?.Request.Host.Host;
-        var isLocal = host is "localhost" or "127.0.0.1" || (host != null && IPAddress.TryParse(host, out _));
+        var isLocal = host == null || host is "localhost" or "127.0.0.1" || IPAddress.TryParse(host, out _);
 
         if (!isLocal && !string.IsNullOrEmpty(_cookieKeyPostfix))
         {
