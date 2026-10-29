@@ -1,7 +1,9 @@
+using System.Net;
 using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using PassKee.Business.Common.Constants.Http;
+using PassKee.Business.Helpers;
 
 namespace PassKee.Business.Services.Http;
 
@@ -58,16 +60,24 @@ public class HttpCookiesService: IHttpCookiesService
     
     public void Append(HttpContext context, string name, string value, DateTimeOffset? expires = null)
     {
-        name = PrepareName(name);
-        var cookieDomains = _cookieDomains.Length == 0 ? [string.Empty] : _cookieDomains;
+        name = PrepareName(name, context);
+        var isProduction = ApplicationHelper.HostingEnvironment == "Production";
+        var isHttps = context.Request.IsHttps;
+        var host = context.Request.Host.Host;
+        var isLocal = host is "localhost" or "127.0.0.1" || IPAddress.TryParse(host, out _);
+
+        var cookieDomains = (isLocal || _cookieDomains.Length == 0) ? [string.Empty] : _cookieDomains;
         foreach (var cookieDomain in cookieDomains)
         {
+            var targetDomain = ResolveCookieDomain(host, isLocal, cookieDomain);
             var cookieOptions = new CookieOptions
             {
-                Domain = string.IsNullOrEmpty(cookieDomain) ? null : cookieDomain,
+                Domain = targetDomain,
                 HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Lax,
+                Secure = isProduction || isHttps,
+                SameSite = isProduction
+                    ? SameSiteMode.Lax
+                    : (isHttps ? SameSiteMode.None : SameSiteMode.Lax),
                 Expires = expires
             };
             context.Response.Cookies.Append(
@@ -92,9 +102,18 @@ public class HttpCookiesService: IHttpCookiesService
     
     public string? Get(HttpContext context, string name)
     {
-        name = PrepareName(name);
-        context.Request.Cookies.TryGetValue(name, out var value);
-        return HttpUtility.UrlDecode(value);
+        var preparedName = PrepareName(name, context);
+        if (context.Request.Cookies.TryGetValue(preparedName, out var value))
+        {
+            return HttpUtility.UrlDecode(value);
+        }
+
+        if (preparedName != name && context.Request.Cookies.TryGetValue(name, out value))
+        {
+            return HttpUtility.UrlDecode(value);
+        }
+
+        return null;
     }
 
     public string PrepareName(HttpCookieKeyEnum key)
@@ -104,10 +123,35 @@ public class HttpCookiesService: IHttpCookiesService
 
     public string PrepareName(string name)
     {
-        if (!string.IsNullOrEmpty(_cookieKeyPostfix))
+        return PrepareName(name, _httpContextAccessor.HttpContext);
+    }
+
+    public string PrepareName(string name, HttpContext? context)
+    {
+        var host = context?.Request.Host.Host ?? _httpContextAccessor.HttpContext?.Request.Host.Host;
+        var isLocal = host is "localhost" or "127.0.0.1" || (host != null && IPAddress.TryParse(host, out _));
+
+        if (!isLocal && !string.IsNullOrEmpty(_cookieKeyPostfix))
         {
             return $"{name}_{_cookieKeyPostfix}";
         }
         return name;
+    }
+
+    private static string? ResolveCookieDomain(string host, bool isLocal, string? configuredDomain)
+    {
+        if (isLocal || string.IsNullOrEmpty(configuredDomain))
+        {
+            return null;
+        }
+
+        var trimmedDomain = configuredDomain.TrimStart('.');
+        if (host.Equals(trimmedDomain, StringComparison.OrdinalIgnoreCase) ||
+            host.EndsWith("." + trimmedDomain, StringComparison.OrdinalIgnoreCase))
+        {
+            return configuredDomain;
+        }
+
+        return null;
     }
 }

@@ -36,7 +36,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 var apiConnectSources = app.Environment.IsProduction()
     ? "https://api.passkee.org"
-    : "https://api.passkee.org https://dev-api.passkee.org http://localhost:5265 https://localhost:5265";
+    : "https://api.passkee.org https://dev-api.passkee.org http://localhost:* https://localhost:* http://127.0.0.1:* https://127.0.0.1:*";
 
 app.Use(async (context, next) =>
 {
