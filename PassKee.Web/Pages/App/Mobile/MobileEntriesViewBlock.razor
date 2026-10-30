@@ -116,6 +116,46 @@
                         OnDelete="@DeleteSingleArchivedCredentialAsync"
                         OnCopyValue="@(tuple => CopyToClipboardAsync(tuple.Value, tuple.Label))" />
                 }
+                <Virtualize
+                    @ref="_virtualize"
+                    TItem="DecryptedCredential"
+                    Items="@entries"
+                    ItemSize="68f"
+                    OverscanCount="10">
+                    <ItemContent Context="cred">
+                        @{
+                            var isDropUp = entries.Count > 0 && (cred.Id == entries[^1].Id || (entries.Count > 1 && cred.Id == entries[^2].Id));
+                        }
+                        <MobileCredentialRowBlock
+                            @key="cred.Id"
+                            Credential="@cred"
+                            DirectoryPath="@snapshot.GetDirectoryPath(cred.DirectoryId)"
+                            ShowDirectoryPath="true"
+                            IsSelectionMode="@IsSelectionMode"
+                            IsSelected="@_selectedCredentialIds.Contains(cred.Id)"
+                            IsDropUp="@isDropUp"
+                            OnSelectionChanged="@((selected) => ToggleCredentialSelection(cred.Id, selected))"
+                            OnEnterSelectionMode="@EnterSelectionModeWithCredential"
+                            OnSelectDirectory="@SelectDirectoryFromSearch"
+                            OnView="@OpenViewCredentialModalAsync"
+                            OnEdit="@OpenEditCredentialModalAsync"
+                            OnMove="@OpenMoveCredentialModalAsync"
+                            OnDuplicate="@DuplicateCredentialAsync"
+                            OnShare="@OpenShareCredentialModalAsync"
+                            OnArchive="@ArchiveCredentialAsync"
+                            OnDelete="@DeleteSingleArchivedCredentialAsync"
+                            OnCopyValue="@(tuple => CopyToClipboardAsync(tuple.Value, tuple.Label))" />
+                    </ItemContent>
+                    <Placeholder>
+                        <div class="px-4 py-3.5 flex items-center justify-between gap-3.5 bg-white border-b border-slate-100 h-[68px] animate-pulse">
+                            <div class="h-10 w-10 rounded-xl bg-slate-100 shrink-0"></div>
+                            <div class="flex-1 space-y-2">
+                                <div class="h-4 bg-slate-100 rounded w-1/3"></div>
+                                <div class="h-3 bg-slate-100 rounded w-1/4"></div>
+                            </div>
+                        </div>
+                    </Placeholder>
+                </Virtualize>
             </div>
         }
     }

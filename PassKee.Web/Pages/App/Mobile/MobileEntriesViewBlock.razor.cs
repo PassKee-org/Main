@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web.Virtualization;
 using PassKee.Business.Common.Constants;
 using PassKee.Web.Models.Vaults;
 using PassKee.Web.Pages.App.Shared;
@@ -16,6 +17,7 @@ public partial class MobileEntriesViewBlock : VaultOperationsComponentBase
     [Parameter] public bool IsSelectionMode { get; set; }
     [Parameter] public EventCallback<bool> IsSelectionModeChanged { get; set; }
 
+    private Virtualize<DecryptedCredential>? _virtualize;
     private CredentialType? _selectedType;
     private readonly HashSet<Guid> _selectedCredentialIds = [];
 
@@ -25,7 +27,7 @@ public partial class MobileEntriesViewBlock : VaultOperationsComponentBase
             .Distinct()
             .OrderBy(t => (int)t);
 
-    private IReadOnlyList<DecryptedCredential> DisplayedEntries
+    private IList<DecryptedCredential> DisplayedEntries
     {
         get
         {
@@ -43,21 +45,30 @@ public partial class MobileEntriesViewBlock : VaultOperationsComponentBase
                 list = list.Where(c => c.Type == filterType);
             }
 
-            return VaultHierarchySnapshot.ApplySort(list, UiState.Value.SortOrder);
+            return VaultHierarchySnapshot.ApplySort(list, UiState.Value.SortOrder) as IList<DecryptedCredential>
+                ?? VaultHierarchySnapshot.ApplySort(list, UiState.Value.SortOrder).ToList();
         }
     }
 
-    private void SelectTypeFilter(CredentialType? type)
+    private async Task SelectTypeFilter(CredentialType? type)
     {
         _selectedType = _selectedType == type ? null : type;
+        if (_virtualize != null)
+        {
+            await _virtualize.RefreshDataAsync();
+        }
     }
 
-    private void ClearFilters()
+    private async Task ClearFilters()
     {
         _selectedType = null;
         if (IsSearchActive)
         {
             ClearSearch();
+        }
+        if (_virtualize != null)
+        {
+            await _virtualize.RefreshDataAsync();
         }
     }
 
@@ -126,4 +137,3 @@ public partial class MobileEntriesViewBlock : VaultOperationsComponentBase
         }
     }
 }
-

@@ -121,6 +121,13 @@ public class InactivityLockService : IInactivityLockService
         return CheckInactivityAsync();
     }
 
+    [JSInvokable]
+    public Task OnTabVisibleActivity()
+    {
+        // When tab is restored/visible, check immediately if session exceeded timeout while backgrounded
+        return CheckInactivityAsync();
+    }
+
     public Task RecordActivityAsync()
     {
         Volatile.Write(ref _lastActivityTicks, DateTime.UtcNow.Ticks);

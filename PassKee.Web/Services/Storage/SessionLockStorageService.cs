@@ -1,39 +1,30 @@
 using System.Threading.Tasks;
-using Microsoft.JSInterop;
-using PassKee.Business.Common.Helpers;
 
 namespace PassKee.Web.Services.Storage;
 
 public class SessionLockStorageService : ISessionLockStorageService
 {
     private const string SessionLockItem = "session_lock";
-    private readonly IJSRuntime _jsRuntime;
+    private readonly ILocalStorageStoreService _storageStore;
 
-    public SessionLockStorageService(IJSRuntime jsRuntime)
+    public SessionLockStorageService(ILocalStorageStoreService storageStore)
     {
-        _jsRuntime = jsRuntime;
+        _storageStore = storageStore;
     }
 
     public async Task<SessionLockInfo?> GetSessionLockInfoAsync()
     {
-        var json = await _jsRuntime.InvokeAsync<string?>("sessionStorage.getItem", SessionLockItem);
-        if (string.IsNullOrWhiteSpace(json))
-        {
-            return null;
-        }
-
-        return JsonHelper.DeserializeObject<SessionLockInfo>(json);
+        return await _storageStore.GetItemAsync<SessionLockInfo>(SessionLockItem);
     }
 
     public async Task SetSessionLockInfoAsync(SessionLockInfo info)
     {
-        var json = JsonHelper.SerializeToString(info);
-        await _jsRuntime.InvokeVoidAsync("sessionStorage.setItem", SessionLockItem, json);
+        await _storageStore.SetItemAsync(SessionLockItem, info);
     }
 
     public async Task ClearSessionLockInfoAsync()
     {
-        await _jsRuntime.InvokeVoidAsync("sessionStorage.removeItem", SessionLockItem);
+        await _storageStore.RemoveItemAsync(SessionLockItem);
     }
 
     public async Task LockSessionAsync()
