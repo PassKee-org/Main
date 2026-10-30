@@ -92,30 +92,6 @@
         else
         {
             <div class="divide-y divide-slate-100 bg-white border-b border-slate-200/70">
-                @for (var i = 0; i < entries.Count; i++)
-                {
-                    var cred = entries[i];
-                    var isDropUp = i >= Math.Max(2, entries.Count - 2);
-                    <MobileCredentialRowBlock
-                        @key="cred.Id"
-                        Credential="@cred"
-                        DirectoryPath="@snapshot.GetDirectoryPath(cred.DirectoryId)"
-                        ShowDirectoryPath="true"
-                        IsSelectionMode="@IsSelectionMode"
-                        IsSelected="@_selectedCredentialIds.Contains(cred.Id)"
-                        IsDropUp="@isDropUp"
-                        OnSelectionChanged="@((selected) => ToggleCredentialSelection(cred.Id, selected))"
-                        OnEnterSelectionMode="@EnterSelectionModeWithCredential"
-                        OnSelectDirectory="@SelectDirectoryFromSearch"
-                        OnView="@OpenViewCredentialModalAsync"
-                        OnEdit="@OpenEditCredentialModalAsync"
-                        OnMove="@OpenMoveCredentialModalAsync"
-                        OnDuplicate="@DuplicateCredentialAsync"
-                        OnShare="@OpenShareCredentialModalAsync"
-                        OnArchive="@ArchiveCredentialAsync"
-                        OnDelete="@DeleteSingleArchivedCredentialAsync"
-                        OnCopyValue="@(tuple => CopyToClipboardAsync(tuple.Value, tuple.Label))" />
-                }
                 <Virtualize
                     @ref="_virtualize"
                     TItem="DecryptedCredential"
