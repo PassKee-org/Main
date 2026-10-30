@@ -712,6 +712,9 @@
   .h-48 {
     height: calc(var(--spacing) * 48);
   }
+  .h-\[68px\] {
+    height: 68px;
+  }
   .h-\[72px\] {
     height: 72px;
   }
@@ -1692,6 +1695,9 @@
   }
   .border-t-transparent {
     border-top-color: transparent;
+  }
+  .\!bg-blue-50 {
+    background-color: var(--color-blue-50) !important;
   }
   .\!bg-blue-50\/70 {
     background-color: color-mix(in srgb, oklch(97% 0.014 254.604) 70%, transparent) !important;

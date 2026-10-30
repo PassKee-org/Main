@@ -184,6 +184,31 @@ public class InactivityLockServiceTests
     }
 
     [Fact]
+    public async Task OnTabVisibleActivity_LocksWhenInactivityTimeoutExceeded()
+    {
+        _authStateMock.Setup(s => s.Value).Returns(new AuthState
+        {
+            IsAuthenticated = true,
+            UserPrivateKey = new byte[] { 1, 2, 3 }
+        });
+        _vaultsStateMock.Setup(s => s.Value).Returns(new VaultsState());
+
+        var service = CreateService();
+        service.InactivityTimeout = TimeSpan.FromMilliseconds(40);
+        service.Initialize();
+
+        // Simulate returning after 60ms in background
+        await Task.Delay(60);
+        await service.OnTabVisibleActivity();
+
+        _sessionLockStorageMock.Verify(s => s.LockSessionAsync(), Times.Once);
+        _modalDialogServiceMock.Verify(m => m.CloseAll(It.IsAny<AppModalResult>()), Times.Once);
+        Assert.Equal("/login", _navigationManager.NavigatedToUri);
+
+        await service.DisposeAsync();
+    }
+
+    [Fact]
     public async Task CheckInactivityAsync_DoesNotLock_WhenUserIsNotAuthenticated()
     {
         _authStateMock.Setup(s => s.Value).Returns(new AuthState

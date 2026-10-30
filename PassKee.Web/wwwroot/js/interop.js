@@ -48,6 +48,14 @@ window.PassKeeInterop = {
                 if (this._dotNetHelper && document.visibilityState === 'hidden') {
                     // When user leaves tab, notify inactivity service
                     this._dotNetHelper.invokeMethodAsync('OnTabHiddenActivity');
+                if (this._dotNetHelper) {
+                    if (document.visibilityState === 'hidden') {
+                        // When user leaves tab, notify inactivity service
+                        this._dotNetHelper.invokeMethodAsync('OnTabHiddenActivity');
+                    } else if (document.visibilityState === 'visible') {
+                        // When user returns to tab, check if session exceeded timeout
+                        this._dotNetHelper.invokeMethodAsync('OnTabVisibleActivity');
+                    }
                 }
             };
 

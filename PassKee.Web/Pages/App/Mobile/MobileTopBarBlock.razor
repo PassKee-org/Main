@@ -172,14 +172,14 @@
                 <h1 class="text-base font-bold text-slate-900 truncate">@HeaderTitle</h1>
             </div>
 
-            <div class="inline-flex items-center rounded-full bg-slate-100 border border-slate-200/70 p-0.5 gap-0.5 shrink-0">
+            <div class="flex items-center gap-2 shrink-0">
                 <AppDropdown Alignment="@DropdownAlignment.Right">
                     <Trigger>
                         <button type="button"
-                                class="h-8 w-9 rounded-full text-slate-700 hover:bg-white active:scale-95 flex items-center justify-center transition touch-manipulation @(UiState.Value.SortOrder != CredentialSortOrder.Custom ? "text-blue-600 bg-white shadow-2xs" : "")"
+                                class="h-9 w-9 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200/80 active:scale-95 flex items-center justify-center transition touch-manipulation @(UiState.Value.SortOrder != CredentialSortOrder.Custom ? "!text-blue-600 !bg-blue-50 ring-2 ring-blue-500/20" : "")"
                                 title="Sort items"
                                 aria-label="Sort items">
-                            <i class="fa-solid fa-arrow-up-arrow-down text-xs"></i>
+                            <i class="fa-solid fa-arrow-down-short-wide text-sm"></i>
                         </button>
                     </Trigger>
                     <Menu>
@@ -213,10 +213,10 @@
                 <AppDropdown Alignment="@DropdownAlignment.Right">
                     <Trigger>
                         <button type="button"
-                                class="h-8 w-9 rounded-full text-slate-700 hover:bg-white active:scale-95 flex items-center justify-center transition touch-manipulation"
+                                class="h-9 w-9 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200/80 active:scale-95 flex items-center justify-center transition touch-manipulation"
                                 title="Actions and create"
                                 aria-label="Actions and create">
-                            <i class="fa-solid fa-ellipsis text-xs border border-slate-400 rounded-full h-4 w-4 inline-flex items-center justify-center text-[9px]"></i>
+                            <i class="fa-solid fa-ellipsis text-sm"></i>
                         </button>
                     </Trigger>
                     <Menu>
