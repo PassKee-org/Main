@@ -11,11 +11,8 @@
     @if (VaultsState.Value.Vaults.Any())
     {
         <div class="px-4 pt-2 pb-1 flex items-center justify-between">
-            <div class="w-16 flex items-center">
-                <a href="/app" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500">
-                    <i class="fa-solid fa-shield-halved text-blue-600"></i>
-                    <span>PassKee</span>
-                </a>
+            <div class="flex items-center">
+                <AppLogo Href="/app" Size="ComponentSize.Small" />
             </div>
 
             <AppDropdown Alignment="@DropdownAlignment.Left">
@@ -35,12 +32,12 @@
                             OnClick="() => SelectVault(vault.Id)">
                             <div class="flex items-center justify-between gap-3 w-full">
                                 <div class="flex items-center gap-2 min-w-0">
-                                    <i class="fa-solid fa-vault text-xs @(isCurrent ? "text-blue-600" : "text-slate-400")"></i>
+                                    <i class="fa-solid fa-vault text-xs @(isCurrent ? "text-sky-600" : "text-slate-400")"></i>
                                     <span class="font-medium truncate">@vault.Name</span>
                                 </div>
                                 @if (isCurrent)
                                 {
-                                    <i class="fa-solid fa-check text-xs text-blue-600"></i>
+                                    <i class="fa-solid fa-check text-xs text-sky-600"></i>
                                 }
                             </div>
                         </AppDropdownItem>
@@ -48,7 +45,7 @@
                     <AppDropdownItem
                         ShowDivider="true"
                         OnClick="@OpenCreateVaultModalAsync">
-                        <div class="flex items-center gap-2 text-blue-600">
+                        <div class="flex items-center gap-2 text-sky-600">
                             <i class="fa-solid fa-plus text-xs"></i>
                             <span class="font-medium">New Vault...</span>
                         </div>
@@ -59,7 +56,7 @@
             <div class="w-16 flex items-center justify-end gap-1">
                 <button type="button"
                         @onclick="ToggleSearchBar"
-                        class="h-7 w-7 rounded-full flex items-center justify-center transition @(IsSearchVisible ? "bg-blue-50 text-blue-600" : "text-slate-500 hover:bg-slate-100")"
+                        class="h-7 w-7 rounded-full flex items-center justify-center transition @(IsSearchVisible ? "bg-sky-50 text-sky-600" : "text-slate-500 hover:bg-slate-100")"
                         title="Search"
                         aria-label="Toggle search">
                     <i class="fa-solid fa-magnifying-glass text-xs"></i>
@@ -99,13 +96,13 @@
                         {
                             <AppDropdownItem OnClick="() => OpenEditDirectoryModalAsync(SelectedDirectory)">
                                 <div class="flex items-center gap-2.5">
-                                    <i class="fa-solid fa-pen w-4 text-center text-blue-600"></i>
+                                    <i class="fa-solid fa-pen w-4 text-center text-sky-600"></i>
                                     <span class="font-medium">Rename "@SelectedDirectory.Name"</span>
                                 </div>
                             </AppDropdownItem>
                             <AppDropdownItem OnClick="() => OpenCreateSubDirectoryModalAsync(SelectedDirectory)">
                                 <div class="flex items-center gap-2.5">
-                                    <i class="fa-solid fa-folder-plus w-4 text-center text-blue-600"></i>
+                                    <i class="fa-solid fa-folder-plus w-4 text-center text-sky-600"></i>
                                     <span class="font-medium">Add Subfolder</span>
                                 </div>
                             </AppDropdownItem>
@@ -128,7 +125,7 @@
                             ShowDivider="@(SelectedDirectory != null && UiState.Value.ActiveMobileTab == MobileNavigationTab.Groups)"
                             OnClick="@OpenPasswordGeneratorAsync">
                             <div class="flex items-center gap-2.5">
-                                <i class="fa-solid fa-key w-4 text-center text-blue-600"></i>
+                                <i class="fa-solid fa-key w-4 text-center text-sky-600"></i>
                                 <span class="font-medium">Password Generator</span>
                             </div>
                         </AppDropdownItem>
@@ -176,7 +173,7 @@
                 <AppDropdown Alignment="@DropdownAlignment.Right">
                     <Trigger>
                         <button type="button"
-                                class="h-9 w-9 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200/80 active:scale-95 flex items-center justify-center transition touch-manipulation @(UiState.Value.SortOrder != CredentialSortOrder.Custom ? "!text-blue-600 !bg-blue-50 ring-2 ring-blue-500/20" : "")"
+                                class="h-9 w-9 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200/80 active:scale-95 flex items-center justify-center transition touch-manipulation @(UiState.Value.SortOrder != CredentialSortOrder.Custom ? "!text-sky-600 !bg-sky-50 ring-2 ring-sky-500/20" : "")"
                                 title="Sort items"
                                 aria-label="Sort items">
                             <i class="fa-solid fa-arrow-down-short-wide text-sm"></i>
@@ -222,13 +219,13 @@
                     <Menu>
                         <AppDropdownItem OnClick="() => OpenCredentialModalAsync(null, startInEditMode: true)">
                             <div class="flex items-center gap-2.5">
-                                <i class="fa-solid fa-plus w-4 text-center text-blue-600"></i>
+                                <i class="fa-solid fa-plus w-4 text-center text-sky-600"></i>
                                 <span class="font-medium">New Item</span>
                             </div>
                         </AppDropdownItem>
                         <AppDropdownItem OnClick="() => OpenCreateDirectoryModalAsync(VaultsState.Value.SelectedDirectoryId)">
                             <div class="flex items-center gap-2.5">
-                                <i class="fa-solid fa-folder-plus w-4 text-center text-blue-600"></i>
+                                <i class="fa-solid fa-folder-plus w-4 text-center text-sky-600"></i>
                                 <span class="font-medium">New Folder</span>
                             </div>
                         </AppDropdownItem>
@@ -268,7 +265,7 @@
                            disabled="@VaultsState.Value.IsLoading"
                            placeholder="Search items and folders..."
                            aria-label="Search items and folders"
-                           class="w-full bg-slate-100 focus:bg-white border border-transparent focus:border-blue-500 rounded-xl pl-9 pr-8 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition" />
+                           class="w-full bg-slate-100 focus:bg-white border border-transparent focus:border-sky-500 rounded-xl pl-9 pr-8 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/20 transition" />
                     <button type="button"
                             @onclick="CloseAndClearSearch"
                             class="absolute right-2.5 h-6 w-6 rounded-full text-slate-400 hover:text-slate-600 flex items-center justify-center transition text-xs"
@@ -282,10 +279,7 @@
     else
     {
         <div class="px-4 py-3 flex items-center justify-between">
-            <a href="/app" class="flex items-center gap-2 font-bold text-lg text-blue-600">
-                <i class="fa-solid fa-shield-halved text-xl text-blue-600"></i>
-                <span class="tracking-tight text-slate-900 font-extrabold">Pass<span class="text-blue-600">Kee</span></span>
-            </a>
+            <AppLogo Href="/app" Size="ComponentSize.Medium" />
             <div class="flex items-center gap-1.5">
                 <AppButton
                     Color="@ComponentColor.Default"

@@ -43,10 +43,10 @@ public partial class AppDraggableListBlock<TItem> : ComponentBase
     public string ItemClass { get; set; } = string.Empty;
 
     [Parameter]
-    public string DraggingItemClass { get; set; } = "opacity-60 outline outline-2 outline-blue-400 outline-offset-[-2px] bg-blue-50/40";
+    public string DraggingItemClass { get; set; } = "opacity-60 outline outline-2 outline-sky-400 outline-offset-[-2px] bg-sky-50/40";
 
     [Parameter]
-    public string DropTargetItemClass { get; set; } = "!border-t-2 !border-blue-500";
+    public string DropTargetItemClass { get; set; } = "!border-t-2 !border-sky-500";
 
     private readonly List<TItem> _workingItems = [];
     private TItem? _draggingItem;

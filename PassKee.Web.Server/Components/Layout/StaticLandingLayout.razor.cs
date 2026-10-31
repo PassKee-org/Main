@@ -31,7 +31,7 @@ public partial class StaticLandingLayout : LayoutComponentBase
 
     private string GetNavLinkClass(string targetPath)
         => IsActive(targetPath)
-            ? "inline-flex items-center gap-1.5 rounded-lg bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-700 transition-colors"
+            ? "inline-flex items-center gap-1.5 rounded-lg bg-sky-50 px-3 py-1.5 text-sm font-semibold text-sky-700 transition-colors"
             : "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors";
 
     private string? GetAriaCurrent(string targetPath)

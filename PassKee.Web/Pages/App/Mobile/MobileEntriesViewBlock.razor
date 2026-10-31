@@ -27,7 +27,7 @@
         <div class="px-3.5 py-2.5 bg-white border-b border-slate-200/70 flex items-center gap-1.5 overflow-x-auto whitespace-nowrap scrollbar-thin">
             <button type="button"
                     @onclick="() => SelectTypeFilter(null)"
-                    class="px-3 py-1 rounded-full text-xs font-semibold transition shrink-0 @(_selectedType == null ? "bg-blue-600 text-white shadow-2xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200")">
+                    class="px-3 py-1 rounded-full text-xs font-semibold transition shrink-0 @(_selectedType == null ? "bg-sky-600 text-white shadow-2xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200")">
                 All (@VaultsState.Value.Credentials.Count)
             </button>
             @foreach (var type in AvailableTypes)
@@ -35,7 +35,7 @@
                 var isSelected = _selectedType == type;
                 <button type="button"
                         @onclick="() => SelectTypeFilter(type)"
-                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition shrink-0 @(isSelected ? "bg-blue-600 text-white shadow-2xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200")">
+                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition shrink-0 @(isSelected ? "bg-sky-600 text-white shadow-2xs" : "bg-slate-100 text-slate-600 hover:bg-slate-200")">
                     <i class="@GetCredentialTypeIcon(type) text-[11px]"></i>
                     <span>@GetCredentialTypeLabel(type)</span>
                 </button>
@@ -44,16 +44,16 @@
 
         @if (IsSelectionMode)
         {
-            <div class="sticky top-0 z-20 px-4 py-2.5 bg-blue-50 border-b border-blue-100 flex items-center justify-between gap-2">
+            <div class="sticky top-0 z-20 px-4 py-2.5 bg-sky-50 border-b border-sky-100 flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold text-blue-800">
+                    <span class="text-xs font-bold text-sky-800">
                         @_selectedCredentialIds.Count selected
                     </span>
                     @if (entries.Count > 0)
                     {
                         <button type="button"
                                 @onclick="ToggleSelectAll"
-                                class="text-xs font-semibold text-blue-600 hover:underline ml-1">
+                                class="text-xs font-semibold text-sky-600 hover:underline ml-1">
                             @(_selectedCredentialIds.Count >= entries.Count ? "Clear all" : "Select all")
                         </button>
                     }

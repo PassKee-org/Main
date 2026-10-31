@@ -52,7 +52,7 @@ public partial class AppPopover : ComponentBase
 
     protected string ColorClasses => Color switch
     {
-        ComponentColor.Primary => "border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-100",
+        ComponentColor.Primary => "border-sky-200 dark:border-sky-800 text-sky-900 dark:text-sky-100",
         ComponentColor.Danger => "border-rose-200 dark:border-rose-800 text-rose-900 dark:text-rose-100",
         ComponentColor.Warning => "border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-100",
         ComponentColor.Success => "border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100",

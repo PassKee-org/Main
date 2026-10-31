@@ -34,7 +34,7 @@
             <div class="px-4 py-2 bg-slate-100/80 border-b border-slate-200/70 flex items-center gap-1.5 overflow-x-auto text-xs text-slate-500 whitespace-nowrap scrollbar-thin">
                 <button type="button"
                         @onclick="() => SelectDirectory(null)"
-                        class="hover:text-blue-600 font-medium inline-flex items-center gap-1 shrink-0">
+                        class="hover:text-sky-600 font-medium inline-flex items-center gap-1 shrink-0">
                     <i class="fa-solid fa-layer-group text-[10px]"></i>
                     <span>@(string.IsNullOrWhiteSpace(ActiveVaultName) ? "Root" : ActiveVaultName)</span>
                 </button>
@@ -52,7 +52,7 @@
                         <i class="fa-solid fa-chevron-right text-[9px] text-slate-400 shrink-0"></i>
                         <button type="button"
                                 @onclick="() => SelectDirectory(crumb.Id)"
-                                class="@(isLast ? "font-semibold text-slate-900" : "hover:text-blue-600") truncate max-w-[140px] shrink-0">
+                                class="@(isLast ? "font-semibold text-slate-900" : "hover:text-sky-600") truncate max-w-[140px] shrink-0">
                             @crumb.Name
                         </button>
                     }
@@ -62,16 +62,16 @@
 
         @if (IsSelectionMode)
         {
-            <div class="sticky top-0 z-20 px-4 py-2.5 bg-blue-50 border-b border-blue-100 flex items-center justify-between gap-2">
+            <div class="sticky top-0 z-20 px-4 py-2.5 bg-sky-50 border-b border-sky-100 flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold text-blue-800">
+                    <span class="text-xs font-bold text-sky-800">
                         @_selectedCredentialIds.Count selected
                     </span>
                     @if (credentials.Count > 0)
                     {
                         <button type="button"
                                 @onclick="ToggleSelectAll"
-                                class="text-xs font-semibold text-blue-600 hover:underline ml-1">
+                                class="text-xs font-semibold text-sky-600 hover:underline ml-1">
                             @(_selectedCredentialIds.Count >= credentials.Count ? "Clear all" : "Select all")
                         </button>
                     }
@@ -202,7 +202,7 @@
                 }
                 else
                 {
-                    <div class="h-14 w-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl mb-3">
+                    <div class="h-14 w-14 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl mb-3">
                         <i class="fa-regular fa-folder-open"></i>
                     </div>
                     <h3 class="text-sm font-semibold text-slate-900">This folder is empty</h3>

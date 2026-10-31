@@ -36,7 +36,7 @@ public partial class AppConfirmationModal : ComponentBase
     private string _iconBoxClass => Type switch
     {
         AppConfirmationType.Alert => "bg-amber-50 text-amber-600",
-        AppConfirmationType.Info => "bg-blue-50 text-blue-600",
+        AppConfirmationType.Info => "bg-sky-50 text-sky-600",
         AppConfirmationType.Danger => "bg-rose-50 text-rose-600",
         AppConfirmationType.Success => "bg-emerald-50 text-emerald-600",
         _ => "bg-amber-50 text-amber-600"

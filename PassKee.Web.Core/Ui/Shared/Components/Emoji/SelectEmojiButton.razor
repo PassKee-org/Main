@@ -21,7 +21,7 @@
                    OnClick="@TogglePicker"
                    Disabled="@Disabled"
                    Title="@Title"
-                   Class="text-slate-500 hover:text-blue-600">
+                   Class="text-slate-500 hover:text-sky-600">
             <StartContent>
                 <span class="text-base leading-none">@(string.IsNullOrWhiteSpace(Value) ? "😊" : Value)</span>
             </StartContent>
@@ -41,7 +41,7 @@
             <div class="relative mb-2">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-xs text-slate-400"></i>
                 <input type="text"
-                       class="w-full rounded-lg border border-slate-200 bg-slate-50 pl-8 pr-8 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
+                       class="w-full rounded-lg border border-slate-200 bg-slate-50 pl-8 pr-8 py-1.5 text-xs text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-sky-500 transition-colors"
                        placeholder="Search emoji or paste HTML code..."
                        value="@_searchQuery"
                        @oninput="HandleSearchInput" />
@@ -58,13 +58,13 @@
             <!-- Custom symbol quick apply -->
             @if (!string.IsNullOrWhiteSpace(CustomSymbolPreview))
             {
-                <div class="mb-2 flex items-center justify-between rounded-lg bg-blue-50/70 border border-blue-200/70 px-2.5 py-1.5 text-xs">
+                <div class="mb-2 flex items-center justify-between rounded-lg bg-sky-50/70 border border-sky-200/70 px-2.5 py-1.5 text-xs">
                     <div class="flex items-center gap-2 min-w-0">
                         <span class="text-lg leading-none">@CustomSymbolPreview</span>
                         <span class="text-slate-600 truncate">Use custom symbol</span>
                     </div>
                     <button type="button"
-                            class="rounded px-2 py-0.5 text-xs font-medium text-blue-600 bg-white border border-blue-200 hover:bg-blue-50 shadow-2xs cursor-pointer transition-colors"
+                            class="rounded px-2 py-0.5 text-xs font-medium text-sky-600 bg-white border border-sky-200 hover:bg-sky-50 shadow-2xs cursor-pointer transition-colors"
                             @onclick="() => SelectCustomSymbol(CustomSymbolPreview)">
                         Apply
                     </button>
@@ -89,7 +89,7 @@
                 @foreach (var cat in _categories)
                 {
                     <button type="button"
-                            class="shrink-0 rounded-full px-2 py-0.5 font-medium transition cursor-pointer @(_selectedCategory == cat ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200")"
+                            class="shrink-0 rounded-full px-2 py-0.5 font-medium transition cursor-pointer @(_selectedCategory == cat ? "bg-sky-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200")"
                             @onclick="() => SetCategory(cat)">
                         @cat
                     </button>
@@ -109,7 +109,7 @@
                                 {
                                     <button type="button"
                                             title="@($"{emoji.Name} ({emoji.HtmlCode})")"
-                                            class="flex h-8 w-8 items-center justify-center rounded-lg text-lg transition hover:bg-blue-50 hover:scale-110 active:scale-95 focus:bg-blue-50 focus:outline-none cursor-pointer @(IsSelected(emoji) ? "bg-blue-100 ring-2 ring-blue-500" : "")"
+                                            class="flex h-8 w-8 items-center justify-center rounded-lg text-lg transition hover:bg-sky-50 hover:scale-110 active:scale-95 focus:bg-sky-50 focus:outline-none cursor-pointer @(IsSelected(emoji) ? "bg-sky-100 ring-2 ring-sky-500" : "")"
                                             @onclick="() => SelectEmoji(emoji)">
                                         @emoji.Symbol
                                     </button>

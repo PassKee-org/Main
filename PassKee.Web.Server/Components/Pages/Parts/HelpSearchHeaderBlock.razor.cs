@@ -17,8 +17,8 @@ public partial class HelpSearchHeaderBlock
     {
         var isActive = string.Equals(ActiveCategory, categoryId, StringComparison.OrdinalIgnoreCase);
         return isActive
-            ? "inline-flex items-center gap-2 rounded-xl border border-blue-600 bg-blue-600 px-3.5 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm transition-colors cursor-pointer"
-            : "inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs sm:text-sm font-medium text-slate-700 hover:border-blue-300 hover:bg-blue-50/50 transition-colors cursor-pointer";
+            ? "inline-flex items-center gap-2 rounded-xl border border-sky-600 bg-sky-600 px-3.5 py-2 text-xs sm:text-sm font-semibold text-white shadow-sm transition-colors cursor-pointer"
+            : "inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs sm:text-sm font-medium text-slate-700 hover:border-sky-300 hover:bg-sky-50/50 transition-colors cursor-pointer";
     }
 }
 

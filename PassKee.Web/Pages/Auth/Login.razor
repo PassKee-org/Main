@@ -10,14 +10,14 @@
             <div>
                 <div class="flex items-start justify-between gap-4 mb-5 sm:mb-6">
                     <div>
-                        <p class="text-[11px] sm:text-xs font-semibold uppercase tracking-[0.25em] text-blue-600">
+                        <p class="text-[11px] sm:text-xs font-semibold uppercase tracking-[0.25em] text-sky-600">
                             @(IsLockedSession ? "SESSION LOCKED" : "AUTHENTICATION")
                         </p>
                         <h2 class="mt-1 text-xl sm:text-2xl font-bold text-slate-900">
                             @(IsLockedSession ? "Unlock Session" : "Sign In to PassKee")
                         </h2>
                     </div>
-                    <div class="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl bg-blue-600 text-white shadow-md shadow-blue-500/20 shrink-0">
+                    <div class="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl sm:rounded-2xl bg-sky-600 text-white shadow-md shadow-sky-500/20 shrink-0">
                         <i class="fa-solid @(IsLockedSession ? "fa-lock-open" : "fa-lock") text-base sm:text-lg"></i>
                     </div>
                 </div>
@@ -34,7 +34,7 @@
                 {
                     <div class="mb-4 p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2">
                         <div class="flex items-center gap-2.5 min-w-0">
-                            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-semibold text-xs shrink-0">
+                            <div class="w-8 h-8 rounded-full bg-sky-100 text-sky-600 flex items-center justify-center font-semibold text-xs shrink-0">
                                 @(string.IsNullOrEmpty(Email) ? "U" : Email[0].ToString().ToUpper())
                             </div>
                             <div class="min-w-0">
@@ -42,7 +42,7 @@
                                 <p class="text-xs sm:text-sm font-medium text-slate-900 truncate">@Email</p>
                             </div>
                         </div>
-                        <button type="button" @onclick="SwitchAccountAsync" class="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline shrink-0">
+                        <button type="button" @onclick="SwitchAccountAsync" class="text-xs font-medium text-sky-600 hover:text-sky-700 hover:underline shrink-0">
                             Switch
                         </button>
                     </div>
@@ -130,7 +130,7 @@
                     {
                         <div class="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600 leading-relaxed">
                             <div class="flex items-start gap-2">
-                                <i class="fa-solid fa-circle-question text-blue-500 mt-0.5 shrink-0"></i>
+                                <i class="fa-solid fa-circle-question text-sky-500 mt-0.5 shrink-0"></i>
                                 <span>
                                     <strong>Can't find your Secret Key?</strong> Because PassKee is zero-knowledge, we cannot reset your credentials. Look for the Emergency Secret Key saved during registration or sign in from an authorized device.
                                 </span>
@@ -142,17 +142,20 @@
 
             <div class="mt-6 pt-5 sm:mt-8 sm:pt-6 border-t border-slate-100 text-center text-xs sm:text-sm text-slate-500">
                 <span>Don't have an account yet?</span>
-                <a href="/registration" class="ml-1.5 font-semibold text-blue-600 hover:text-blue-700 transition hover:underline">
+                <a href="/registration" class="ml-1.5 font-semibold text-sky-600 hover:text-sky-700 transition hover:underline">
                     Create Account
                 </a>
             </div>
         </section>
 
         @* Explanation Card (Second on mobile, left on desktop) *@
-        <section class="order-2 lg:order-1 overflow-hidden rounded-2xl sm:rounded-[2rem] bg-slate-900 text-white shadow-xl lg:shadow-2xl">
+        <section class="order-2 lg:order-1 overflow-hidden rounded-2xl sm:rounded-[2rem] bg-slate-950 text-white shadow-xl lg:shadow-2xl">
             <div class="flex h-full flex-col justify-between gap-6 sm:gap-8 p-6 sm:p-10">
                 <div>
-                    <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-blue-300">
+                    <div class="mb-6">
+                        <AppLogo Size="ComponentSize.Medium" IsDark="true" />
+                    </div>
+                    <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-sky-300">
                         <i class="fa-solid fa-lock text-xs sm:text-sm"></i>
                         <span>Zero-Knowledge Sign In</span>
                     </div>
@@ -167,7 +170,7 @@
                 </div>
                 <div class="grid gap-3 sm:gap-4 sm:grid-cols-3">
                     <div class="rounded-xl sm:rounded-2xl border border-white/10 bg-white/5 p-3.5 sm:p-4">
-                        <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-blue-300">01</p>
+                        <p class="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-sky-300">01</p>
                         <p class="mt-1.5 sm:mt-2 text-sm sm:text-base font-semibold text-white">Master Password</p>
                         <p class="mt-1 text-xs text-slate-400">Your private master phrase, known only to you.</p>
                     </div>

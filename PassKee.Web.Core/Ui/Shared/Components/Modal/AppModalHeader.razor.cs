@@ -46,14 +46,14 @@ public partial class AppModalHeader : ComponentBase
 
             return Color switch
             {
-                ComponentColor.Primary => "bg-blue-50 text-blue-600",
+                ComponentColor.Primary => "bg-sky-50 text-sky-600",
                 ComponentColor.Success => "bg-emerald-50 text-emerald-600",
                 ComponentColor.Warning => "bg-amber-50 text-amber-600",
                 ComponentColor.Danger => "bg-rose-50 text-rose-600",
                 ComponentColor.Secondary => "bg-slate-100 text-slate-700",
-                ComponentColor.Info => "bg-sky-50 text-sky-600",
+                ComponentColor.Info => "bg-cyan-50 text-cyan-600",
                 ComponentColor.Default => "bg-slate-100 text-slate-700",
-                _ => "bg-blue-50 text-blue-600"
+                _ => "bg-sky-50 text-sky-600"
             };
         }
     }

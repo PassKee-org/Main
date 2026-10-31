@@ -2,10 +2,7 @@
     @* Top Workspace Header (mirrors AppHeaderBlock.razor) *@
     <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 py-3 sm:px-6 text-left">
         <div class="flex items-center gap-3">
-            <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 text-white shadow-xs">
-                <i class="fa-solid fa-shield-halved text-sm" aria-hidden="true"></i>
-            </span>
-            <span class="text-base font-extrabold tracking-tight text-slate-900">Pass<span class="text-blue-600">Kee</span></span>
+            <AppLogo Href="/app" Size="ComponentSize.Small" />
         </div>
 
         <div class="hidden md:flex flex-1 max-w-md items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs text-slate-400">
@@ -15,7 +12,7 @@
 
         <div class="flex items-center gap-1.5 sm:gap-2 text-xs font-semibold">
             <span class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-slate-700 shadow-2xs">
-                <i class="fa-solid fa-key text-blue-600" aria-hidden="true"></i>
+                <i class="fa-solid fa-key text-sky-600" aria-hidden="true"></i>
                 <span>Password</span>
             </span>
             <span class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-slate-700 shadow-2xs" title="UUID v4, UUID v7, Hex, Base64">
@@ -44,7 +41,7 @@
                         <span class="inline-flex h-6 w-6 items-center justify-center rounded-md border border-slate-200 bg-slate-50 text-[11px] text-slate-600" title="New Vault">
                             <i class="fa-solid fa-plus" aria-hidden="true"></i>
                         </span>
-                        <span class="inline-flex h-6 w-6 items-center justify-center rounded-md border border-blue-200 bg-blue-50 text-[11px] text-blue-700" title="Vault Actions">
+                        <span class="inline-flex h-6 w-6 items-center justify-center rounded-md border border-sky-200 bg-sky-50 text-[11px] text-sky-700" title="Vault Actions">
                             <i class="fa-solid fa-ellipsis-vertical" aria-hidden="true"></i>
                         </span>
                     </div>
@@ -52,7 +49,7 @@
 
                 <div class="mt-2 flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
                     <div class="flex items-center gap-2 min-w-0">
-                        <i class="fa-solid fa-vault text-blue-600 text-xs" aria-hidden="true"></i>
+                        <i class="fa-solid fa-vault text-sky-600 text-xs" aria-hidden="true"></i>
                         <span class="truncate text-xs font-bold text-slate-900">Personal Vault</span>
                     </div>
                     <i class="fa-solid fa-chevron-down text-[10px] text-slate-400" aria-hidden="true"></i>
@@ -61,7 +58,7 @@
                 <div class="mt-2.5 rounded-xl border border-slate-200/90 bg-slate-50/70 p-2 text-[11px] space-y-1">
                     <div class="flex items-center justify-between rounded-lg bg-white px-2 py-1.5 font-medium text-slate-700 shadow-2xs">
                         <span class="inline-flex items-center gap-1.5">
-                            <i class="fa-solid fa-file-import text-blue-600" aria-hidden="true"></i>
+                            <i class="fa-solid fa-file-import text-sky-600" aria-hidden="true"></i>
                             <span>Import</span>
                         </span>
                         <span class="text-[10px] text-slate-400">From KeePass (.kdbx)</span>
@@ -93,12 +90,12 @@
                         </span>
                         <span class="text-[10px] text-slate-400">4</span>
                     </li>
-                    <li class="flex items-center justify-between rounded-lg bg-blue-50 px-2.5 py-1.5 text-blue-700 font-semibold">
+                    <li class="flex items-center justify-between rounded-lg bg-sky-50 px-2.5 py-1.5 text-sky-700 font-semibold">
                         <span class="flex items-center gap-2">
-                            <i class="fa-solid fa-folder-open text-blue-600" aria-hidden="true"></i>
+                            <i class="fa-solid fa-folder-open text-sky-600" aria-hidden="true"></i>
                             <span>Cloud &amp; DevOps</span>
                         </span>
-                        <span class="rounded-md bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-800">3</span>
+                        <span class="rounded-md bg-sky-100 px-1.5 py-0.5 text-[10px] font-bold text-sky-800">3</span>
                     </li>
                     <li class="flex items-center justify-between rounded-lg px-2.5 py-1.5 text-slate-600">
                         <span class="flex items-center gap-2">
@@ -130,7 +127,7 @@
             @* Directory Header + New Item Button (mirrors CredentialListBlock.razor) *@
             <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3.5">
                 <div class="flex items-center gap-2.5">
-                    <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                    <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-50 text-sky-600">
                         <i class="fa-solid fa-folder-open" aria-hidden="true"></i>
                     </span>
                     <div>
@@ -142,7 +139,7 @@
                     </div>
                 </div>
 
-                <span class="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs">
+                <span class="inline-flex items-center gap-1.5 rounded-xl bg-sky-600 px-3.5 py-2 text-xs font-semibold text-white shadow-xs">
                     <i class="fa-solid fa-plus" aria-hidden="true"></i>
                     <span>New Item</span>
                 </span>
@@ -155,7 +152,7 @@
                             role="tab"
                             aria-selected="true"
                             data-preview-tab="github"
-                            class="w-full text-left flex items-center justify-between gap-2.5 rounded-xl border border-blue-200 bg-blue-50/70 p-3 transition-colors cursor-pointer">
+                            class="w-full text-left flex items-center justify-between gap-2.5 rounded-xl border border-sky-200 bg-sky-50/70 p-3 transition-colors cursor-pointer">
                         <div class="flex items-center gap-2.5 min-w-0">
                             <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-white text-xs">
                                 <i class="fa-solid fa-globe" aria-hidden="true"></i>
@@ -174,7 +171,7 @@
                             data-preview-tab="postgres"
                             class="w-full text-left flex items-center justify-between gap-2.5 rounded-xl border border-slate-200/80 bg-white hover:bg-slate-50 p-3 transition-colors cursor-pointer">
                         <div class="flex items-center gap-2.5 min-w-0">
-                            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white text-xs">
+                            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sky-600 text-white text-xs">
                                 <i class="fa-solid fa-database" aria-hidden="true"></i>
                             </span>
                             <div class="min-w-0">
@@ -182,7 +179,7 @@
                                 <p class="truncate text-[11px] text-slate-500">db-prod-eu.passkee.internal:5432</p>
                             </div>
                         </div>
-                        <span class="shrink-0 rounded-md bg-blue-100 px-2 py-0.5 text-[10px] font-semibold text-blue-800">Database</span>
+                        <span class="shrink-0 rounded-md bg-sky-100 px-2 py-0.5 text-[10px] font-semibold text-sky-800">Database</span>
                     </button>
 
                     <button type="button"
@@ -211,7 +208,7 @@
                                 <h3 class="text-sm font-bold text-slate-900">GitHub Organization</h3>
                                 <p class="text-[11px] text-slate-500">Login • Directory: Cloud &amp; DevOps</p>
                             </div>
-                            <span class="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700" title="Share a link to this item">
+                            <span class="inline-flex items-center gap-1.5 rounded-lg border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] font-semibold text-sky-700" title="Share a link to this item">
                                 <i class="fa-solid fa-share-nodes text-[10px]" aria-hidden="true"></i>
                                 <span>Share Link</span>
                             </span>
@@ -231,7 +228,7 @@
                             </div>
                             <div class="rounded-xl border border-slate-200 bg-white p-2.5">
                                 <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Website URL</p>
-                                <p class="mt-0.5 font-medium text-blue-600 truncate">https://github.com/organizations/passkee</p>
+                                <p class="mt-0.5 font-medium text-sky-600 truncate">https://github.com/organizations/passkee</p>
                             </div>
                         </div>
                     </div>
@@ -242,7 +239,7 @@
                                 <h3 class="text-sm font-bold text-slate-900">PostgreSQL Primary Cluster</h3>
                                 <p class="text-[11px] text-slate-500">Database • Directory: Cloud &amp; DevOps</p>
                             </div>
-                            <span class="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-700">
+                            <span class="inline-flex items-center gap-1.5 rounded-lg border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] font-semibold text-sky-700">
                                 <i class="fa-solid fa-share-nodes text-[10px]" aria-hidden="true"></i>
                                 <span>Share Link</span>
                             </span>

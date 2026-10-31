@@ -37,13 +37,13 @@ public partial class MobileTopBarBlock : VaultOperationsComponentBase
 
     private string HeaderIcon => UiState.Value.ActiveMobileTab switch
     {
-        MobileNavigationTab.Home => "fa-solid fa-house text-blue-600",
-        MobileNavigationTab.Entries => "fa-solid fa-list-ul text-blue-600",
+        MobileNavigationTab.Home => "fa-solid fa-house text-sky-600",
+        MobileNavigationTab.Entries => "fa-solid fa-list-ul text-sky-600",
         _ => VaultsState.Value.IsArchiveSelected
             ? "fa-solid fa-box-archive text-amber-500"
             : SelectedDirectory != null
-                ? "fa-solid fa-folder text-blue-600"
-                : "fa-solid fa-layer-group text-blue-600"
+                ? "fa-solid fa-folder text-sky-600"
+                : "fa-solid fa-layer-group text-sky-600"
     };
 
     protected override void OnInitialized()

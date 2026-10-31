@@ -85,7 +85,7 @@ public partial class AppSwitch : ComponentBase
             var colorClass = Value ? GetActiveColorClass() : "bg-slate-200 dark:bg-slate-700";
             var disabledClass = IsDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer";
 
-            return $"relative inline-flex shrink-0 {sizeClass} p-0.5 rounded-full transition-colors duration-200 ease-in-out focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 {colorClass} {disabledClass}";
+            return $"relative inline-flex shrink-0 {sizeClass} p-0.5 rounded-full transition-colors duration-200 ease-in-out focus:outline-hidden focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 {colorClass} {disabledClass}";
         }
     }
 
@@ -119,6 +119,6 @@ public partial class AppSwitch : ComponentBase
         ComponentColor.Warning => "bg-amber-500 dark:bg-amber-400",
         ComponentColor.Danger => "bg-rose-600 dark:bg-rose-500",
         ComponentColor.Info => "bg-cyan-600 dark:bg-cyan-500",
-        _ => "bg-blue-600 dark:bg-blue-500"
+        _ => "bg-sky-600 dark:bg-sky-500"
     };
 }

@@ -61,7 +61,7 @@
                     <i class="fa-solid fa-xmark text-xs"></i>
                 </button>
             }
-            <i class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform duration-200 @(_isOpen ? "rotate-180 text-blue-600" : "")"></i>
+            <i class="fa-solid fa-chevron-down text-xs text-slate-400 transition-transform duration-200 @(_isOpen ? "rotate-180 text-sky-600" : "")"></i>
         </div>
     </div>
 
@@ -73,7 +73,7 @@
             <div class="relative flex items-center mb-1.5">
                 <i class="fa-solid fa-magnifying-glass absolute left-2.5 text-xs text-slate-400"></i>
                 <input type="text"
-                       class="w-full pl-7 pr-2.5 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-blue-500 text-slate-800 dark:text-slate-100"
+                       class="w-full pl-7 pr-2.5 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 focus:outline-none focus:border-sky-500 text-slate-800 dark:text-slate-100"
                        placeholder="Search tags..."
                        value="@_searchText"
                        @oninput="OnSearchInput" />
@@ -85,10 +85,10 @@
                     @foreach (var tag in FilteredTags)
                     {
                         var isSelected = _selectedIds.Contains(tag.Id);
-                        <div class="w-full px-2.5 py-1.5 rounded-lg text-xs md:text-sm flex items-center justify-between gap-2 transition-colors cursor-pointer select-none @(isSelected ? "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-medium" : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60")"
+                        <div class="w-full px-2.5 py-1.5 rounded-lg text-xs md:text-sm flex items-center justify-between gap-2 transition-colors cursor-pointer select-none @(isSelected ? "bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 font-medium" : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60")"
                              @onclick="() => ToggleTagAsync(tag.Id)">
                             <div class="flex items-center gap-2 truncate min-w-0">
-                                <div class="h-4 w-4 rounded border flex items-center justify-center shrink-0 transition-colors @(isSelected ? "bg-blue-600 border-blue-600 text-white" : "border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700")">
+                                <div class="h-4 w-4 rounded border flex items-center justify-center shrink-0 transition-colors @(isSelected ? "bg-sky-600 border-sky-600 text-white" : "border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700")">
                                     @if (isSelected)
                                     {
                                         <i class="fa-solid fa-check text-[10px]"></i>
@@ -110,7 +110,7 @@
                 @if (CanCreateFromSearch)
                 {
                     <button type="button"
-                            class="w-full px-2.5 py-1.5 rounded-lg text-left text-xs md:text-sm flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 cursor-pointer select-none transition-colors font-medium border-t border-slate-100 dark:border-slate-700/60 mt-1"
+                            class="w-full px-2.5 py-1.5 rounded-lg text-left text-xs md:text-sm flex items-center gap-2 text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/40 cursor-pointer select-none transition-colors font-medium border-t border-slate-100 dark:border-slate-700/60 mt-1"
                             disabled="@_isCreating"
                             @onclick="CreateTagFromSearchAsync">
                         @if (_isCreating)
@@ -130,13 +130,13 @@
             {
                 <div class="mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/60 flex items-center gap-1.5">
                     <input type="text"
-                           class="flex-1 px-2.5 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-blue-500"
+                           class="flex-1 px-2.5 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 focus:outline-none focus:border-sky-500"
                            placeholder="New tag..."
                            value="@_newTagName"
                            @oninput="OnNewTagInput"
                            @onkeydown="OnNewTagKeyDown" />
                     <button type="button"
-                            class="px-2.5 py-1 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shrink-0 disabled:opacity-50 transition-colors flex items-center gap-1 cursor-pointer"
+                            class="px-2.5 py-1 text-xs font-medium text-white bg-sky-600 hover:bg-sky-700 rounded-lg shrink-0 disabled:opacity-50 transition-colors flex items-center gap-1 cursor-pointer"
                             disabled="@(string.IsNullOrWhiteSpace(_newTagName) || _isCreating)"
                             @onclick="CreateNewTagAsync">
                         @if (_isCreating)

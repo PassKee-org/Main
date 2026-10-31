@@ -79,7 +79,7 @@ public partial class TagsSelect : ComponentBase
         && !Tags.Any(t => string.Equals(t.Name, _searchText.Trim(), StringComparison.OrdinalIgnoreCase));
 
     protected string BorderAndRingClasses => _isOpen
-        ? "border-blue-500 ring-3 ring-blue-500/15 shadow-sm"
+        ? "border-sky-500 ring-3 ring-sky-500/15 shadow-sm"
         : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600";
 
     protected void ToggleOpen()

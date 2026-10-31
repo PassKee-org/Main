@@ -37,10 +37,10 @@ public partial class InputTextareaField
 
             if (IsFlat)
             {
-                return $"{baseClass} border-transparent bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 hover:bg-slate-200/70 focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 focus:ring-3 focus:ring-blue-500/15";
+                return $"{baseClass} border-transparent bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 hover:bg-slate-200/70 focus:bg-white dark:focus:bg-slate-800 focus:border-sky-500 focus:ring-3 focus:ring-sky-500/15";
             }
 
-            return $"{baseClass} border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600 focus:border-blue-500 focus:ring-3 focus:ring-blue-500/15 shadow-2xs";
+            return $"{baseClass} border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 hover:border-slate-300 dark:hover:border-slate-600 focus:border-sky-500 focus:ring-3 focus:ring-sky-500/15 shadow-2xs";
         }
     }
 

@@ -88,7 +88,7 @@ public partial class AppSelect<TValue> : AppBaseSelect
 
             if (IsOpen)
             {
-                return "border-blue-500 ring-3 ring-blue-500/15 shadow-sm";
+                return "border-sky-500 ring-3 ring-sky-500/15 shadow-sm";
             }
 
             return "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600";

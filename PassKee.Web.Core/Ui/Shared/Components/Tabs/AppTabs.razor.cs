@@ -221,7 +221,7 @@ public partial class AppTabs : ComponentBase
         };
 
         var stateClass = isActive
-            ? "border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-400 font-semibold"
+            ? "border-sky-600 text-sky-600 dark:border-sky-500 dark:text-sky-400 font-semibold"
             : "border-transparent text-slate-500 hover:text-slate-900 hover:border-slate-300 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:border-slate-600 font-medium";
 
         var disabledClass = tab.IsDisabled
@@ -230,13 +230,13 @@ public partial class AppTabs : ComponentBase
 
         var widthClass = IsFullWidth ? "flex-1 justify-center" : "";
 
-        return $"group inline-flex items-center select-none border-b-2 -mb-px transition-colors whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/20 focus-visible:rounded-t {sizeClass} {stateClass} {disabledClass} {widthClass} {tab.Class}".Trim();
+        return $"group inline-flex items-center select-none border-b-2 -mb-px transition-colors whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/20 focus-visible:rounded-t {sizeClass} {stateClass} {disabledClass} {widthClass} {tab.Class}".Trim();
     }
 
     protected static string GetBadgeClass(bool isActive)
     {
         return isActive
-            ? "ml-1.5 rounded-full bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 text-[11px] font-semibold text-blue-700 dark:text-blue-300"
+            ? "ml-1.5 rounded-full bg-sky-50 dark:bg-sky-950/60 px-2 py-0.5 text-[11px] font-semibold text-sky-700 dark:text-sky-300"
             : "ml-1.5 rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-[11px] font-medium text-slate-600 dark:text-slate-400 group-hover:bg-slate-200/70";
     }
 }

@@ -38,13 +38,13 @@
                         </Trigger>
                         <Menu>
                             <AppDropdownItem
-                                Icon="fa-solid fa-file-import text-blue-600"
+                                Icon="fa-solid fa-file-import text-sky-600"
                                 Text="Import"
                                 Description="From KeePass (.kdbx)"
                                 Disabled="@(!CanImportOrExport)"
                                 OnClick="@OpenImportModalAsync" />
                             <AppDropdownItem
-                                Icon="fa-solid fa-file-export text-blue-600"
+                                Icon="fa-solid fa-file-export text-sky-600"
                                 Text="Backup"
                                 Description="Export to KeePass (.kdbx)"
                                 Disabled="@(!CanImportOrExport)"
@@ -95,19 +95,19 @@
             }
             <div class="flex flex-col gap-0.5">
                 <div class="group flex items-center justify-between py-1.5 px-2 rounded-md cursor-pointer transition-colors
-                            @(!VaultsState.Value.IsArchiveSelected && VaultsState.Value.SelectedDirectoryId == null ? "bg-blue-50 text-blue-700 font-medium" : "text-slate-600 hover:bg-slate-100")"
+                            @(!VaultsState.Value.IsArchiveSelected && VaultsState.Value.SelectedDirectoryId == null ? "bg-sky-50 text-sky-700 font-medium" : "text-slate-600 hover:bg-slate-100")"
                      @onclick="() => SelectDirectory(null)"
                      @ondragover="HandleRootDragOver"
                      @ondragover:preventDefault="true"
                      @ondrop="HandleRootDrop"
                      @ondrop:preventDefault="true">
                     <div class="flex items-center gap-2 overflow-hidden flex-1 min-w-0">
-                        <i class="fa-solid fa-folder-minus text-blue-500 ml-1"></i>
+                        <i class="fa-solid fa-folder-minus text-sky-500 ml-1"></i>
                         <span class="text-sm truncate select-none">No Directory</span>
                     </div>
                     @if (snapshot.RootCredentialCount > 0)
                     {
-                        <span class="text-[11px] tabular-nums font-normal select-none shrink-0 ml-1.5 transition-colors @(!VaultsState.Value.IsArchiveSelected && VaultsState.Value.SelectedDirectoryId == null ? "text-blue-600/80 font-medium" : "text-slate-400 group-hover:text-slate-500")">
+                        <span class="text-[11px] tabular-nums font-normal select-none shrink-0 ml-1.5 transition-colors @(!VaultsState.Value.IsArchiveSelected && VaultsState.Value.SelectedDirectoryId == null ? "text-sky-600/80 font-medium" : "text-slate-400 group-hover:text-slate-500")">
                             @snapshot.RootCredentialCount
                         </span>
                     }
@@ -146,7 +146,7 @@
 
         <div class="p-2 border-t border-slate-100 shrink-0 bg-slate-50/50 rounded-b-2xl">
             <div class="group flex items-center justify-between py-1.5 px-2 rounded-md cursor-pointer transition-colors
-                        @(VaultsState.Value.IsArchiveSelected ? "bg-blue-50 text-blue-700 font-medium" : "text-slate-600 hover:bg-slate-100")"
+                        @(VaultsState.Value.IsArchiveSelected ? "bg-sky-50 text-sky-700 font-medium" : "text-slate-600 hover:bg-slate-100")"
                  @onclick="SelectArchive">
                 <div class="flex items-center gap-2">
                     <i class="fa-solid fa-box-archive text-amber-500 ml-1"></i>

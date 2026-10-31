@@ -61,13 +61,13 @@ public partial class AppDropdownItem : ComponentBase
             {
                 ComponentColor.Danger => "text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40",
                 ComponentColor.Warning => "text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40",
-                ComponentColor.Primary => "text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40",
+                ComponentColor.Primary => "text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-sky-950/40",
                 ComponentColor.Success => "text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40",
                 ComponentColor.Info => "text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-950/40",
                 _ => "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700/60"
             };
             var disabledClasses = IsDisabled ? "opacity-50 cursor-not-allowed pointer-events-none" : "";
-            var activeClasses = IsActive ? "bg-blue-50 dark:bg-blue-950/40 font-semibold text-blue-600 dark:text-blue-400" : "";
+            var activeClasses = IsActive ? "bg-sky-50 dark:bg-sky-950/40 font-semibold text-sky-600 dark:text-sky-400" : "";
 
             return $"{baseClasses} {colorClasses} {activeClasses} {disabledClasses} {Class}".Trim();
         }
