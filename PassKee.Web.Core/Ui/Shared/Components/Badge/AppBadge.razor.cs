@@ -93,7 +93,7 @@ public partial class AppBadge : ComponentBase
             {
                 // Flat
                 (BadgeVariant.Flat, ComponentColor.Primary) =>
-                    "bg-blue-50 text-blue-700 border border-blue-200/80 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800/60",
+                    "bg-sky-50 text-sky-700 border border-sky-200/80 dark:bg-sky-950/50 dark:text-sky-300 dark:border-sky-800/60",
                 (BadgeVariant.Flat, ComponentColor.Secondary) =>
                     "bg-slate-100 text-slate-700 border border-slate-200/80 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700",
                 (BadgeVariant.Flat, ComponentColor.Success) =>
@@ -103,13 +103,13 @@ public partial class AppBadge : ComponentBase
                 (BadgeVariant.Flat, ComponentColor.Danger) =>
                     "bg-rose-50 text-rose-700 border border-rose-200/80 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-800/60",
                 (BadgeVariant.Flat, ComponentColor.Info) =>
-                    "bg-sky-50 text-sky-700 border border-sky-200/80 dark:bg-sky-950/50 dark:text-sky-300 dark:border-sky-800/60",
+                    "bg-cyan-50 text-cyan-700 border border-cyan-200/80 dark:bg-cyan-950/50 dark:text-cyan-300 dark:border-cyan-800/60",
                 (BadgeVariant.Flat, _) =>
                     "bg-slate-100 text-slate-600 border border-slate-200/80 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700",
 
                 // Solid
                 (BadgeVariant.Solid, ComponentColor.Primary) =>
-                    "bg-blue-600 text-white shadow-2xs dark:bg-blue-600",
+                    "bg-sky-600 text-white shadow-2xs dark:bg-sky-600",
                 (BadgeVariant.Solid, ComponentColor.Secondary) =>
                     "bg-slate-700 text-white shadow-2xs dark:bg-slate-200 dark:text-slate-800",
                 (BadgeVariant.Solid, ComponentColor.Success) =>
@@ -119,13 +119,13 @@ public partial class AppBadge : ComponentBase
                 (BadgeVariant.Solid, ComponentColor.Danger) =>
                     "bg-rose-600 text-white shadow-2xs dark:bg-rose-600",
                 (BadgeVariant.Solid, ComponentColor.Info) =>
-                    "bg-sky-600 text-white shadow-2xs dark:bg-sky-600",
+                    "bg-cyan-600 text-white shadow-2xs dark:bg-cyan-600",
                 (BadgeVariant.Solid, _) =>
                     "bg-slate-600 text-white shadow-2xs dark:bg-slate-600",
 
                 // Outlined
                 (BadgeVariant.Outlined, ComponentColor.Primary) =>
-                    "border border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400",
+                    "border border-sky-600 text-sky-600 dark:border-sky-400 dark:text-sky-400",
                 (BadgeVariant.Outlined, ComponentColor.Secondary) =>
                     "border border-slate-400 text-slate-700 dark:border-slate-500 dark:text-slate-300",
                 (BadgeVariant.Outlined, ComponentColor.Success) =>
@@ -135,13 +135,13 @@ public partial class AppBadge : ComponentBase
                 (BadgeVariant.Outlined, ComponentColor.Danger) =>
                     "border border-rose-600 text-rose-600 dark:border-rose-400 dark:text-rose-400",
                 (BadgeVariant.Outlined, ComponentColor.Info) =>
-                    "border border-sky-600 text-sky-600 dark:border-sky-400 dark:text-sky-400",
+                    "border border-cyan-600 text-cyan-600 dark:border-cyan-400 dark:text-cyan-400",
                 (BadgeVariant.Outlined, _) =>
                     "border border-slate-300 text-slate-600 dark:border-slate-600 dark:text-slate-300",
 
                 // Light
                 (BadgeVariant.Light, ComponentColor.Primary) =>
-                    "bg-transparent text-blue-600 hover:bg-blue-50/60 dark:text-blue-400 dark:hover:bg-blue-950/40",
+                    "bg-transparent text-sky-600 hover:bg-sky-50/60 dark:text-sky-400 dark:hover:bg-sky-950/40",
                 (BadgeVariant.Light, ComponentColor.Secondary) =>
                     "bg-transparent text-slate-600 hover:bg-slate-100/60 dark:text-slate-300 dark:hover:bg-slate-800/40",
                 (BadgeVariant.Light, ComponentColor.Success) =>
@@ -151,7 +151,7 @@ public partial class AppBadge : ComponentBase
                 (BadgeVariant.Light, ComponentColor.Danger) =>
                     "bg-transparent text-rose-600 hover:bg-rose-50/60 dark:text-rose-400 dark:hover:bg-rose-950/40",
                 (BadgeVariant.Light, ComponentColor.Info) =>
-                    "bg-transparent text-sky-600 hover:bg-sky-50/60 dark:text-sky-400 dark:hover:bg-sky-950/40",
+                    "bg-transparent text-cyan-600 hover:bg-cyan-50/60 dark:text-cyan-400 dark:hover:bg-cyan-950/40",
                 (BadgeVariant.Light, _) =>
                     "bg-transparent text-slate-600 hover:bg-slate-100/60 dark:text-slate-300 dark:hover:bg-slate-800/40",
                 _ =>
@@ -174,12 +174,12 @@ public partial class AppBadge : ComponentBase
 
             var dotColor = Color switch
             {
-                ComponentColor.Primary => "bg-blue-500",
+                ComponentColor.Primary => "bg-sky-500",
                 ComponentColor.Secondary => "bg-slate-500",
                 ComponentColor.Success => "bg-emerald-500",
                 ComponentColor.Warning => "bg-amber-500",
                 ComponentColor.Danger => "bg-rose-500",
-                ComponentColor.Info => "bg-sky-500",
+                ComponentColor.Info => "bg-cyan-500",
                 _ => "bg-slate-400"
             };
 

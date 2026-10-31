@@ -6,7 +6,7 @@
     {
         <div class="flex items-center justify-between rounded-lg bg-slate-50 border border-slate-200/80 px-3 py-2 text-xs text-slate-600">
             <div class="flex items-center gap-2 truncate">
-                <i class="fa-regular fa-folder-open text-blue-500 shrink-0"></i>
+                <i class="fa-regular fa-folder-open text-sky-500 shrink-0"></i>
                 <span class="truncate">Destination: <strong class="text-slate-900 font-semibold">@CurrentDestinationName</strong></span>
             </div>
             @if (IsCurrentFolder)
@@ -38,12 +38,12 @@
             {
                 <button
                     type="button"
-                    class="w-full grid grid-cols-[20px_minmax(0,1fr)_16px] items-center gap-2 rounded-md p-2 text-left text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition group cursor-pointer"
+                    class="w-full grid grid-cols-[20px_minmax(0,1fr)_16px] items-center gap-2 rounded-md p-2 text-left text-slate-700 hover:bg-sky-50 hover:text-sky-700 transition group cursor-pointer"
                     @key="folder.Id"
                     @onclick="@(() => OpenFolder(folder.Id))">
                     <i class="fa-regular fa-folder text-amber-500"></i>
                     <span class="truncate font-medium text-sm">@folder.Name</span>
-                    <i class="fa-solid fa-chevron-right text-xs text-slate-400 group-hover:text-blue-600 transition"></i>
+                    <i class="fa-solid fa-chevron-right text-xs text-slate-400 group-hover:text-sky-600 transition"></i>
                 </button>
             }
         }
@@ -60,7 +60,7 @@
             var isLast = index == Path.Count - 1;
             <button
                 type="button"
-                class="truncate max-w-[160px] font-medium cursor-pointer @(isLast ? "text-slate-900 font-semibold" : "hover:text-blue-600 hover:underline transition")"
+                class="truncate max-w-[160px] font-medium cursor-pointer @(isLast ? "text-slate-900 font-semibold" : "hover:text-sky-600 hover:underline transition")"
                 @onclick="@(() => SelectFolder(item.Id))">
                 @item.Name
             </button>

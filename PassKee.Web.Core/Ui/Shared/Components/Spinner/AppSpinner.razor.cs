@@ -70,12 +70,12 @@ public partial class AppSpinner : ComponentBase
 
             var colorClass = LabelColor switch
             {
-                ComponentColor.Primary => "text-blue-600 dark:text-blue-400",
+                ComponentColor.Primary => "text-sky-600 dark:text-sky-400",
                 ComponentColor.Secondary => "text-slate-600 dark:text-slate-300",
                 ComponentColor.Success => "text-emerald-600 dark:text-emerald-400",
                 ComponentColor.Warning => "text-amber-500 dark:text-amber-400",
                 ComponentColor.Danger => "text-rose-600 dark:text-rose-400",
-                ComponentColor.Info => "text-sky-600 dark:text-sky-400",
+                ComponentColor.Info => "text-cyan-600 dark:text-cyan-400",
                 _ => "text-slate-600 dark:text-slate-300"
             };
 
@@ -85,13 +85,13 @@ public partial class AppSpinner : ComponentBase
 
     private static string GetColorClass(ComponentColor color) => color switch
     {
-        ComponentColor.Primary => "text-blue-600 dark:text-blue-400",
+        ComponentColor.Primary => "text-sky-600 dark:text-sky-400",
         ComponentColor.Secondary => "text-slate-600 dark:text-slate-300",
         ComponentColor.Success => "text-emerald-600 dark:text-emerald-400",
         ComponentColor.Warning => "text-amber-500 dark:text-amber-400",
         ComponentColor.Danger => "text-rose-600 dark:text-rose-400",
-        ComponentColor.Info => "text-sky-600 dark:text-sky-400",
+        ComponentColor.Info => "text-cyan-600 dark:text-cyan-400",
         ComponentColor.Default => "text-current",
-        _ => "text-blue-600 dark:text-blue-400"
+        _ => "text-sky-600 dark:text-sky-400"
     };
 }

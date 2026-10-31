@@ -29,7 +29,7 @@
                    Variant="@ButtonVariant.Solid"
                    Size="@ComponentSize.Small"
                    OnClick="CopyAndCloseAsync"
-                   Class="!bg-blue-600 hover:!bg-blue-700 font-semibold text-white px-4">
+                   Class="!bg-sky-600 hover:!bg-sky-700 font-semibold text-white px-4">
             Copy & Close
         </AppButton>
     </div>
@@ -38,7 +38,7 @@
     @if (_count == 1)
     {
         <div class="space-y-2">
-            <div class="relative flex items-center justify-between rounded-xl border border-gray-200/80 bg-gray-50/80 px-3.5 py-3 transition focus-within:border-blue-500">
+            <div class="relative flex items-center justify-between rounded-xl border border-gray-200/80 bg-gray-50/80 px-3.5 py-3 transition focus-within:border-sky-500">
                 <div class="font-mono text-xs sm:text-sm font-semibold tracking-wide break-all select-text flex-1 min-w-0 text-gray-900">
                     @CurrentPrimaryValue
                 </div>
@@ -66,7 +66,7 @@
                              @onclick="() => CopyToClipboardAsync(val)"
                              title="Click to copy this item">
                             <span class="font-mono text-xs text-gray-800 break-all select-text">@val</span>
-                            <span class="text-xs shrink-0 ml-2 text-gray-400 group-hover:text-blue-600 transition">
+                            <span class="text-xs shrink-0 ml-2 text-gray-400 group-hover:text-sky-600 transition">
                                 <i class="@(_copiedValue == val ? "fa-solid fa-check text-emerald-600" : "fa-regular fa-copy opacity-0 group-hover:opacity-100")"></i>
                             </span>
                         </div>
@@ -76,7 +76,7 @@
             <div class="flex justify-between items-center text-xs text-gray-500 px-1">
                 <span>@_generatedValues.Count items generated</span>
                 <button type="button"
-                        class="text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-1 cursor-pointer"
+                        class="text-sky-600 hover:text-sky-700 font-medium inline-flex items-center gap-1 cursor-pointer"
                         @onclick="() => CopyToClipboardAsync(AllValuesJoined)">
                     <i class="@(_copiedValue == AllValuesJoined ? "fa-solid fa-check text-emerald-600" : "fa-regular fa-copy")"></i>
                     Copy All
@@ -91,7 +91,7 @@
             <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Type</span>
             <select @bind="_generatorType"
                     @bind:after="Regenerate"
-                    class="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                    class="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500">
                 <option value="Guid">GUID / UUID</option>
                 <option value="Hex">Hex String (Secret)</option>
                 <option value="Base64">Base64 / URL Token</option>
@@ -105,7 +105,7 @@
                 <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Version</span>
                 <select @bind="_guidVersion"
                         @bind:after="Regenerate"
-                        class="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        class="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500">
                     <option value="v7">UUID v7 (Time-ordered)</option>
                     <option value="v4">UUID v4 (Random)</option>
                 </select>
@@ -115,7 +115,7 @@
                 <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Format</span>
                 <select @bind="_guidFormat"
                         @bind:after="Regenerate"
-                        class="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        class="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500">
                     <option value="D">Hyphens (Standard)</option>
                     <option value="N">No Hyphens (32 chars)</option>
                     <option value="B">Braces { ... }</option>
@@ -136,7 +136,7 @@
                 <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Length</span>
                 <select @bind="_byteLength"
                         @bind:after="Regenerate"
-                        class="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        class="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500">
                     <option value="16">16 bytes (32 hex / 128-bit)</option>
                     <option value="32">32 bytes (64 hex / 256-bit)</option>
                     <option value="64">64 bytes (128 hex / 512-bit)</option>
@@ -156,7 +156,7 @@
                 <span class="text-xs font-semibold uppercase tracking-wider text-gray-500">Length</span>
                 <select @bind="_byteLength"
                         @bind:after="Regenerate"
-                        class="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        class="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500">
                     <option value="16">16 bytes (128-bit)</option>
                     <option value="32">32 bytes (256-bit)</option>
                     <option value="64">64 bytes (512-bit)</option>
@@ -183,7 +183,7 @@
                        @bind="_nanoIdLength"
                        @bind:event="oninput"
                        @bind:after="Regenerate"
-                       class="w-full accent-blue-600 cursor-pointer" />
+                       class="w-full accent-sky-600 cursor-pointer" />
             </div>
 
             <div class="flex items-center justify-between pt-1 border-t border-gray-100">
@@ -200,7 +200,7 @@
                 @foreach (var countOption in new[] { 1, 5, 10 })
                 {
                     <button type="button"
-                            class="px-2.5 py-1 text-xs font-medium rounded-lg transition cursor-pointer @(_count == countOption ? "bg-blue-600 text-white font-semibold shadow-xs" : "bg-gray-100 text-gray-600 hover:bg-gray-200")"
+                            class="px-2.5 py-1 text-xs font-medium rounded-lg transition cursor-pointer @(_count == countOption ? "bg-sky-600 text-white font-semibold shadow-xs" : "bg-gray-100 text-gray-600 hover:bg-gray-200")"
                             @onclick="() => SetCount(countOption)">
                         @countOption
                     </button>

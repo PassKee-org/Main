@@ -4,7 +4,7 @@
 
 <div class="w-full @Class">
     <div class="@(File != null && !Multiple ? "hidden" : "block")">
-        <div class="relative flex min-h-[160px] w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/50 p-5 text-center transition-all hover:border-blue-500 hover:bg-blue-50/40">
+        <div class="relative flex min-h-[160px] w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/50 p-5 text-center transition-all hover:border-sky-500 hover:bg-sky-50/40">
             <InputFile
                 class="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
                 accept="@Accept"
@@ -12,7 +12,7 @@
                 disabled="@Disabled"
                 OnChange="@OnInputFileChange" />
             <div class="pointer-events-none flex flex-col items-center gap-2">
-                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100/80 text-blue-600">
+                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-sky-100/80 text-sky-600">
                     <i class="fa-solid fa-cloud-arrow-up text-lg" aria-hidden="true"></i>
                 </div>
                 <p class="text-sm font-semibold text-slate-700">

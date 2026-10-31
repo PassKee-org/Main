@@ -97,7 +97,7 @@ public partial class AppCheckbox : ComponentBase
 
             var disabledClass = IsDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer";
 
-            return $"relative inline-flex items-center justify-center shrink-0 border transition-all duration-150 ease-in-out focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 {sizeClass} {stateClass} {disabledClass}";
+            return $"relative inline-flex items-center justify-center shrink-0 border transition-all duration-150 ease-in-out focus:outline-hidden focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 {sizeClass} {stateClass} {disabledClass}";
         }
     }
 
@@ -123,6 +123,6 @@ public partial class AppCheckbox : ComponentBase
         ComponentColor.Warning => "bg-amber-500 border-amber-500 text-white",
         ComponentColor.Danger => "bg-rose-600 border-rose-600 text-white",
         ComponentColor.Info => "bg-cyan-600 border-cyan-600 text-white",
-        _ => "bg-blue-600 border-blue-600 text-white"
+        _ => "bg-sky-600 border-sky-600 text-white"
     };
 }

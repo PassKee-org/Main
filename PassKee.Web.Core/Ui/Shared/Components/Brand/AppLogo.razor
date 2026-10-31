@@ -1,0 +1,23 @@
+@namespace PassKee.Web.Core.Ui.Shared.Components.Brand
+
+@if (!string.IsNullOrEmpty(Href))
+{
+    <a href="@Href" class="@ContainerClasses" aria-label="PassKee">
+        <img src="@LogoSrc" alt="PassKee logo" class="@ImageClasses" />
+        @if (ShowText)
+        {
+            <span class="@TextClasses">Pass<span class="@AccentTextClasses">Kee</span></span>
+        }
+    </a>
+}
+else
+{
+    <div class="@ContainerClasses">
+        <img src="@LogoSrc" alt="PassKee logo" class="@ImageClasses" />
+        @if (ShowText)
+        {
+            <span class="@TextClasses">Pass<span class="@AccentTextClasses">Kee</span></span>
+        }
+    </div>
+}
+

@@ -165,7 +165,7 @@ public partial class SecretInput : ComponentBase
 
     private string BorderAndBgClasses => !string.IsNullOrWhiteSpace(ErrorMessage)
         ? "border-rose-400 bg-rose-50/20 focus-within:border-rose-500 focus-within:bg-white focus-within:ring-3 focus-within:ring-rose-500/15"
-        : "border-slate-200 bg-slate-50 focus-within:border-blue-500 focus-within:bg-white focus-within:ring-3 focus-within:ring-blue-500/15";
+        : "border-slate-200 bg-slate-50 focus-within:border-sky-500 focus-within:bg-white focus-within:ring-3 focus-within:ring-sky-500/15";
 
     private async Task HandleInput(ChangeEventArgs e)
     {

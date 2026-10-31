@@ -6,21 +6,21 @@
     <div class="inline-flex items-center gap-1 rounded-full bg-slate-900/95 backdrop-blur-md p-1.5 shadow-2xl border border-slate-700/70">
         <button type="button"
                 @onclick="() => SelectTab(MobileNavigationTab.Home)"
-                class="flex flex-col items-center justify-center min-w-[84px] px-4 py-1.5 rounded-full transition touch-manipulation @(ActiveTab == MobileNavigationTab.Home ? "bg-slate-800 text-blue-400 shadow-inner" : "text-slate-300 hover:text-white")">
+                class="flex flex-col items-center justify-center min-w-[84px] px-4 py-1.5 rounded-full transition touch-manipulation @(ActiveTab == MobileNavigationTab.Home ? "bg-slate-800 text-sky-400 shadow-inner" : "text-slate-300 hover:text-white")">
             <i class="fa-solid fa-house text-sm mb-0.5"></i>
             <span class="text-[11px] font-medium leading-tight">Home</span>
         </button>
 
         <button type="button"
                 @onclick="() => SelectTab(MobileNavigationTab.Groups)"
-                class="flex flex-col items-center justify-center min-w-[84px] px-4 py-1.5 rounded-full transition touch-manipulation @(ActiveTab == MobileNavigationTab.Groups ? "bg-slate-800 text-blue-400 shadow-inner" : "text-slate-300 hover:text-white")">
+                class="flex flex-col items-center justify-center min-w-[84px] px-4 py-1.5 rounded-full transition touch-manipulation @(ActiveTab == MobileNavigationTab.Groups ? "bg-slate-800 text-sky-400 shadow-inner" : "text-slate-300 hover:text-white")">
             <i class="fa-solid fa-folder text-sm mb-0.5"></i>
             <span class="text-[11px] font-medium leading-tight">Groups</span>
         </button>
 
         <button type="button"
                 @onclick="() => SelectTab(MobileNavigationTab.Entries)"
-                class="flex flex-col items-center justify-center min-w-[84px] px-4 py-1.5 rounded-full transition touch-manipulation @(ActiveTab == MobileNavigationTab.Entries ? "bg-slate-800 text-blue-400 shadow-inner" : "text-slate-300 hover:text-white")">
+                class="flex flex-col items-center justify-center min-w-[84px] px-4 py-1.5 rounded-full transition touch-manipulation @(ActiveTab == MobileNavigationTab.Entries ? "bg-slate-800 text-sky-400 shadow-inner" : "text-slate-300 hover:text-white")">
             <i class="fa-solid fa-list-ul text-sm mb-0.5"></i>
             <span class="text-[11px] font-medium leading-tight">Entries</span>
         </button>

@@ -97,12 +97,12 @@ public partial class PasswordGeneratorModal : ComponentBase
         {
             if (_generatorType == "Pin")
             {
-                return _length >= 8 ? "bg-emerald-500" : _length >= 6 ? "bg-blue-500" : "bg-amber-500";
+                return _length >= 8 ? "bg-emerald-500" : _length >= 6 ? "bg-sky-500" : "bg-amber-500";
             }
 
             if (_length < 12) return "bg-rose-500";
             if (_length < 16) return "bg-amber-500";
-            if (_length < 20) return "bg-blue-500";
+            if (_length < 20) return "bg-sky-500";
             return "bg-emerald-500";
         }
     }

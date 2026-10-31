@@ -128,7 +128,7 @@ public partial class AppButton : ComponentBase
             {
                 // Solid
                 (ButtonVariant.Solid, ComponentColor.Primary) => 
-                    "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 focus-visible:ring-blue-500/50 shadow-2xs",
+                    "bg-sky-600 text-white hover:bg-sky-700 dark:bg-sky-600 dark:hover:bg-sky-500 focus-visible:ring-sky-500/50 shadow-2xs shadow-sky-600/20",
                 (ButtonVariant.Solid, ComponentColor.Secondary) => 
                     "bg-slate-700 text-white hover:bg-slate-800 dark:bg-slate-200 dark:text-slate-800 dark:hover:bg-white focus-visible:ring-slate-500/50 shadow-2xs",
                 (ButtonVariant.Solid, ComponentColor.Success) => 
@@ -138,13 +138,13 @@ public partial class AppButton : ComponentBase
                 (ButtonVariant.Solid, ComponentColor.Danger) => 
                     "bg-rose-600 text-white hover:bg-rose-700 dark:bg-rose-600 dark:hover:bg-rose-500 focus-visible:ring-rose-500/50 shadow-2xs",
                 (ButtonVariant.Solid, ComponentColor.Info) => 
-                    "bg-sky-600 text-white hover:bg-sky-700 dark:bg-sky-600 dark:hover:bg-sky-500 focus-visible:ring-sky-500/50 shadow-2xs",
+                    "bg-cyan-600 text-white hover:bg-cyan-700 dark:bg-cyan-600 dark:hover:bg-cyan-500 focus-visible:ring-cyan-500/50 shadow-2xs",
                 (ButtonVariant.Solid, _) => 
                     "bg-slate-200 text-slate-800 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600 focus-visible:ring-slate-400/50 shadow-2xs",
 
                 // Outlined
                 (ButtonVariant.Outlined, ComponentColor.Primary) => 
-                    "border border-blue-600 text-blue-600 hover:bg-blue-50 dark:border-blue-500 dark:text-blue-400 dark:hover:bg-blue-950/40 focus-visible:ring-blue-500/50",
+                    "border border-sky-600 text-sky-600 hover:bg-sky-50 dark:border-sky-500 dark:text-sky-400 dark:hover:bg-sky-950/40 focus-visible:ring-sky-500/50",
                 (ButtonVariant.Outlined, ComponentColor.Secondary) => 
                     "border border-slate-700 text-slate-700 hover:bg-slate-100 dark:border-slate-300 dark:text-slate-300 dark:hover:bg-slate-800 focus-visible:ring-slate-500/50",
                 (ButtonVariant.Outlined, ComponentColor.Success) => 
@@ -154,13 +154,13 @@ public partial class AppButton : ComponentBase
                 (ButtonVariant.Outlined, ComponentColor.Danger) => 
                     "border border-rose-600 text-rose-600 hover:bg-rose-50 dark:border-rose-500 dark:text-rose-400 dark:hover:bg-rose-950/40 focus-visible:ring-rose-500/50",
                 (ButtonVariant.Outlined, ComponentColor.Info) => 
-                    "border border-sky-600 text-sky-600 hover:bg-sky-50 dark:border-sky-500 dark:text-sky-400 dark:hover:bg-sky-950/40 focus-visible:ring-sky-500/50",
+                    "border border-cyan-600 text-cyan-600 hover:bg-cyan-50 dark:border-cyan-500 dark:text-cyan-400 dark:hover:bg-cyan-950/40 focus-visible:ring-cyan-500/50",
                 (ButtonVariant.Outlined, _) => 
                     "border border-slate-300 text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800 focus-visible:ring-slate-400/50",
 
                 // Flat
                 (ButtonVariant.Flat, ComponentColor.Primary) => 
-                    "bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-950/50 dark:text-blue-400 dark:hover:bg-blue-900/50 focus-visible:ring-blue-500/50",
+                    "bg-sky-50 text-sky-600 hover:bg-sky-100 dark:bg-sky-950/50 dark:text-sky-400 dark:hover:bg-sky-900/50 focus-visible:ring-sky-500/50",
                 (ButtonVariant.Flat, ComponentColor.Secondary) => 
                     "bg-slate-200 text-slate-700 hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600 focus-visible:ring-slate-500/50",
                 (ButtonVariant.Flat, ComponentColor.Success) => 
@@ -170,13 +170,13 @@ public partial class AppButton : ComponentBase
                 (ButtonVariant.Flat, ComponentColor.Danger) => 
                     "bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/50 dark:text-rose-400 dark:hover:bg-rose-900/50 focus-visible:ring-rose-500/50",
                 (ButtonVariant.Flat, ComponentColor.Info) => 
-                    "bg-sky-50 text-sky-600 hover:bg-sky-100 dark:bg-sky-950/50 dark:text-sky-400 dark:hover:bg-sky-900/50 focus-visible:ring-sky-500/50",
+                    "bg-cyan-50 text-cyan-600 hover:bg-cyan-100 dark:bg-cyan-950/50 dark:text-cyan-400 dark:hover:bg-cyan-900/50 focus-visible:ring-cyan-500/50",
                 (ButtonVariant.Flat, _) => 
                     "bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 focus-visible:ring-slate-400/50",
 
                 // Light
                 (ButtonVariant.Light, ComponentColor.Primary) => 
-                    "bg-transparent text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-950/40 focus-visible:ring-blue-500/50",
+                    "bg-transparent text-sky-600 hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-950/40 focus-visible:ring-sky-500/50",
                 (ButtonVariant.Light, ComponentColor.Secondary) => 
                     "bg-transparent text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 focus-visible:ring-slate-500/50",
                 (ButtonVariant.Light, ComponentColor.Success) => 
@@ -186,11 +186,11 @@ public partial class AppButton : ComponentBase
                 (ButtonVariant.Light, ComponentColor.Danger) => 
                     "bg-transparent text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-950/40 focus-visible:ring-rose-500/50",
                 (ButtonVariant.Light, ComponentColor.Info) => 
-                    "bg-transparent text-sky-600 hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-950/40 focus-visible:ring-sky-500/50",
+                    "bg-transparent text-cyan-600 hover:bg-cyan-50 dark:text-cyan-400 dark:hover:bg-cyan-950/40 focus-visible:ring-cyan-500/50",
                 (ButtonVariant.Light, _) => 
                     "bg-transparent text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 focus-visible:ring-slate-400/50",
                 _ => 
-                    "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 focus-visible:ring-blue-500/50 shadow-2xs"
+                    "bg-sky-600 text-white hover:bg-sky-700 dark:bg-sky-600 dark:hover:bg-sky-500 focus-visible:ring-sky-500/50 shadow-2xs"
             };
 
             return $"{baseClasses} {widthClasses} {disabledClasses} {sizeClasses} {radiusClasses} {colorVariantClasses} {Class}".Trim();
