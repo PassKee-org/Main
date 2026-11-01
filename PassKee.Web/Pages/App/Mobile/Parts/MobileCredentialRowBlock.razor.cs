@@ -24,6 +24,7 @@ public partial class MobileCredentialRowBlock : ComponentBase
     [Parameter] public EventCallback<DecryptedCredential> OnDuplicate { get; set; }
     [Parameter] public EventCallback<DecryptedCredential> OnShare { get; set; }
     [Parameter] public EventCallback<DecryptedCredential> OnArchive { get; set; }
+    [Parameter] public EventCallback<DecryptedCredential> OnRestore { get; set; }
     [Parameter] public EventCallback<DecryptedCredential> OnDelete { get; set; }
     [Parameter] public EventCallback<(string Value, string Label)> OnCopyValue { get; set; }
 

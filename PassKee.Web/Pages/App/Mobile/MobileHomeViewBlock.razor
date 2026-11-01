@@ -200,6 +200,7 @@
                         OnDuplicate="@DuplicateCredentialAsync"
                         OnShare="@OpenShareCredentialModalAsync"
                         OnArchive="@ArchiveCredentialAsync"
+                        OnRestore="@RestoreCredentialAsync"
                         OnDelete="@DeleteSingleArchivedCredentialAsync"
                         OnCopyValue="@(tuple => CopyToClipboardAsync(tuple.Value, tuple.Label))" />
                 }

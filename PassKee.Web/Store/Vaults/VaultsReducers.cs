@@ -201,6 +201,21 @@ public static class VaultsReducers
     }
 
     [ReducerMethod]
+    public static VaultsState ReduceRestoreCredentialSuccessAction(VaultsState state, RestoreCredentialSuccessAction action)
+    {
+        var restoredCred = action.Credential ?? state.ArchivedCredentials.FirstOrDefault(c => c.Id == action.CredentialId);
+        var updatedCredentials = restoredCred != null
+            ? state.Credentials.Where(c => c.Id != action.CredentialId).Append(restoredCred with { ArchivedAt = null, DirectoryId = null }).ToList()
+            : state.Credentials;
+
+        return state with
+        {
+            ArchivedCredentials = state.ArchivedCredentials.Where(c => c.Id != action.CredentialId).ToList(),
+            Credentials = updatedCredentials
+        };
+    }
+
+    [ReducerMethod]
     public static VaultsState ReduceUpdateCredentialPositionsAction(VaultsState state, UpdateCredentialPositionsAction action)
     {
         if (state.ActiveVaultId != action.VaultId || action.Positions.Count == 0)

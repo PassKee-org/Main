@@ -36,6 +36,9 @@ public partial class DesktopCredentialItemBlock : ComponentBase
     public EventCallback<DecryptedCredential> OnArchive { get; set; }
 
     [Parameter]
+    public EventCallback<DecryptedCredential> OnRestore { get; set; }
+
+    [Parameter]
     public EventCallback<DecryptedCredential> OnDelete { get; set; }
 
     [Parameter]

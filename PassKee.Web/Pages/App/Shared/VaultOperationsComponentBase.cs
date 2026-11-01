@@ -471,6 +471,18 @@ public abstract class VaultOperationsComponentBase : BaseReactiveComponent
         }
     }
 
+    protected async Task RestoreCredentialAsync(DecryptedCredential cred)
+    {
+        if (!VaultsState.Value.ActiveVaultId.HasValue) return;
+        var vaultId = VaultsState.Value.ActiveVaultId.Value;
+
+        var confirm = await ModalService.ShowConfirmationAsync($"Are you sure you want to restore '{cred.Payload?.Title}' to root folder?");
+        if (confirm)
+        {
+            Dispatcher.Dispatch(new RestoreCredentialAction(vaultId, cred.Id));
+        }
+    }
+
     protected async Task DeleteSingleArchivedCredentialAsync(DecryptedCredential cred)
     {
         if (!VaultsState.Value.ActiveVaultId.HasValue) return;

@@ -85,6 +85,30 @@ public class VaultsArchiveTests : BaseTest
         Assert.NotNull(archiveResponse.Credential.ArchivedAt);
         Assert.Equal(dirId, archiveResponse.Credential.DirectoryId);
 
+        // 5.1 Verify that re-archiving or sharing archived cred1 is rejected, while editing is permitted
+        var reArchiveRes = await PostRequestAsync(ApiUrl.VaultCredentialArchive(cred1Id), jwtToken, new { });
+        Assert.Equal(HttpStatusCode.BadRequest, reArchiveRes.StatusCode);
+
+        var updateArchivedRes = await PutRequestAsync(ApiUrl.VaultCredential(cred1Id), jwtToken, new UpdateCredentialRequest
+        {
+            CredentialId = cred1Id,
+            DirectoryId = dirId,
+            Type = CredentialType.Password,
+            EncryptedBody = new byte[] { 111, 112 }
+        });
+        Assert.Equal(HttpStatusCode.OK, updateArchivedRes.StatusCode);
+        var updatedArchivedResponse = await updateArchivedRes.Content.ReadFromJsonAsync<CredentialResponse>();
+        Assert.NotNull(updatedArchivedResponse?.Credential);
+        Assert.NotNull(updatedArchivedResponse.Credential.ArchivedAt);
+        Assert.Equal(new byte[] { 111, 112 }, updatedArchivedResponse.Credential.EncryptedBody);
+
+        var shareArchivedRes = await PostRequestAsync(ApiUrl.Shares, jwtToken, new PassKee.Api.Shared.Models.Shares.CreateCredentialShareRequest
+        {
+            CredentialId = cred1Id,
+            EncryptedBody = new byte[] { 1, 2, 3 }
+        });
+        Assert.Equal(HttpStatusCode.BadRequest, shareArchivedRes.StatusCode);
+
         // 6. Verify GetVaultDetails does NOT return archived cred1 (Requirement 6)
         var vaultDetailsRes = await GetRequestAsync(ApiUrl.VaultDetails(vaultId), jwtToken);
         Assert.Equal(HttpStatusCode.OK, vaultDetailsRes.StatusCode);
@@ -162,6 +186,112 @@ public class VaultsArchiveTests : BaseTest
         // 3. User 2 tries to get archived credentials from User 1's vault
         var getArchivedRes = await GetRequestAsync(ApiUrl.VaultArchivedCredentials(vault.Id), jwtToken2);
         Assert.Equal(HttpStatusCode.BadRequest, getArchivedRes.StatusCode);
+    }
+
+    [Fact]
+    public async Task Can_Restore_Archived_Credential_To_Root_Directory()
+    {
+        // 1. Arrange & Auth
+        var (jwtToken, user) = await UserSeeder.CreateAuthorizedAsync();
+
+        // 2. Create Vault
+        var createVaultRes = await PostRequestAsync(ApiUrl.Vaults, jwtToken, new CreateVaultRequest
+        {
+            Name = "Restore Vault",
+            EncryptedVaultKey = new byte[] { 1, 2, 3 }
+        });
+        var vault = (await createVaultRes.Content.ReadFromJsonAsync<VaultResponse>())!.Vault;
+
+        // 3. Create Directory
+        var createDirRes = await PostRequestAsync(ApiUrl.VaultDirectories, jwtToken, new CreateDirectoryRequest
+        {
+            VaultId = vault.Id,
+            ParentDirectoryId = null,
+            EncryptedName = new byte[] { 4, 5, 6 }
+        });
+        var dir = (await createDirRes.Content.ReadFromJsonAsync<DirectoryResponse>())!.Directory;
+
+        // 4. Create Credential inside Directory
+        var createCredRes = await PostRequestAsync(ApiUrl.VaultCredentials, jwtToken, new CreateCredentialRequest
+        {
+            VaultId = vault.Id,
+            DirectoryId = dir.Id,
+            Type = CredentialType.Login,
+            EncryptedBody = new byte[] { 7, 8, 9 }
+        });
+        var cred = (await createCredRes.Content.ReadFromJsonAsync<CredentialResponse>())!.Credential;
+        Assert.Equal(dir.Id, cred.DirectoryId);
+
+        // 5. Attempting to restore non-archived credential should fail (BadRequest)
+        var preRestoreRes = await PostRequestAsync(ApiUrl.VaultCredentialRestore(cred.Id), jwtToken, new { });
+        Assert.Equal(HttpStatusCode.BadRequest, preRestoreRes.StatusCode);
+
+        // 6. Archive credential
+        var archiveRes = await PostRequestAsync(ApiUrl.VaultCredentialArchive(cred.Id), jwtToken, new { });
+        Assert.Equal(HttpStatusCode.OK, archiveRes.StatusCode);
+        var archivedCred = (await archiveRes.Content.ReadFromJsonAsync<CredentialResponse>())!.Credential;
+        Assert.NotNull(archivedCred.ArchivedAt);
+        Assert.Equal(dir.Id, archivedCred.DirectoryId);
+
+        // Verify it is in archived list, and NOT in vault details
+        var vaultDetailsBeforeRestore = (await (await GetRequestAsync(ApiUrl.VaultDetails(vault.Id), jwtToken)).Content.ReadFromJsonAsync<VaultDetailsResponse>())!;
+        Assert.DoesNotContain(vaultDetailsBeforeRestore.Credentials, c => c.Id == cred.Id);
+
+        var archivedBeforeRestore = (await (await GetRequestAsync(ApiUrl.VaultArchivedCredentials(vault.Id), jwtToken)).Content.ReadFromJsonAsync<ArchivedCredentialsResponse>())!;
+        Assert.Contains(archivedBeforeRestore.Credentials, c => c.Id == cred.Id);
+
+        // 7. Restore credential
+        var restoreRes = await PostRequestAsync(ApiUrl.VaultCredentialRestore(cred.Id), jwtToken, new { });
+        Assert.Equal(HttpStatusCode.OK, restoreRes.StatusCode);
+        var restoredCred = (await restoreRes.Content.ReadFromJsonAsync<CredentialResponse>())!.Credential;
+
+        // Requirement: ArchivedAt == null, and sent to root directory (DirectoryId == null)
+        Assert.Null(restoredCred.ArchivedAt);
+        Assert.Null(restoredCred.DirectoryId);
+
+        // 8. Verify VaultDetails now has the restored credential in root (DirectoryId == null)
+        var vaultDetailsAfterRestore = (await (await GetRequestAsync(ApiUrl.VaultDetails(vault.Id), jwtToken)).Content.ReadFromJsonAsync<VaultDetailsResponse>())!;
+        var foundInVault = Assert.Single(vaultDetailsAfterRestore.Credentials, c => c.Id == cred.Id);
+        Assert.Null(foundInVault.DirectoryId);
+        Assert.Null(foundInVault.ArchivedAt);
+
+        // 9. Verify ArchivedCredentials no longer has the restored credential
+        var archivedAfterRestore = (await (await GetRequestAsync(ApiUrl.VaultArchivedCredentials(vault.Id), jwtToken)).Content.ReadFromJsonAsync<ArchivedCredentialsResponse>())!;
+        Assert.DoesNotContain(archivedAfterRestore.Credentials, c => c.Id == cred.Id);
+
+        // 10. Attempting to restore already restored credential should fail
+        var repeatRestoreRes = await PostRequestAsync(ApiUrl.VaultCredentialRestore(cred.Id), jwtToken, new { });
+        Assert.Equal(HttpStatusCode.BadRequest, repeatRestoreRes.StatusCode);
+    }
+
+    [Fact]
+    public async Task Non_Owner_Cannot_Restore_Credential()
+    {
+        // 1. User 1 creates vault, credential, and archives it
+        var (jwtToken1, user1) = await UserSeeder.CreateAuthorizedAsync();
+        var (jwtToken2, user2) = await UserSeeder.CreateAuthorizedAsync();
+
+        var createVaultRes = await PostRequestAsync(ApiUrl.Vaults, jwtToken1, new CreateVaultRequest
+        {
+            Name = "Owner Vault 2",
+            EncryptedVaultKey = new byte[] { 1, 2, 3 }
+        });
+        var vault = (await createVaultRes.Content.ReadFromJsonAsync<VaultResponse>())!.Vault;
+
+        var createCredRes = await PostRequestAsync(ApiUrl.VaultCredentials, jwtToken1, new CreateCredentialRequest
+        {
+            VaultId = vault.Id,
+            Type = CredentialType.Login,
+            EncryptedBody = new byte[] { 4, 5, 6 }
+        });
+        var cred = (await createCredRes.Content.ReadFromJsonAsync<CredentialResponse>())!.Credential;
+
+        var archiveRes = await PostRequestAsync(ApiUrl.VaultCredentialArchive(cred.Id), jwtToken1, new { });
+        Assert.Equal(HttpStatusCode.OK, archiveRes.StatusCode);
+
+        // 2. User 2 tries to restore User 1's credential
+        var restoreRes = await PostRequestAsync(ApiUrl.VaultCredentialRestore(cred.Id), jwtToken2, new { });
+        Assert.Equal(HttpStatusCode.BadRequest, restoreRes.StatusCode);
     }
 }
 

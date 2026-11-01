@@ -161,6 +161,11 @@ public class VaultClientService : IVaultClientService
         return _apiService.ArchiveCredentialAsync(credentialId);
     }
 
+    public Task<CredentialDto?> RestoreCredentialAsync(Guid credentialId)
+    {
+        return _apiService.RestoreCredentialAsync(credentialId);
+    }
+
     public Task UpdateCredentialPositionsAsync(Guid vaultId, IDictionary<Guid, int> items)
     {
         var request = new UpdateCredentialPositionsRequest

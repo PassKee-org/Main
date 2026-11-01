@@ -29,6 +29,11 @@ public partial class MobileVaultViewBlock : VaultOperationsComponentBase
             return;
         }
 
+        if (tab == MobileNavigationTab.Groups && VaultsState.Value.IsArchiveSelected)
+        {
+            SelectDirectory(null);
+        }
+
         Dispatcher.Dispatch(new SetMobileNavigationTabAction(tab));
     }
 }

@@ -91,6 +91,17 @@ public class CredentialDao : BaseDao, ICredentialDao
         return credential;
     }
 
+    public async Task<CredentialEntity> RestoreAsync(CredentialEntity credential, CancellationToken cancellationToken = default)
+    {
+        credential.ArchivedAt = null;
+        credential.DirectoryId = null;
+        credential.Order = await GetNextOrderAsync(credential.VaultId, null, cancellationToken);
+        credential.UpdatedAt = DateTime.UtcNow;
+
+        await Session.UpdateAsync(credential, cancellationToken);
+        return credential;
+    }
+
     public async Task UpdatePositionsAsync(Guid vaultId, IDictionary<Guid, int> items, CancellationToken cancellationToken = default)
     {
         if (items.Count == 0)

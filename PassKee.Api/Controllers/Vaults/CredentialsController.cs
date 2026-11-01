@@ -49,6 +49,12 @@ public class CredentialsController : MainApiControllerBase
             .For<CredentialResponse>()
             .With(new ArchiveCredentialRequest { CredentialId = credentialId });
 
+    [HttpPost("{credentialId:guid}/restore")]
+    public Task<IActionResult> Restore([FromRoute] System.Guid credentialId)
+        => this.RequestAsync()
+            .For<CredentialResponse>()
+            .With(new RestoreCredentialRequest { CredentialId = credentialId });
+
     [HttpPost("update-positions")]
     public Task<IActionResult> UpdatePositions([FromBody] UpdateCredentialPositionsRequest request)
         => this.RequestAsync(request);
