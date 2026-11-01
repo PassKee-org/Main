@@ -40,6 +40,10 @@ public class CreateCredentialShareRequestHandler : IAsyncRequestHandler<CreateCr
             if (cred != null)
             {
                 await _securityService.CheckAccess(AccessLevel.Read, userId, cred);
+                if (cred.ArchivedAt != null)
+                {
+                    throw new RecordCanNotBeModifiedException("Archived credential cannot be shared.");
+                }
             }
         }
 

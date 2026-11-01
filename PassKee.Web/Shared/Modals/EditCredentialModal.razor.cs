@@ -435,6 +435,18 @@ public partial class EditCredentialModal : ComponentBase
         }
     }
 
+    private async Task RestoreAsync()
+    {
+        if (!_credentialId.HasValue || !_credentialVaultId.HasValue) return;
+
+        var confirm = await ModalService.ShowConfirmationAsync($"Are you sure you want to restore \"{Title}\" to root folder?");
+        if (confirm)
+        {
+            Dispatcher.Dispatch(new RestoreCredentialAction(_credentialVaultId.Value, _credentialId.Value));
+            ModalService.Close(ModalInstance, AppModalResult.Ok());
+        }
+    }
+
     private async Task DeleteAsync()
     {
         if (!_credentialId.HasValue || !_credentialVaultId.HasValue) return;

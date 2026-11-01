@@ -134,6 +134,30 @@ public partial class MobileGroupsViewBlock : VaultOperationsComponentBase
         }
     }
 
+    private async Task RestoreSelectedCredentialsAsync()
+    {
+        if (!VaultsState.Value.ActiveVaultId.HasValue || _selectedCredentialIds.Count == 0)
+        {
+            return;
+        }
+
+        var vaultId = VaultsState.Value.ActiveVaultId.Value;
+        var count = _selectedCredentialIds.Count;
+        var confirm = await ModalService.ShowConfirmationAsync(
+            $"Are you sure you want to restore {count} {(count == 1 ? "entry" : "entries")} to root folder?");
+        if (!confirm)
+        {
+            return;
+        }
+
+        var ids = _selectedCredentialIds.ToList();
+        await ExitSelectionMode();
+        foreach (var id in ids)
+        {
+            Dispatcher.Dispatch(new RestoreCredentialAction(vaultId, id));
+        }
+    }
+
     private async Task DeleteSelectedCredentialsAsync()
     {
         if (!VaultsState.Value.ActiveVaultId.HasValue || _selectedCredentialIds.Count == 0)

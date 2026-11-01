@@ -22,6 +22,7 @@ public partial class DesktopCredentialListBlock : VaultOperationsComponentBase
 
     private readonly HashSet<Guid> _selectedArchivedCredentialIds = [];
     private bool _isDeletingArchived;
+    private bool _isRestoringArchived;
 
     private bool HasArchivedSelection => VaultsState.Value.IsArchiveSelected && _selectedArchivedCredentialIds.Count > 0;
     private bool IsReorderEnabled => !IsSearchActive && !VaultsState.Value.IsArchiveSelected;
@@ -162,6 +163,39 @@ public partial class DesktopCredentialListBlock : VaultOperationsComponentBase
         {
             _selectedArchivedCredentialIds.Remove(cred.Id);
             Dispatcher.Dispatch(new DeleteCredentialAction(vaultId, cred.Id));
+        }
+    }
+
+    private async Task RestoreSelectedArchivedCredentialsAsync()
+    {
+        if (!VaultsState.Value.ActiveVaultId.HasValue || _selectedArchivedCredentialIds.Count == 0 || _isRestoringArchived)
+        {
+            return;
+        }
+
+        var count = _selectedArchivedCredentialIds.Count;
+        var entryWord = count == 1 ? "entry" : "entries";
+        var confirm = await ModalService.ShowConfirmationAsync(
+            $"Are you sure you want to restore {count} archived {entryWord} to root folder?");
+        if (!confirm)
+        {
+            return;
+        }
+
+        _isRestoringArchived = true;
+        try
+        {
+            var vaultId = VaultsState.Value.ActiveVaultId.Value;
+            var idsToRestore = _selectedArchivedCredentialIds.ToList();
+            _selectedArchivedCredentialIds.Clear();
+            foreach (var id in idsToRestore)
+            {
+                Dispatcher.Dispatch(new RestoreCredentialAction(vaultId, id));
+            }
+        }
+        finally
+        {
+            _isRestoringArchived = false;
         }
     }
 

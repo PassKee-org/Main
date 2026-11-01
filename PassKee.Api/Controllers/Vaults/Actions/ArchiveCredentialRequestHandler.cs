@@ -4,6 +4,7 @@ using AutoMapper;
 using PassKee.Api.Services.Security;
 using PassKee.Api.Shared.Models.Vaults;
 using PassKee.Business.Common.Constants;
+using PassKee.Business.Common.Exceptions.Api;
 using PassKee.Business.Services.Http;
 using PassKee.Orm.Dao.Vaults;
 
@@ -33,6 +34,11 @@ public class ArchiveCredentialRequestHandler : IAsyncRequestHandler<ArchiveCrede
         var userId = _apiRequestService.GetCurrentUserId();
         var cred = await _credentialDao.GetById(request.CredentialId);
         await _securityService.CheckAccess(AccessLevel.Write, userId, cred);
+
+        if (cred!.ArchivedAt != null)
+        {
+            throw new RecordCanNotBeModifiedException("Credential is already archived.");
+        }
 
         await _credentialDao.ArchiveAsync(cred!);
         return new CredentialResponse

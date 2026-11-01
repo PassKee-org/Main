@@ -22,6 +22,7 @@ public class ApiUrl
     public const string VaultCredentialsUpdatePositions = "api/vaults/credentials/update-positions";
     public static string VaultCredential(Guid credentialId) => $"api/vaults/credentials/{credentialId}";
     public static string VaultCredentialArchive(Guid credentialId) => $"api/vaults/credentials/{credentialId}/archive";
+    public static string VaultCredentialRestore(Guid credentialId) => $"api/vaults/credentials/{credentialId}/restore";
     public static string VaultArchivedCredentials(Guid vaultId) => $"api/vaults/{vaultId}/credentials/archived";
     public const string VaultTags = "api/vaults/tags";
     public static string VaultTag(Guid tagId) => $"api/vaults/tags/{tagId}";
