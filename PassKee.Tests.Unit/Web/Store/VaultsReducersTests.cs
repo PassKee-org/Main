@@ -149,11 +149,12 @@ public class VaultsReducersTests
     }
 
     [Fact]
-    public void ReduceSelectDirectoryAction_ResetsIsArchiveSelected()
+    public void ReduceSelectDirectoryAction_ResetsIsArchiveSelectedAndClearsSearchQuery()
     {
         var state = new VaultsState
         {
-            IsArchiveSelected = true
+            IsArchiveSelected = true,
+            SearchQuery = "cloudf"
         };
         var dirId = Guid.NewGuid();
 
@@ -161,6 +162,24 @@ public class VaultsReducersTests
 
         Assert.False(nextState.IsArchiveSelected);
         Assert.Equal(dirId, nextState.SelectedDirectoryId);
+        Assert.Equal(string.Empty, nextState.SearchQuery);
+    }
+
+    [Fact]
+    public void ReduceSelectDirectoryAction_WhenSelectingRoot_ClearsSearchQuery()
+    {
+        var state = new VaultsState
+        {
+            SelectedDirectoryId = null,
+            IsArchiveSelected = false,
+            SearchQuery = "cloudf"
+        };
+
+        var nextState = VaultsReducers.ReduceSelectDirectoryAction(state, new SelectDirectoryAction(null));
+
+        Assert.False(nextState.IsArchiveSelected);
+        Assert.Null(nextState.SelectedDirectoryId);
+        Assert.Equal(string.Empty, nextState.SearchQuery);
     }
 
     [Fact]
