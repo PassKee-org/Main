@@ -133,7 +133,7 @@
                         ItemCount="@snapshot.GetTotalItemCount(dir.Id)"
                         SubdirectoryCount="@snapshot.GetSubdirectoryCount(dir.Id)"
                         IsDropUp="@isDropUp"
-                        OnSelect="@HandleSelectDirectory"
+                        OnSelect="@SelectDirectory"
                         OnAddSubdirectory="@OpenCreateSubDirectoryModalAsync"
                         OnEdit="@OpenEditDirectoryModalAsync"
                         OnMove="@OpenMoveDirectoryModalAsync"

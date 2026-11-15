@@ -60,15 +60,6 @@ public partial class MobileGroupsViewBlock : VaultOperationsComponentBase
         }
     }
 
-    private void HandleSelectDirectory(Guid? directoryId)
-    {
-        if (IsSearchActive)
-        {
-            ClearSearch();
-        }
-        SelectDirectory(directoryId);
-    }
-
     private async Task EnterSelectionModeWithCredential(DecryptedCredential cred)
     {
         _selectedCredentialIds.Clear();

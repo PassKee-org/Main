@@ -24,6 +24,7 @@ public partial class DesktopHeaderBlock : VaultOperationsComponentBase
         base.OnParametersSet();
         if (string.IsNullOrEmpty(VaultsState.Value.SearchQuery) && !string.IsNullOrEmpty(_localSearchQuery))
         {
+            _debounceCts?.Cancel();
             _localSearchQuery = string.Empty;
         }
     }

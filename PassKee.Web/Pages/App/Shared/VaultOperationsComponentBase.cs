@@ -211,7 +211,6 @@ public abstract class VaultOperationsComponentBase : BaseReactiveComponent
 
     protected void SelectDirectoryFromSearch(Guid? directoryId)
     {
-        Dispatcher.Dispatch(new ClearSearchQueryAction());
         Dispatcher.Dispatch(new SelectDirectoryAction(directoryId));
         if (UiState.Value.ActiveMobileTab != MobileNavigationTab.Groups)
         {

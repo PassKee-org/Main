@@ -40,7 +40,7 @@ public static class VaultsReducers
 
     [ReducerMethod]
     public static VaultsState ReduceSelectDirectoryAction(VaultsState state, SelectDirectoryAction action)
-        => state with { SelectedDirectoryId = action.DirectoryId, IsArchiveSelected = false };
+        => state with { SelectedDirectoryId = action.DirectoryId, IsArchiveSelected = false, SearchQuery = string.Empty };
 
     [ReducerMethod]
     public static VaultsState ReduceSelectArchiveAction(VaultsState state, SelectArchiveAction action)
